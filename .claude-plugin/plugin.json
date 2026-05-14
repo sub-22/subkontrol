@@ -1,0 +1,36 @@
+{
+  "name": "morai",
+  "description": "Morai — AI Operator cho team phát triển phần mềm. Self-learning, adaptive, BA→QA pipeline.",
+  "version": "0.5.0",
+  "author": {
+    "name": "morai"
+  },
+  "defaultAgent": "morai",
+  "userConfig": {
+    "jira_url": {
+      "type": "string",
+      "title": "Jira URL",
+      "description": "e.g. https://yourorg.atlassian.net"
+    },
+    "confluence_url": {
+      "type": "string",
+      "title": "Confluence URL",
+      "description": "e.g. https://yourorg.atlassian.net/wiki"
+    },
+    "slack_channel": {
+      "type": "string",
+      "title": "Slack default channel",
+      "description": "Channel nhận notifications, e.g. #dev-pipeline"
+    },
+    "workspace_root": {
+      "type": "string",
+      "title": "Workspace root path",
+      "description": "Absolute path tới project đang làm việc"
+    },
+    "memory_path": {
+      "type": "string",
+      "title": "Memory storage path",
+      "description": "Nơi Morai lưu long-term memory (default: .morai/memory)"
+    }
+  }
+}

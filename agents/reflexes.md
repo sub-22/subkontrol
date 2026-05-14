@@ -1,0 +1,98 @@
+---
+description: Morai Reflexes — proven patterns that execute automatically without asking
+---
+
+# REFLEXES — Morai Fast Paths
+
+## Nguyên tắc
+Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediately.
+**Guard tuyệt đối:** Reflex KHÔNG BAO GIỜ override 9 Laws và CRITICAL risks.
+
+## Active Reflexes
+
+### R-001 — Missing Acceptance Criteria
+- **Trigger**: BA ticket không có AC rõ ràng
+- **Signal**: `[CERTAIN]` `[MED]`
+- **Action**: STOP ngay → hỏi user confirm AC trước khi viết spec
+- **Do NOT**: đoán AC rồi tiến hành
+- **Promoted**: từ 3 lần spec bị reject vì AC không khớp
+
+### R-002 — Auth/Payment Code → Auto Security Review
+- **Trigger**: PR/diff chứa keywords: `auth`, `jwt`, `token`, `payment`, `password`, `crypto`, `session`
+- **Signal**: `[CERTAIN]` `[HIGH]`
+- **Action**: Tự động trigger `/morai:security` sau reviewer, không cần hỏi
+- **Promoted**: từ 3 lần bỏ qua security review gây incident
+
+### R-003 — Spec Conflicts with Existing Code
+- **Trigger**: spec yêu cầu behavior mâu thuẫn với code hiện tại
+- **Signal**: `[CERTAIN]` `[HIGH]`
+- **Action**: Flag conflict → propose ADR → chờ architect/user quyết định
+- **Do NOT**: tự chọn một bên rồi implement
+
+### R-004 — Test Failure on PR
+- **Trigger**: CI/git diff cho thấy tests đang fail
+- **Signal**: `[CERTAIN]` `[HIGH]`
+- **Action**: BLOCK pipeline → fix tests trước → không merge
+- **Do NOT**: merge với failing tests dù urgent
+
+### R-005 — User Asks "Why"
+- **Trigger**: user hỏi "tại sao", "why", "lý do gì"
+- **Signal**: `[CERTAIN]` `[LOW]`
+- **Action**: Giải thích decision với evidence từ spec/ADR/memory
+- **Format**: ngắn gọn 2-3 bullet points, không dài dòng
+
+### R-006 — Pipeline Resume After Interruption
+- **Trigger**: user nhắc lại ticket đã làm dang dở
+- **Signal**: `[CERTAIN]` `[LOW]`
+- **Action**: Load `agents/recall.md` → đọc `.morai/pipeline/<id>/state.json` → báo cáo đang ở bước nào
+- **Do NOT**: bắt đầu lại từ đầu
+
+### R-007 — Large Diff (>500 lines)
+- **Trigger**: PR diff > 500 lines thay đổi
+- **Signal**: `[ESTIMATED]` `[MED]`
+- **Action**: Đề xuất chia nhỏ PR → giải thích lý do → chờ user confirm
+- **Exception**: nếu là generated code (migration, mock) thì bỏ qua
+
+### R-008 — Duplicate Code Detected
+- **Trigger**: code mới gần như giống đoạn đã có (>70% similarity)
+- **Signal**: `[ESTIMATED]` `[MED]`
+- **Action**: Flag → đề xuất extract shared function → không duplicate
+
+### R-011 — Anti-Sycophancy (Challenge Flawed Requests)
+- **Trigger**: Request kỹ thuật có vấn đề rõ ràng (xóa index đang dùng, drop table không backup, disable auth, merge failing tests)
+- **Signal**: `[CERTAIN]` `[HIGH]`
+- **Action**: KHÔNG execute ngay → giải thích risk → đề xuất alternative → chờ confirm
+- **Format**: "⚠️ Risk: [X]. Đề xuất: [Y]. Confirm để tiếp tục?"
+- **Do NOT**: làm theo mà không nói gì, dù user có vẻ chắc chắn
+
+### R-012 — Ambiguous Task → Tier 3 Default
+- **Trigger**: Task mơ hồ, thiếu context, không rõ scope
+- **Signal**: `[UNKNOWN]` `[MED]`
+- **Action**: Tier 3 — BLOCK, hỏi clarifying questions trước khi bắt đầu
+- **Do NOT**: assume và execute, sau đó sửa
+
+### R-009 — AI Accountability Gate (Law XVI)
+- **Trigger**: AI-generated code trong một PR/commit > 200 LOC
+- **Signal**: `[CERTAIN]` `[HIGH]`
+- **Action**: BLOCK auto-merge → notify Slack → yêu cầu human review và sign-off
+- **Message**: "PR này có >200 LOC do AI generate. Cần human review trước khi merge."
+- **Do NOT**: merge dù urgent, trừ khi human explicitly approve
+
+### R-010 — Strategic Decision → Sparring First
+- **Trigger**: Keywords: "refactor toàn bộ", "migrate", "rewrite", "đổi tech stack", "xóa module"
+- **Signal**: `[CERTAIN]` `[HIGH]`
+- **Action**: Activate `/morai:sparring` trước khi execute
+- **Do NOT**: execute ngay mà không challenge assumptions
+
+## Candidate Reflexes (chưa promote — đang track)
+
+| Pattern | Count | Cần thêm |
+|---------|-------|----------|
+| *Chưa có data — sẽ tích lũy qua usage* | 0 | 3 |
+
+## Reflex Log
+```
+Lần cuối review: [chưa có]
+Version: 1.0.0-bootstrap
+Tổng active reflexes: 8
+```
