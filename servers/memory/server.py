@@ -11,7 +11,7 @@ from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
-from servers._env import resolve_path
+from servers._env import resolve, resolve_path
 
 mcp = FastMCP("morai-memory")
 
@@ -341,7 +341,7 @@ def archive_old_episodes(days: int = 90) -> str:
     return f"Archived {len(archive)} episodes → {archive_filename}. Kept {len(keep)}."
 
 
-_design_repo_str = os.getenv("MORAI_DESIGN_REPO", "")
+_design_repo_str = resolve("MORAI_DESIGN_REPO", "")
 DESIGN_REPO: Path | None = Path(_design_repo_str) if _design_repo_str else None
 
 
