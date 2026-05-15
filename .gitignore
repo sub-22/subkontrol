@@ -14,6 +14,9 @@ build/
 .env.local
 .env.*.local
 
+# Claude Code — local personal settings (track settings.json, ignore *.local.json)
+.claude/settings.local.json
+
 # Morai — per-project runtime (không track)
 .morai/rag/
 .morai/pipeline/
