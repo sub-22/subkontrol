@@ -1,7 +1,6 @@
 """Test runner MCP server — chạy pytest, coverage, và detect test framework."""
 
 import json
-import os
 import subprocess
 import sys
 import tempfile
@@ -9,9 +8,11 @@ from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
+from servers._env import resolve_path
+
 mcp = FastMCP("morai-test")
 
-WORKSPACE_ROOT = Path(os.getenv("WORKSPACE_ROOT", "."))
+WORKSPACE_ROOT = resolve_path("WORKSPACE_ROOT", ".")
 
 
 @mcp.tool()

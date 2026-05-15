@@ -13,10 +13,11 @@
       "description": "Absolute path tới project đang làm việc",
       "required": true
     },
-    "MEMORY_PATH": {
+    "MORAI_GLOBAL_PATH": {
       "type": "string",
-      "title": "Memory storage path",
-      "description": "Nơi Morai lưu long-term memory (default: .morai/memory)"
+      "title": "Morai global data path",
+      "description": "Absolute path nơi Morai lưu memory, tasks, và pipeline state (default: ~/.morai)",
+      "required": true
     },
     "JIRA_URL": {
       "type": "string",

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 import subprocess
 from datetime import UTC, datetime, timedelta
@@ -12,10 +11,12 @@ from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
+from servers._env import resolve_path
+
 mcp = FastMCP("morai-memory")
 
-MEMORY_ROOT = Path(os.getenv("MORAI_MEMORY_PATH", ".morai/memory"))
-TASKS_ROOT = Path(os.getenv("MORAI_TASKS_PATH", ".morai/tasks"))
+MEMORY_ROOT = resolve_path("MORAI_MEMORY_PATH", ".morai/memory")
+TASKS_ROOT = resolve_path("MORAI_TASKS_PATH", ".morai/tasks")
 
 
 def _ensure_dirs() -> None:

@@ -14,9 +14,11 @@ from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
+from servers._env import resolve_path
+
 mcp = FastMCP("morai-pipeline")
 
-PIPELINE_ROOT = Path(os.getenv("MORAI_PIPELINE_PATH", ".morai/pipeline"))
+PIPELINE_ROOT = resolve_path("MORAI_PIPELINE_PATH", ".morai/pipeline")
 
 # ── FSM Definition ─────────────────────────────────────────────────────────────
 

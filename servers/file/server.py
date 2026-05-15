@@ -8,16 +8,17 @@ Zone model:
 """
 
 import json
-import os
 import subprocess
 from collections import defaultdict
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
+from servers._env import resolve_path
+
 mcp = FastMCP("morai-file")
 
-WORKSPACE_ROOT = Path(os.getenv("WORKSPACE_ROOT", "."))
+WORKSPACE_ROOT = resolve_path("WORKSPACE_ROOT", ".")
 
 # Directories considered "artifact zone" — non-source Morai outputs
 ARTIFACT_DIRS = frozenset(

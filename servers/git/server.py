@@ -1,15 +1,16 @@
 """Git MCP server — status, diff, commit, branch, push, PR operations."""
 
-import os
 import subprocess
 from pathlib import Path
 from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
+from servers._env import resolve_path
+
 mcp = FastMCP("morai-git")
 
-WORKSPACE_ROOT = Path(os.getenv("WORKSPACE_ROOT", "."))
+WORKSPACE_ROOT = resolve_path("WORKSPACE_ROOT", ".")
 
 
 def _run(cmd: list[str], check: bool = True) -> dict:
