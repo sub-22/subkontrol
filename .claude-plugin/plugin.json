@@ -5,7 +5,6 @@
   "author": {
     "name": "morai"
   },
-  "skills": "../skills",
   "defaultAgent": "morai",
   "userConfig": {
     "MORAI_GLOBAL_PATH": {
