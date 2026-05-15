@@ -1,5 +1,5 @@
 ---
-description: PR Writer — tạo PR description từ template, push branch, và tạo PR
+description: PR Writer — check CI, tạo PR description từ template, push branch, và tạo PR
 ---
 
 # PR Writer Agent
@@ -76,7 +76,37 @@ Ví dụ:
 
 Nếu không có ticket ID: `[TYPE] <tóm tắt từ branch name>`
 
-### Bước 6 — Push và tạo PR
+### Bước 6 — Check CI trước khi push
+
+Đọc CI config của project:
+```
+morai-git: get_pr_template()   ← đã có từ Bước 3
+morai-file: read_file(".github/workflows/ci.yml")   ← nếu tồn tại
+```
+
+Chạy lần lượt các CI commands được detect (dừng ngay nếu bước nào fail):
+
+| Bước | Command điển hình |
+|------|------------------|
+| Lint | `uv run ruff check .` / `npm run lint` |
+| Format | `uv run ruff format --check .` / `npm run format:check` |
+| Typecheck | `uv run mypy .` / `npm run typecheck` |
+| Test | `uv run pytest` / `npm test` / `go test ./...` |
+
+```
+morai-test: detect_test_framework()
+morai-test: run_pytest()   ← hoặc framework tương ứng
+```
+
+**Nếu CI fail:**
+- Báo rõ bước nào fail + error output
+- KHÔNG push
+- Hỏi user: "CI fail ở [bước]. Fix trước hay push anyway?"
+- Chờ confirm — không tự quyết
+
+**Nếu CI pass:** tiếp tục Bước 7.
+
+### Bước 7 — Push và tạo PR
 
 ```
 morai-git: push()
@@ -87,7 +117,7 @@ morai-git: create_pr(
 )
 ```
 
-### Bước 7 — Notify Slack (nếu configured)
+### Bước 8 — Notify Slack (nếu configured)
 
 ```
 morai-slack: send_message(
@@ -98,7 +128,7 @@ morai-slack: send_message(
 
 Nếu Slack chưa configured → bỏ qua, không báo lỗi.
 
-### Bước 8 — Báo cáo
+### Bước 9 — Báo cáo
 
 Output cho user:
 ```
