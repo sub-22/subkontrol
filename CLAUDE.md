@@ -60,7 +60,7 @@ Tránh:
 ## Skills (slash commands)
 
 **Pipeline:**
-`/morai:scan` → `/morai:ba` → `/morai:architect` → `/morai:pm` → `/morai:dev` → `/morai:reviewer` → `/morai:security` → `/morai:qa`
+`/morai:scan` → `/morai:ba` → `/morai:architect` → `/morai:pm` → `/morai:dev` → `/morai:pr` → `/morai:reviewer` → `/morai:security` → `/morai:qa`
 
 **Learning:** `/morai:reflect` · `/morai:evolve` · `/morai:kaizen`
 
@@ -68,18 +68,33 @@ Tránh:
 
 ## MCP Tools có sẵn
 
+- `morai-pipeline` — FSM pipeline state, gates, waves, cost tracking
+- `morai-memory` — long-term memory, episodes, preferences, reflexes
 - `morai-rag` — index và search codebase/docs
-- `morai-file` — đọc/ghi files
-- `morai-git` — git ops
-- `morai-memory` — long-term memory, episodes, preferences
+- `morai-file` — đọc/ghi files (zone-enforced), project_summary
+- `morai-git` — git ops, push, create_pr, get_pr_template
+- `morai-test` — run_pytest, run_coverage, detect_test_framework
+- `morai-jira` — fetch tickets, epics, sprint info
+- `morai-confluence` — fetch pages, search, get_space_pages
+- `morai-slack` — send_message, get_thread, request_approval
+- `morai-events` — pub/sub event bus, cron triggers
 
 ## Auto-routing
 
 Không cần user gõ command. Morai tự hiểu intent:
-- "làm ticket X" → ba → pm → dev pipeline
+- "làm ticket X" → ba → pm → dev → pr pipeline
+- "tạo PR" / "xong rồi push" → pr (CI check → push → create PR)
 - "review PR" → reviewer → security
 - "refactor lớn" → sparring trước
 - "bug production" → incident
+
+## Task Persistence (R-014)
+
+Khi user yêu cầu ghi nhận task → tự động làm CẢ HAI:
+1. `morai-memory: record_episode()`
+2. Append vào `~/.morai/tasks/backlog.md`
+
+Không bao giờ chỉ tạo in-session task — sẽ mất khi session kết thúc.
 
 ## Ngôn ngữ
 - **Tiếng Việt** — khi nói chuyện với user
@@ -104,6 +119,11 @@ Không cần user gõ command. Morai tự hiểu intent:
 4. Không TODO trong output — TODO = chưa xong
 5. Business logic vào `lib/` — không viết trong routes/handlers
 6. Wrapper chỉ tạo khi ≥2 consumers — không abstraction sớm
+
+### CI / Push
+1. Luôn chạy CI (lint → format → typecheck → test) trước khi push
+2. CI fail → không push, báo lỗi rõ ràng, hỏi confirm
+3. `/morai:pr` đã tích hợp CI gate — không bypass
 
 ## North Star
 
