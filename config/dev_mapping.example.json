@@ -1,0 +1,18 @@
+{
+  "_comment": "Maps git user.email → Jira assignee. Copy to dev_mapping.json and fill in real values.",
+  "devs": {
+    "dev@example.com": {
+      "git_name": "your-git-username",
+      "jira_account_id": "your-jira-account-id",
+      "jira_display_name": "Your Name",
+      "jira_email": "dev@example.com",
+      "project_keys": ["PROJ"]
+    }
+  },
+  "defaults": {
+    "max_tasks": 10,
+    "priority_order": ["Blocker", "Critical", "High", "Medium", "Low", "Trivial"],
+    "status_filter": ["To Do", "In Progress", "Open"],
+    "sprint_only": true
+  }
+}
