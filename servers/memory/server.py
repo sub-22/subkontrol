@@ -14,11 +14,13 @@ from mcp.server.fastmcp import FastMCP
 mcp = FastMCP("morai-memory")
 
 MEMORY_ROOT = Path(os.getenv("MORAI_MEMORY_PATH", ".morai/memory"))
+TASKS_ROOT = Path(os.getenv("MORAI_TASKS_PATH", ".morai/tasks"))
 
 
 def _ensure_dirs() -> None:
     for d in ["", "archive"]:
         (MEMORY_ROOT / d).mkdir(parents=True, exist_ok=True)
+    TASKS_ROOT.mkdir(parents=True, exist_ok=True)
 
 
 def _read_md(filename: str) -> str:

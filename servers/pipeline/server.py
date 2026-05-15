@@ -16,7 +16,7 @@ from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("morai-pipeline")
 
-PIPELINE_ROOT = Path(os.getenv("MORAI_MEMORY_PATH", ".morai/memory")).parent / "pipeline"
+PIPELINE_ROOT = Path(os.getenv("MORAI_PIPELINE_PATH", ".morai/pipeline"))
 
 # ── FSM Definition ─────────────────────────────────────────────────────────────
 

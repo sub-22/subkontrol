@@ -1,56 +1,43 @@
-"""Morai MCP server — Slack integration via Socket Mode."""
+"""Morai MCP server — Slack integration tools."""
 
 import os
+import time
 
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("morai-slack")
 
 SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN", "")
-SLACK_APP_TOKEN = os.getenv("SLACK_APP_TOKEN", "")
+_NOT_CONFIGURED = "morai-slack not configured — set SLACK_BOT_TOKEN in .env"
 
-_NOT_CONFIGURED = "morai-slack not configured — set SLACK_BOT_TOKEN and SLACK_APP_TOKEN in .env"
+
+def _client():
+    from slack_sdk import WebClient
+    return WebClient(token=SLACK_BOT_TOKEN)
 
 
 def _is_configured() -> bool:
-    return bool(SLACK_BOT_TOKEN and SLACK_APP_TOKEN)
+    return bool(SLACK_BOT_TOKEN)
 
 
 @mcp.tool()
 def send_message(channel: str, text: str, thread_ts: str | None = None) -> str:
-    """Gửi message đến Slack channel.
+    """Gửi message đến Slack channel hoặc thread.
 
     Args:
-        channel: Channel ID hoặc name, e.g. "#dev-pipeline" hoặc "C01234"
-        text: Nội dung message (supports Slack markdown)
-        thread_ts: Thread timestamp nếu muốn reply vào thread
+        channel: Channel ID hoặc name, e.g. "C01234" hoặc "#dev-pipeline"
+        text: Nội dung message (supports Slack mrkdwn)
+        thread_ts: Thread timestamp để reply vào thread (optional)
     Returns:
-        Message timestamp (ts) hoặc error string nếu chưa configure
+        Message timestamp (ts) hoặc error string
     """
     if not _is_configured():
         return _NOT_CONFIGURED
-    # TODO: implement Slack WebClient.chat_postMessage
-    return f"morai-slack: send_message not yet implemented. channel={channel}"
-
-
-@mcp.tool()
-def request_approval(channel: str, message: str, context: str = "") -> str:
-    """Gửi approval request và chờ human react ✅ hoặc ❌.
-
-    Args:
-        channel: Slack channel để gửi request
-        message: Mô tả action cần approve
-        context: Context thêm để human quyết định
-    Returns:
-        "approved" | "rejected" | error string
-    """
-    if not _is_configured():
-        # Slack not configured — surface to LLM to ask user directly instead
-        return (
-            f"SLACK_NOT_CONFIGURED: Cannot send approval request. Ask the user directly: {message}"  # noqa: E501
-        )
-    # TODO: implement approval flow với Block Kit buttons
-    return f"morai-slack: request_approval not yet implemented. Ask the user directly: {message}"
+    kwargs: dict = {"channel": channel, "text": text}
+    if thread_ts:
+        kwargs["thread_ts"] = thread_ts
+    resp = _client().chat_postMessage(**kwargs)
+    return resp["ts"]
 
 
 @mcp.tool()
@@ -59,27 +46,87 @@ def get_thread(channel: str, thread_ts: str) -> list[dict]:
 
     Args:
         channel: Channel ID
-        thread_ts: Thread timestamp
+        thread_ts: Thread timestamp (ts của message gốc)
     Returns:
         List of {"user": str, "text": str, "ts": str}
     """
     if not _is_configured():
         return [{"error": _NOT_CONFIGURED}]
-    # TODO: implement conversations.replies
-    return [{"error": f"morai-slack: get_thread not yet implemented. thread_ts={thread_ts}"}]
+    resp = _client().conversations_replies(channel=channel, ts=thread_ts)
+    return [
+        {"user": m.get("user", m.get("bot_id", "unknown")), "text": m.get("text", ""), "ts": m["ts"]}
+        for m in resp.get("messages", [])
+    ]
 
 
 @mcp.tool()
-def get_pending_messages(channel: str) -> list[dict]:
-    """Lấy messages chưa được xử lý từ channel.
+def get_pending_messages(channel: str, since_ts: str | None = None) -> list[dict]:
+    """Lấy messages gần nhất từ channel.
 
     Args:
         channel: Channel ID
+        since_ts: Chỉ lấy messages sau timestamp này (optional)
+    Returns:
+        List of {"user": str, "text": str, "ts": str}
     """
     if not _is_configured():
         return [{"error": _NOT_CONFIGURED}]
-    # TODO: implement message queue
-    return [{"error": f"morai-slack: get_pending_messages not yet implemented. channel={channel}"}]
+    kwargs: dict = {"channel": channel, "limit": 20}
+    if since_ts:
+        kwargs["oldest"] = since_ts
+    resp = _client().conversations_history(**kwargs)
+    return [
+        {"user": m.get("user", m.get("bot_id", "unknown")), "text": m.get("text", ""), "ts": m["ts"]}
+        for m in resp.get("messages", [])
+        if not m.get("bot_id")
+    ]
+
+
+@mcp.tool()
+def request_approval(
+    channel: str,
+    message: str,
+    context: str = "",
+    timeout_seconds: int = 300,
+) -> str:
+    """Gửi approval request lên Slack và chờ human react ✅ hoặc ❌.
+
+    Post message với hướng dẫn react, poll reactions trong timeout.
+
+    Args:
+        channel: Slack channel để gửi request
+        message: Mô tả action cần approve
+        context: Context thêm để human quyết định
+        timeout_seconds: Thời gian chờ tối đa (default 5 phút)
+    Returns:
+        "approved" | "rejected" | "timeout" | error string
+    """
+    if not _is_configured():
+        return f"SLACK_NOT_CONFIGURED: Cannot send approval request. Decide manually: {message}"
+
+    client = _client()
+    body = f"*Approval required*\n{message}"
+    if context:
+        body += f"\n\n_{context}_"
+    body += "\n\nReact ✅ to approve or ❌ to reject."
+
+    post_resp = client.chat_postMessage(channel=channel, text=body)
+    msg_ts = post_resp["ts"]
+
+    deadline = time.time() + timeout_seconds
+    while time.time() < deadline:
+        time.sleep(5)
+        react_resp = client.reactions_get(channel=channel, timestamp=msg_ts)
+        reactions = {
+            r["name"]: r["count"]
+            for r in react_resp.get("message", {}).get("reactions", [])
+        }
+        if reactions.get("white_check_mark", 0) > 0:
+            return "approved"
+        if reactions.get("x", 0) > 0:
+            return "rejected"
+
+    return "timeout"
 
 
 if __name__ == "__main__":

@@ -7,7 +7,10 @@ Zone model:
                  by dev skills via write_source_file()
 """
 
+import json
 import os
+import subprocess
+from collections import defaultdict
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
@@ -189,6 +192,120 @@ def file_exists(path: str) -> bool:
         path: Relative path từ workspace root
     """
     return _safe_path(path).exists()
+
+
+_EXCLUDE_DIRS = frozenset({
+    "node_modules", ".git", "__pycache__", ".venv", "venv",
+    "dist", "build", ".next", ".nuxt", "coverage", ".cache",
+    ".mypy_cache", ".pytest_cache", ".ruff_cache",
+})
+
+
+@mcp.tool()
+def project_summary() -> str:
+    """Trả về tổng quan project: tech stack, directory tree, file counts, entry points, git info.
+
+    Dùng đầu session để orient nhanh vào codebase.
+    """
+    root = WORKSPACE_ROOT.resolve()
+    sections: list[str] = [f"# Project summary: {root.name}\n"]
+
+    # tech stack
+    stack: list[str] = []
+    pkg = root / "package.json"
+    if pkg.exists():
+        try:
+            data = json.loads(pkg.read_text())
+            deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
+            for lib, label in [
+                ("react", "React"), ("vue", "Vue"), ("svelte", "Svelte"),
+                ("next", "Next.js"), ("vite", "Vite"), ("typescript", "TypeScript"),
+                ("jest", "Jest"), ("vitest", "Vitest"),
+            ]:
+                if lib in deps:
+                    stack.append(label)
+            if not stack:
+                stack.append("Node.js")
+        except (json.JSONDecodeError, KeyError):
+            stack.append("Node.js")
+
+    for py_cfg in ("pyproject.toml", "setup.py", "setup.cfg", "requirements.txt"):
+        if (root / py_cfg).exists():
+            stack.append("Python")
+            break
+
+    if (root / "go.mod").exists():
+        stack.append("Go")
+    if (root / "Cargo.toml").exists():
+        stack.append("Rust")
+    if (root / "pom.xml").exists():
+        stack.append("Java/Maven")
+
+    sections.append("## Tech stack\n" + (", ".join(stack) if stack else "unknown") + "\n")
+
+    # file counts by extension
+    counts: dict[str, int] = defaultdict(int)
+    for f in root.rglob("*"):
+        if f.is_file() and not any(
+            p in _EXCLUDE_DIRS for p in f.parts
+        ):
+            counts[f.suffix or "(no ext)"] += 1
+
+    top = sorted(counts.items(), key=lambda x: -x[1])[:10]
+    sections.append(
+        "## File counts (top extensions)\n"
+        + "\n".join(f"  {ext:12} {n}" for ext, n in top) + "\n"
+    )
+
+    # directory tree (2 levels)
+    tree: list[str] = [f"{root.name}/"]
+    for entry in sorted(root.iterdir(), key=lambda p: (p.is_file(), p.name)):
+        if entry.name.startswith(".") or entry.name in _EXCLUDE_DIRS:
+            continue
+        if entry.is_dir():
+            children = sorted(
+                p.name for p in entry.iterdir()
+                if not p.name.startswith(".") and p.name not in _EXCLUDE_DIRS
+            )
+            tree.append(f"  {entry.name}/")
+            for child in children[:6]:
+                tree.append(f"    {child}")
+            if len(children) > 6:
+                tree.append(f"    … {len(children) - 6} more")
+        else:
+            tree.append(f"  {entry.name}")
+    sections.append("## Directory tree\n```\n" + "\n".join(tree) + "\n```\n")
+
+    # entry points
+    candidates = [
+        "main.py", "app.py", "index.py",
+        "src/main.jsx", "src/main.tsx", "src/main.js",
+        "src/App.jsx", "src/App.tsx", "src/index.js",
+        "index.js", "index.ts", "server.js", "server.ts",
+    ]
+    found = [c for c in candidates if (root / c).exists()]
+    if found:
+        sections.append("## Entry points\n" + "\n".join(f"  {e}" for e in found) + "\n")
+
+    # git info
+    if (root / ".git").exists():
+        try:
+            branch = subprocess.check_output(
+                ["git", "branch", "--show-current"],
+                cwd=root, text=True, stderr=subprocess.DEVNULL,
+            ).strip()
+            log = subprocess.check_output(
+                ["git", "log", "--oneline", "-3"],
+                cwd=root, text=True, stderr=subprocess.DEVNULL,
+            ).strip()
+            sections.append(
+                f"## Git\nbranch: {branch}\nrecent commits:\n"
+                + "\n".join(f"  {line}" for line in log.splitlines()) + "\n"
+            )
+        except Exception:
+            pass
+
+    return "\n".join(sections)
 
 
 if __name__ == "__main__":

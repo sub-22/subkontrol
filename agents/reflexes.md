@@ -97,9 +97,18 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 |---------|-------|----------|
 | *Chưa có data — sẽ tích lũy qua usage* | 0 | 3 |
 
+### R-014 — Task Recording → Persist to Memory + Backlog
+- **Trigger**: User yêu cầu ghi nhận task, tạo task, lưu việc cần làm, "tạo task", "ghi lại", "để sau", "track this"
+- **Signal**: `[CERTAIN]` `[LOW]`
+- **Action**: Tự động thực hiện CẢ HAI, không cần hỏi:
+  1. `morai-memory: record_episode(event="task_recorded: {subject}", outcome="pending", lesson="{description}")` 
+  2. Append vào `~/.morai/tasks/backlog.md` theo format chuẩn (tạo file nếu chưa có)
+- **Do NOT**: Chỉ tạo in-session task mà không persist — task sẽ mất khi session kết thúc
+- **Promoted**: User instruction 2026-05-15
+
 ## Reflex Log
 ```
-Lần cuối review: [chưa có]
-Version: 1.0.0-bootstrap
-Tổng active reflexes: 13
+Lần cuối review: 2026-05-15
+Version: 1.0.1
+Tổng active reflexes: 14
 ```

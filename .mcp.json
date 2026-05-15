@@ -5,7 +5,8 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.pipeline.server"],
       "env": {
-        "MORAI_MEMORY_PATH": "${user_config.MEMORY_PATH}",
+        "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory",
+        "MORAI_PIPELINE_PATH": "${user_config.WORKSPACE_ROOT}/.morai/pipeline",
         "MORAI_BUDGET_TOKENS": "200000"
       }
     },
@@ -14,7 +15,7 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.events.server"],
       "env": {
-        "MORAI_MEMORY_PATH": "${user_config.MEMORY_PATH}"
+        "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory"
       }
     },
     "morai-memory": {
@@ -22,7 +23,8 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.memory.server"],
       "env": {
-        "MORAI_MEMORY_PATH": "${user_config.MEMORY_PATH}"
+        "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory",
+        "MORAI_TASKS_PATH": "${user_config.MORAI_GLOBAL_PATH}/tasks"
       }
     },
     "morai-rag": {
@@ -30,7 +32,7 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.rag.server"],
       "env": {
-        "CHROMA_PATH": ".morai/rag"
+        "CHROMA_PATH": "${user_config.WORKSPACE_ROOT}/.morai/rag"
       }
     },
     "morai-file": {
@@ -76,6 +78,14 @@
       "env": {
         "SLACK_BOT_TOKEN": "${user_config.SLACK_BOT_TOKEN}",
         "SLACK_APP_TOKEN": "${user_config.SLACK_APP_TOKEN}"
+      }
+    },
+    "morai-test": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "servers.test_runner.server"],
+      "env": {
+        "WORKSPACE_ROOT": "${user_config.WORKSPACE_ROOT}"
       }
     }
   }

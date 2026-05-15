@@ -14,8 +14,13 @@ build/
 .env.local
 .env.*.local
 
-# RAG / ChromaDB / Runtime data
-.morai/
+# Morai — per-project runtime (không track)
+.morai/rag/
+.morai/pipeline/
+
+# Morai — global data nằm ở ~/.morai/, không có trong repo này
+
+# Database
 *.db
 *.sqlite
 *.sqlite3

@@ -1,0 +1,48 @@
+{
+  "mcpServers": {
+    "morai-jira": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--project", "${user_config.SUBKONTROL_PATH}", "python", "-m", "servers.jira.server"],
+      "env": {
+        "JIRA_URL": "${user_config.JIRA_URL}",
+        "JIRA_EMAIL": "${user_config.JIRA_EMAIL}",
+        "JIRA_TOKEN": "${user_config.JIRA_TOKEN}"
+      }
+    },
+    "morai-confluence": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--project", "${user_config.SUBKONTROL_PATH}", "python", "-m", "servers.confluence.server"],
+      "env": {
+        "CONFLUENCE_URL": "${user_config.CONFLUENCE_URL}",
+        "CONFLUENCE_EMAIL": "${user_config.CONFLUENCE_EMAIL}",
+        "CONFLUENCE_TOKEN": "${user_config.CONFLUENCE_TOKEN}"
+      }
+    },
+    "morai-rag": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--project", "${user_config.SUBKONTROL_PATH}", "python", "-m", "servers.rag.server"],
+      "env": {
+        "CHROMA_PATH": ".morai/rag"
+      }
+    },
+    "morai-slack": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--project", "${user_config.SUBKONTROL_PATH}", "python", "-m", "servers.morai.server"],
+      "env": {
+        "SLACK_BOT_TOKEN": "${user_config.SLACK_BOT_TOKEN}"
+      }
+    },
+    "morai-memory": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--project", "${user_config.SUBKONTROL_PATH}", "python", "-m", "servers.memory.server"],
+      "env": {
+        "MORAI_MEMORY_PATH": "${user_config.MEMORY_PATH}"
+      }
+    }
+  }
+}
