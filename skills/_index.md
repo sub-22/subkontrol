@@ -55,7 +55,8 @@ reflect (sau task) → evolve (sau sprint) → kaizen (weekly)
 | Command | Khi nào | Mô tả |
 |---------|---------|-------|
 | `/morai:init` | Sau khi cài plugin lần đầu | Setup identity → hỏi scan hoặc onboard project ngay |
-| `/morai:onboard` | Project mới có Confluence/Jira | Pull docs + tickets → index RAG → sinh knowledge repo |
+| `/morai:onboard` | Project mới có Confluence/Jira | Preflight check → pull docs + tickets → index RAG |
+| `/morai:doctor` | Debug kết nối, trước khi onboard | Health check tất cả MCP servers, hướng dẫn fix |
 
 ---
 
