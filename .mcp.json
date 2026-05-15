@@ -5,7 +5,7 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.pipeline.server"],
       "env": {
-        "MORAI_MEMORY_PATH": "${config.memory_path:-\".morai/memory\"}",
+        "MORAI_MEMORY_PATH": "${user_config.MEMORY_PATH}",
         "MORAI_BUDGET_TOKENS": "200000"
       }
     },
@@ -14,7 +14,7 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.events.server"],
       "env": {
-        "MORAI_MEMORY_PATH": "${config.memory_path:-\".morai/memory\"}"
+        "MORAI_MEMORY_PATH": "${user_config.MEMORY_PATH}"
       }
     },
     "morai-memory": {
@@ -22,7 +22,7 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.memory.server"],
       "env": {
-        "MORAI_MEMORY_PATH": "${config.memory_path:-\".morai/memory\"}"
+        "MORAI_MEMORY_PATH": "${user_config.MEMORY_PATH}"
       }
     },
     "morai-rag": {
@@ -38,7 +38,7 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.file.server"],
       "env": {
-        "WORKSPACE_ROOT": "${config.workspace_root}"
+        "WORKSPACE_ROOT": "${user_config.WORKSPACE_ROOT}"
       }
     },
     "morai-git": {
@@ -46,7 +46,7 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.git.server"],
       "env": {
-        "WORKSPACE_ROOT": "${config.workspace_root}"
+        "WORKSPACE_ROOT": "${user_config.WORKSPACE_ROOT}"
       }
     },
     "morai-jira": {
@@ -54,9 +54,9 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.jira.server"],
       "env": {
-        "JIRA_URL": "${config.jira_url}",
-        "JIRA_EMAIL": "${config.jira_email}",
-        "JIRA_TOKEN": "${config.jira_token}"
+        "JIRA_URL": "${user_config.JIRA_URL}",
+        "JIRA_EMAIL": "${user_config.JIRA_EMAIL}",
+        "JIRA_TOKEN": "${user_config.JIRA_TOKEN}"
       }
     },
     "morai-confluence": {
@@ -64,9 +64,9 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.confluence.server"],
       "env": {
-        "CONFLUENCE_URL": "${config.confluence_url}",
-        "CONFLUENCE_EMAIL": "${config.confluence_email}",
-        "CONFLUENCE_TOKEN": "${config.confluence_token}"
+        "CONFLUENCE_URL": "${user_config.CONFLUENCE_URL}",
+        "CONFLUENCE_EMAIL": "${user_config.CONFLUENCE_EMAIL}",
+        "CONFLUENCE_TOKEN": "${user_config.CONFLUENCE_TOKEN}"
       }
     },
     "morai-slack": {
@@ -74,8 +74,8 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.morai.server"],
       "env": {
-        "SLACK_BOT_TOKEN": "${config.slack_bot_token}",
-        "SLACK_APP_TOKEN": "${config.slack_app_token}"
+        "SLACK_BOT_TOKEN": "${user_config.SLACK_BOT_TOKEN}",
+        "SLACK_APP_TOKEN": "${user_config.SLACK_APP_TOKEN}"
       }
     }
   }

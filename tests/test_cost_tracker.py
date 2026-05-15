@@ -8,6 +8,7 @@ def tmp_pipeline(tmp_path, monkeypatch):
     monkeypatch.setenv("MORAI_MEMORY_PATH", str(tmp_path / "memory"))
     monkeypatch.setenv("MORAI_BUDGET_TOKENS", "10000")  # small budget for testing
     import importlib
+
     import servers.pipeline.server as mod
     importlib.reload(mod)
     yield tmp_path
@@ -15,6 +16,7 @@ def tmp_pipeline(tmp_path, monkeypatch):
 
 def _reload():
     import importlib
+
     import servers.pipeline.server as mod
     importlib.reload(mod)
     return mod

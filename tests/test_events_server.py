@@ -1,14 +1,13 @@
 """Tests for morai-events server."""
 
-import json
 import pytest
-from pathlib import Path
 
 
 @pytest.fixture(autouse=True)
 def tmp_events(tmp_path, monkeypatch):
     monkeypatch.setenv("MORAI_MEMORY_PATH", str(tmp_path / "memory"))
     import importlib
+
     import servers.events.server as mod
     importlib.reload(mod)
     yield tmp_path
@@ -16,6 +15,7 @@ def tmp_events(tmp_path, monkeypatch):
 
 def _reload():
     import importlib
+
     import servers.events.server as mod
     importlib.reload(mod)
     return mod

@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import os
 import hashlib
+import os
 from pathlib import Path
+
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("morai-rag")

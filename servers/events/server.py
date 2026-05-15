@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
+
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("morai-events")
@@ -110,7 +111,7 @@ DEFAULT_SUBSCRIPTIONS = [
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    return datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
 
 
 def _ensure_dirs() -> None:
@@ -237,7 +238,7 @@ def publish(
     """
     payload = payload or {}
 
-    event_id = f"evt-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
+    event_id = f"evt-{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
     event = {
         "event_id": event_id,
         "event_type": event_type,

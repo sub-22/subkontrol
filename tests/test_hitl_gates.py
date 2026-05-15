@@ -1,16 +1,16 @@
 """Tests for HITL gate management in pipeline server."""
 
 import json
-import time
+from datetime import UTC, datetime, timedelta
+
 import pytest
-from pathlib import Path
-from datetime import datetime, timezone, timedelta
 
 
 @pytest.fixture(autouse=True)
 def tmp_pipeline(tmp_path, monkeypatch):
     monkeypatch.setenv("MORAI_MEMORY_PATH", str(tmp_path / "memory"))
     import importlib
+
     import servers.pipeline.server as mod
     importlib.reload(mod)
     yield tmp_path
@@ -18,6 +18,7 @@ def tmp_pipeline(tmp_path, monkeypatch):
 
 def _reload():
     import importlib
+
     import servers.pipeline.server as mod
     importlib.reload(mod)
     return mod
@@ -156,7 +157,7 @@ class TestExpiredGates:
         # Manually set expires_at to the past
         gate_path = mod._gate_path("PROJ-1", "PROJ-1-gate-001")
         gate = json.loads(gate_path.read_text())
-        past = (datetime.now(timezone.utc) - timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M UTC")
+        past = (datetime.now(UTC) - timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M UTC")
         gate["expires_at"] = past
         gate_path.write_text(json.dumps(gate))
 
@@ -172,7 +173,7 @@ class TestExpiredGates:
 
         gate_path = mod._gate_path("PROJ-1", "PROJ-1-gate-001")
         gate = json.loads(gate_path.read_text())
-        past = (datetime.now(timezone.utc) - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M UTC")
+        past = (datetime.now(UTC) - timedelta(hours=3)).strftime("%Y-%m-%d %H:%M UTC")
         gate["expires_at"] = past
         gate_path.write_text(json.dumps(gate))
 

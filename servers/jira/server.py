@@ -1,6 +1,7 @@
 """Jira MCP server — fetch tickets, search issues."""
 
 import os
+
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("morai-jira")
@@ -9,7 +10,9 @@ JIRA_URL = os.getenv("JIRA_URL", "")
 JIRA_EMAIL = os.getenv("JIRA_EMAIL", "")
 JIRA_TOKEN = os.getenv("JIRA_TOKEN", "")
 
-_NOT_CONFIGURED = {"error": "morai-jira not configured — set JIRA_URL, JIRA_EMAIL, JIRA_TOKEN in .env"}
+_NOT_CONFIGURED = {
+    "error": "morai-jira not configured — set JIRA_URL, JIRA_EMAIL, JIRA_TOKEN in .env"
+}
 
 
 def _is_configured() -> bool:
@@ -56,7 +59,8 @@ def get_ticket_comments(ticket_id: str) -> list[dict]:
     if not _is_configured():
         return [_NOT_CONFIGURED]
     # TODO: implement comments fetch
-    return [{"error": f"morai-jira: get_ticket_comments not yet implemented. ticket_id={ticket_id}"}]
+    msg = f"morai-jira: get_ticket_comments not yet implemented. ticket_id={ticket_id}"
+    return [{"error": msg}]
 
 
 if __name__ == "__main__":

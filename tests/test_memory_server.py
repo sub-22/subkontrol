@@ -1,9 +1,6 @@
 """Tests for morai-memory MCP server."""
 
-import json
-import os
 import pytest
-from pathlib import Path
 
 
 @pytest.fixture(autouse=True)
@@ -11,6 +8,7 @@ def tmp_memory(tmp_path, monkeypatch):
     monkeypatch.setenv("MORAI_MEMORY_PATH", str(tmp_path / "memory"))
     # Re-import to pick up new env var
     import importlib
+
     import servers.memory.server as mod
     importlib.reload(mod)
     yield tmp_path / "memory"
@@ -18,6 +16,7 @@ def tmp_memory(tmp_path, monkeypatch):
 
 def _reload():
     import importlib
+
     import servers.memory.server as mod
     importlib.reload(mod)
     return mod

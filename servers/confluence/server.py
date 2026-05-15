@@ -1,6 +1,7 @@
 """Confluence MCP server — fetch pages, search documentation."""
 
 import os
+
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("morai-confluence")
@@ -9,7 +10,9 @@ CONFLUENCE_URL = os.getenv("CONFLUENCE_URL", "")
 CONFLUENCE_EMAIL = os.getenv("CONFLUENCE_EMAIL", "")
 CONFLUENCE_TOKEN = os.getenv("CONFLUENCE_TOKEN", "")
 
-_NOT_CONFIGURED = {"error": "morai-confluence not configured — set CONFLUENCE_URL, CONFLUENCE_EMAIL, CONFLUENCE_TOKEN in .env"}
+_NOT_CONFIGURED = {
+    "error": "morai-confluence not configured — set CONFLUENCE_URL, CONFLUENCE_EMAIL, CONFLUENCE_TOKEN in .env"  # noqa: E501
+}
 
 
 def _is_configured() -> bool:

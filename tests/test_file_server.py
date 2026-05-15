@@ -1,14 +1,13 @@
 """Tests for morai-file MCP server."""
 
-import os
 import pytest
-from pathlib import Path
 
 
 @pytest.fixture(autouse=True)
 def tmp_workspace(tmp_path, monkeypatch):
     monkeypatch.setenv("WORKSPACE_ROOT", str(tmp_path))
     import importlib
+
     import servers.file.server as mod
     importlib.reload(mod)
     yield tmp_path
@@ -16,6 +15,7 @@ def tmp_workspace(tmp_path, monkeypatch):
 
 def _reload():
     import importlib
+
     import servers.file.server as mod
     importlib.reload(mod)
     return mod

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
@@ -33,7 +33,7 @@ def _append_md(filename: str, content: str) -> None:
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    return datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
 
 
 # ── Episodes ──────────────────────────────────────────────────────────────────
@@ -181,7 +181,9 @@ def get_reflex_candidates(min_count: int = 3) -> list[dict]:
 
 
 @mcp.tool()
-def promote_to_reflex(pattern: str, trigger: str, action: str, signal: str = "[ESTIMATED] [MED]") -> str:
+def promote_to_reflex(
+    pattern: str, trigger: str, action: str, signal: str = "[ESTIMATED] [MED]"
+) -> str:
     """Promote một pattern thành reflex chính thức.
 
     Args:
@@ -290,7 +292,7 @@ def archive_old_episodes(days: int = 90) -> str:
     if not content:
         return "Không có episodes để archive."
 
-    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    cutoff = datetime.now(UTC) - timedelta(days=days)
     # Episode header format: "## YYYY-MM-DD HH:MM UTC ..."
     date_pattern = re.compile(r"^## (\d{4}-\d{2}-\d{2})")
 
@@ -303,7 +305,7 @@ def archive_old_episodes(days: int = 90) -> str:
         if match:
             try:
                 ep_date = datetime.strptime(match.group(1), "%Y-%m-%d").replace(
-                    tzinfo=timezone.utc
+                    tzinfo=UTC
                 )
                 if ep_date < cutoff:
                     archive.append(block)
@@ -316,7 +318,7 @@ def archive_old_episodes(days: int = 90) -> str:
         return f"Không có episodes nào cũ hơn {days} ngày."
 
     # Write archive
-    archive_filename = f"archive/episodes_{datetime.now(timezone.utc).strftime('%Y%m%d')}.md"
+    archive_filename = f"archive/episodes_{datetime.now(UTC).strftime('%Y%m%d')}.md"
     archive_content = "## " + "\n\n## ".join(archive)
     _ensure_dirs()
     (MEMORY_ROOT / archive_filename).write_text(archive_content, encoding="utf-8")

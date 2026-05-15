@@ -1,14 +1,15 @@
 """Tests for wave management in pipeline FSM."""
 
 import json
+
 import pytest
-from pathlib import Path
 
 
 @pytest.fixture(autouse=True)
 def tmp_pipeline(tmp_path, monkeypatch):
     monkeypatch.setenv("MORAI_MEMORY_PATH", str(tmp_path / "memory"))
     import importlib
+
     import servers.pipeline.server as mod
     importlib.reload(mod)
     yield tmp_path
@@ -16,6 +17,7 @@ def tmp_pipeline(tmp_path, monkeypatch):
 
 def _reload():
     import importlib
+
     import servers.pipeline.server as mod
     importlib.reload(mod)
     return mod

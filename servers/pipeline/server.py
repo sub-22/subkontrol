@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("morai-pipeline")
@@ -81,7 +82,7 @@ PRECONDITIONS: dict[str, dict] = {
 
 
 def _now() -> str:
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    return datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
 
 
 def _pipeline_path(ticket_id: str) -> Path:
@@ -149,7 +150,8 @@ def create_pipeline(ticket_id: str, spec_path: str = "") -> dict:
     """
     existing = _load_state(ticket_id)
     if existing and existing.get("status") not in ("complete", "failed", ""):
-        return {"ok": False, "error": f"Pipeline '{ticket_id}' đã tồn tại ở state '{existing.get('state')}'"}
+        err = f"Pipeline '{ticket_id}' đã tồn tại ở state '{existing.get('state')}'"
+        return {"ok": False, "error": err}
 
     state = {
         "ticket_id": ticket_id,
@@ -187,7 +189,8 @@ def transition(
 
     state = _load_state(ticket_id)
     if not state:
-        return {"ok": False, "error": f"Pipeline '{ticket_id}' chưa tồn tại. Gọi create_pipeline() trước."}
+        err = f"Pipeline '{ticket_id}' chưa tồn tại. Gọi create_pipeline() trước."
+        return {"ok": False, "error": err}
 
     from_state = state["state"]
     valid_next = TRANSITIONS.get(from_state, [])
@@ -486,7 +489,7 @@ def commit_wave(ticket_id: str, wave_num: int) -> dict:
 
     # Find next wave
     next_wave = next(
-        (w["wave"] for w in wave_plan["waves"] if w["wave"] > wave_num and w["status"] == "pending"),
+        (w["wave"] for w in wave_plan["waves"] if w["wave"] > wave_num and w["status"] == "pending"),  # noqa: E501
         None,
     )
 
@@ -534,7 +537,7 @@ def _next_gate_id(ticket_id: str) -> str:
 
 
 def _expires_at(timeout_minutes: int) -> str:
-    return (datetime.now(timezone.utc) + timedelta(minutes=timeout_minutes)).strftime(
+    return (datetime.now(UTC) + timedelta(minutes=timeout_minutes)).strftime(
         "%Y-%m-%d %H:%M UTC"
     )
 
@@ -544,8 +547,8 @@ def _is_expired(gate: dict) -> bool:
     if not expires_str:
         return False
     try:
-        exp = datetime.strptime(expires_str, "%Y-%m-%d %H:%M UTC").replace(tzinfo=timezone.utc)
-        return datetime.now(timezone.utc) > exp
+        exp = datetime.strptime(expires_str, "%Y-%m-%d %H:%M UTC").replace(tzinfo=UTC)
+        return datetime.now(UTC) > exp
     except ValueError:
         return False
 
@@ -605,7 +608,8 @@ def create_gate(
         {"ok": bool, "gate_id": str, "expires_at": str}
     """
     if gate_type not in GATE_TYPES:
-        return {"ok": False, "error": f"Invalid gate_type '{gate_type}'. Valid: {sorted(GATE_TYPES)}"}
+        err = f"Invalid gate_type '{gate_type}'. Valid: {sorted(GATE_TYPES)}"
+        return {"ok": False, "error": err}
 
     pipeline = _load_state(ticket_id)
     if not pipeline:
@@ -765,7 +769,8 @@ def cancel_gate(ticket_id: str, gate_id: str, reason: str = "") -> dict:
     if not gate:
         return {"ok": False, "error": f"Gate '{gate_id}' không tồn tại"}
     if gate["status"] not in ("pending",):
-        return {"ok": False, "error": f"Chỉ có thể cancel gate đang pending, not '{gate['status']}'"}
+        err = f"Chỉ có thể cancel gate đang pending, not '{gate['status']}'"
+        return {"ok": False, "error": err}
 
     gate["status"] = "cancelled"
     gate["resolved_by"] = "system"
@@ -918,8 +923,10 @@ def get_cost_summary_all() -> list[dict]:
             "state": s.get("state"),
             "total_tokens": total,
             "estimated_usd": cost.get("estimated_usd", 0.0),
-            "budget_used_pct": round(total / cost.get("budget_tokens", DEFAULT_BUDGET_TOKENS) * 100, 1)
-            if total > 0 else 0.0,
+            "budget_used_pct": (
+                round(total / cost.get("budget_tokens", DEFAULT_BUDGET_TOKENS) * 100, 1)
+                if total > 0 else 0.0
+            ),
         })
 
     return sorted(summaries, key=lambda x: x["total_tokens"], reverse=True)

@@ -1,9 +1,8 @@
 """Tests for morai-git MCP server."""
 
-import os
 import subprocess
+
 import pytest
-from pathlib import Path
 
 
 @pytest.fixture()
@@ -28,6 +27,7 @@ def git_repo(tmp_path, monkeypatch):
     )
 
     import importlib
+
     import servers.git.server as mod
     importlib.reload(mod)
     yield tmp_path
@@ -35,6 +35,7 @@ def git_repo(tmp_path, monkeypatch):
 
 def _reload():
     import importlib
+
     import servers.git.server as mod
     importlib.reload(mod)
     return mod
