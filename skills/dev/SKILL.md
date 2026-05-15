@@ -34,15 +34,20 @@ morai-git: get_current_branch()
    - Bug / fix → `fix/`
    - Chore / config → `chore/`
    - Refactor → `refactor/`
-2. Tạo branch name: `{type}/{TICKET-ID}-{slug}` (e.g. `feat/PROJ-123-add-login`)
-   - Slug: lowercase, dấu cách → `-`, tối đa 30 chars
-3. Hiển thị:
+2. Đề xuất branch name: `{type}/{TICKET-ID}-{slug}` (slug: lowercase, dấu cách → `-`, ≤30 chars)
+3. **Hỏi human cả 2 thứ cùng lúc — bắt buộc:**
    ```
    ⚠️ Đang ở branch protected: {current_branch}
-   Em cần tạo branch mới: `{new_branch}`
-   Xác nhận không sếp?
+
+   Branch name đề xuất: `{proposed_branch}`
+   Tách từ nhánh nào sếp? (ví dụ: develop, main, release/stg)
+
+   Sếp confirm hoặc chỉnh lại cả hai nhé.
    ```
-4. Chờ human confirm → `morai-git: create_branch({new_branch})`
+4. Chờ human trả lời đủ **branch name + base branch**
+5. Checkout base branch → `morai-git: create_branch({confirmed_branch})`
+
+> Không tự assume base branch. Bug trên stg có thể cần tách từ `release/stg` (hotfix) hoặc `develop` (backport) — khác nhau hoàn toàn.
 
 **Nếu đang ở đúng feature/fix branch** → tiếp tục Phase 1 bình thường.
 

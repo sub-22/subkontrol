@@ -91,16 +91,30 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 - **Do NOT**: Auto-commit hoặc auto-push dù task nhỏ hay simple
 - **Rationale**: User preference — Dev giữ quyền commit với feature code
 
-### R-015 — Wrong Branch Guard (Protected Branch → Auto-create Feature Branch)
-- **Trigger**: Chuẩn bị implement/commit nhưng đang đứng ở protected branch (`master`, `main`, `develop`, `staging`, `production`, hoặc branch có pattern `release/*`)
+### R-015 — Wrong Branch Guard (Protected Branch → Ask Base + Create Feature Branch)
+- **Trigger**: Chuẩn bị implement/commit nhưng đang đứng ở protected branch (`master`, `main`, `develop`, `staging`, `production`, hoặc branch có pattern `release/*`, `hotfix/*`)
 - **Signal**: `[CERTAIN]` `[HIGH]`
 - **Action**:
   1. STOP — không implement, không commit
   2. Xác định branch type từ task: feature→`feat/`, bug→`fix/`, chore→`chore/`, refactor→`refactor/`
-  3. Tạo branch name: `{type}/{TICKET-ID}-{slug-từ-title}` (e.g. `feat/PROJ-123-add-login`)
-  4. Hỏi human: "Em cần tạo branch `{branch}` trước. Xác nhận không sếp?"
-  5. Sau khi human confirm → `morai-git: create_branch({branch})` → tiếp tục
-- **Do NOT**: Tự tạo branch mà không hỏi, hoặc commit thẳng lên protected branch
+  3. Đề xuất branch name: `{type}/{TICKET-ID}-{slug-từ-title}` (e.g. `feat/PROJ-123-add-login`)
+  4. **Hỏi human 2 thông tin cùng lúc — bắt buộc, không assume:**
+     ```
+     ⚠️ Đang ở branch protected: {current_branch}
+     Em cần tạo branch mới trước khi tiếp tục.
+
+     Branch name đề xuất: `{proposed_branch}`
+     Tách từ nhánh nào sếp? (ví dụ: develop, main, release/stg)
+
+     Sếp confirm hoặc chỉnh lại cả hai nhé.
+     ```
+  5. Chờ human trả lời rõ cả branch name và base branch
+  6. `morai-git: create_branch({confirmed_branch})` — tạo từ đúng base đã được confirm
+- **Do NOT**:
+  - Tự assume base branch (ví dụ: bug trên stg KHÔNG có nghĩa tách từ `develop`)
+  - Tạo branch trước khi có đủ 2 thông tin: name + base
+  - Commit thẳng lên protected branch dù urgent
+- **Rationale**: Fix bug trên `release/stg` có thể cần tách từ `release/stg` (hotfix tại chỗ) hoặc từ `develop` (backport) — Morai không thể tự quyết, phải hỏi.
 - **Promoted**: User instruction 2026-05-15
 
 ## Candidate Reflexes (chưa promote — đang track)
