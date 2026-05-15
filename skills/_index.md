@@ -54,7 +54,8 @@ reflect (sau task) → evolve (sau sprint) → kaizen (weekly)
 
 | Command | Khi nào | Mô tả |
 |---------|---------|-------|
-| `/morai:init` | Sau khi cài plugin lần đầu | Write Morai identity vào `~/.claude/CLAUDE.md` → apply toàn máy |
+| `/morai:init` | Sau khi cài plugin lần đầu | Setup identity → hỏi scan hoặc onboard project ngay |
+| `/morai:onboard` | Project mới có Confluence/Jira | Pull docs + tickets → index RAG → sinh knowledge repo |
 
 ---
 
