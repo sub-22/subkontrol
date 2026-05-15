@@ -1,0 +1,70 @@
+{
+  "_shadow_mode": true,
+  "_comment": "Stub data — used when JIRA_URL/TOKEN not configured. Replace with real Jira when available.",
+  "issues": [
+    {
+      "key": "SK-10",
+      "fields": {
+        "summary": "Implement user notification preferences API",
+        "description": "Add endpoints for GET/PUT /users/{id}/notifications",
+        "status": {"name": "To Do"},
+        "priority": {"name": "High"},
+        "issuetype": {"name": "Story"},
+        "assignee": {"displayName": "Sub22", "emailAddress": "contact.sub22@gmail.com"},
+        "reporter": {"displayName": "PM Lead"},
+        "labels": ["backend", "api"],
+        "created": "2026-05-14T08:00:00.000+0000",
+        "updated": "2026-05-14T10:00:00.000+0000",
+        "story_points": 3
+      }
+    },
+    {
+      "key": "SK-11",
+      "fields": {
+        "summary": "Fix race condition in session token refresh",
+        "description": "Concurrent requests can generate duplicate refresh tokens causing 401 loops",
+        "status": {"name": "Open"},
+        "priority": {"name": "Critical"},
+        "issuetype": {"name": "Bug"},
+        "assignee": {"displayName": "Sub22", "emailAddress": "contact.sub22@gmail.com"},
+        "reporter": {"displayName": "QA Lead"},
+        "labels": ["auth", "bug", "p0"],
+        "created": "2026-05-15T06:00:00.000+0000",
+        "updated": "2026-05-15T07:30:00.000+0000",
+        "story_points": 2
+      }
+    },
+    {
+      "key": "SK-12",
+      "fields": {
+        "summary": "Add pagination to /projects list endpoint",
+        "description": "Currently returns all projects — needs cursor-based pagination",
+        "status": {"name": "To Do"},
+        "priority": {"name": "Medium"},
+        "issuetype": {"name": "Story"},
+        "assignee": {"displayName": "Sub22", "emailAddress": "contact.sub22@gmail.com"},
+        "reporter": {"displayName": "Tech Lead"},
+        "labels": ["backend", "performance"],
+        "created": "2026-05-13T09:00:00.000+0000",
+        "updated": "2026-05-13T09:00:00.000+0000",
+        "story_points": 2
+      }
+    },
+    {
+      "key": "SK-09",
+      "fields": {
+        "summary": "Update README with deployment instructions",
+        "description": "Missing docker-compose and env setup steps",
+        "status": {"name": "To Do"},
+        "priority": {"name": "Low"},
+        "issuetype": {"name": "Task"},
+        "assignee": {"displayName": "Sub22", "emailAddress": "contact.sub22@gmail.com"},
+        "reporter": {"displayName": "Sub22"},
+        "labels": ["docs"],
+        "created": "2026-05-10T11:00:00.000+0000",
+        "updated": "2026-05-10T11:00:00.000+0000",
+        "story_points": 1
+      }
+    }
+  ]
+}
