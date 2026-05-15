@@ -2,6 +2,7 @@
 
 import os
 import time
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
@@ -11,8 +12,9 @@ SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN", "")
 _NOT_CONFIGURED = "morai-slack not configured — set SLACK_BOT_TOKEN in .env"
 
 
-def _client():
+def _client() -> "Any":
     from slack_sdk import WebClient
+
     return WebClient(token=SLACK_BOT_TOKEN)
 
 
@@ -37,7 +39,7 @@ def send_message(channel: str, text: str, thread_ts: str | None = None) -> str:
     if thread_ts:
         kwargs["thread_ts"] = thread_ts
     resp = _client().chat_postMessage(**kwargs)
-    return resp["ts"]
+    return str(resp["ts"])
 
 
 @mcp.tool()
@@ -54,7 +56,11 @@ def get_thread(channel: str, thread_ts: str) -> list[dict]:
         return [{"error": _NOT_CONFIGURED}]
     resp = _client().conversations_replies(channel=channel, ts=thread_ts)
     return [
-        {"user": m.get("user", m.get("bot_id", "unknown")), "text": m.get("text", ""), "ts": m["ts"]}
+        {
+            "user": m.get("user", m.get("bot_id", "unknown")),
+            "text": m.get("text", ""),
+            "ts": m["ts"],
+        }
         for m in resp.get("messages", [])
     ]
 
@@ -76,7 +82,11 @@ def get_pending_messages(channel: str, since_ts: str | None = None) -> list[dict
         kwargs["oldest"] = since_ts
     resp = _client().conversations_history(**kwargs)
     return [
-        {"user": m.get("user", m.get("bot_id", "unknown")), "text": m.get("text", ""), "ts": m["ts"]}
+        {
+            "user": m.get("user", m.get("bot_id", "unknown")),
+            "text": m.get("text", ""),
+            "ts": m["ts"],
+        }
         for m in resp.get("messages", [])
         if not m.get("bot_id")
     ]
@@ -118,8 +128,7 @@ def request_approval(
         time.sleep(5)
         react_resp = client.reactions_get(channel=channel, timestamp=msg_ts)
         reactions = {
-            r["name"]: r["count"]
-            for r in react_resp.get("message", {}).get("reactions", [])
+            r["name"]: r["count"] for r in react_resp.get("message", {}).get("reactions", [])
         }
         if reactions.get("white_check_mark", 0) > 0:
             return "approved"

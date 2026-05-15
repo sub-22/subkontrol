@@ -8,6 +8,7 @@ import pytest
 @pytest.fixture(autouse=True)
 def tmp_pipeline(tmp_path, monkeypatch):
     monkeypatch.setenv("MORAI_MEMORY_PATH", str(tmp_path / "memory"))
+    monkeypatch.setenv("MORAI_PIPELINE_PATH", str(tmp_path / "pipeline"))
     import importlib
 
     import servers.pipeline.server as mod

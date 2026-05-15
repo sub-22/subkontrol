@@ -1,6 +1,7 @@
 """Confluence MCP server — fetch pages, search documentation."""
 
 import os
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
@@ -11,7 +12,10 @@ CONFLUENCE_EMAIL = os.getenv("CONFLUENCE_EMAIL", "")
 CONFLUENCE_TOKEN = os.getenv("CONFLUENCE_TOKEN", "")
 
 _NOT_CONFIGURED = {
-    "error": "morai-confluence not configured — set CONFLUENCE_URL, CONFLUENCE_EMAIL, CONFLUENCE_TOKEN in .env"
+    "error": (
+        "morai-confluence not configured — "
+        "set CONFLUENCE_URL, CONFLUENCE_EMAIL, CONFLUENCE_TOKEN in .env"
+    )
 }
 
 
@@ -19,13 +23,15 @@ def _is_configured() -> bool:
     return bool(CONFLUENCE_URL and CONFLUENCE_EMAIL and CONFLUENCE_TOKEN)
 
 
-def _client():
+def _client() -> "Any":
     from atlassian import Confluence
-    return Confluence(url=CONFLUENCE_URL, username=CONFLUENCE_EMAIL, password=CONFLUENCE_TOKEN)
+
+    return Confluence(url=CONFLUENCE_URL, username=CONFLUENCE_EMAIL, password=CONFLUENCE_TOKEN)  # type: ignore[no-untyped-call]
 
 
 def _html_to_md(html: str) -> str:
     import html2text
+
     h = html2text.HTML2Text()
     h.ignore_links = False
     h.ignore_images = True
@@ -128,13 +134,17 @@ def get_space_pages(space_key: str, label: str | None = None, limit: int = 100) 
         page_ids = [r["content"]["id"] for r in results]
         pages = [client.get_page_by_id(pid, expand="metadata.labels,version") for pid in page_ids]
     else:
-        pages = client.get_all_pages_from_space(space_key, limit=limit, expand="metadata.labels,version")
+        pages = client.get_all_pages_from_space(
+            space_key, limit=limit, expand="metadata.labels,version"
+        )
 
     return [
         {
             "id": p["id"],
             "title": p["title"],
-            "labels": [lb["name"] for lb in p.get("metadata", {}).get("labels", {}).get("results", [])],
+            "labels": [
+                lb["name"] for lb in p.get("metadata", {}).get("labels", {}).get("results", [])
+            ],
             "last_updated": p["version"]["when"],
             "url": f"{CONFLUENCE_URL}/wiki{p['_links']['webui']}",
         }

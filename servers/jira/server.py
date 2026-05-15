@@ -1,6 +1,7 @@
 """Jira MCP server — fetch tickets, search issues."""
 
 import os
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
@@ -19,8 +20,9 @@ def _is_configured() -> bool:
     return bool(JIRA_URL and JIRA_EMAIL and JIRA_TOKEN)
 
 
-def _client():
+def _client() -> "Any":
     from atlassian import Jira
+
     return Jira(url=JIRA_URL, username=JIRA_EMAIL, password=JIRA_TOKEN)
 
 

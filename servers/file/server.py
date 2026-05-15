@@ -194,11 +194,24 @@ def file_exists(path: str) -> bool:
     return _safe_path(path).exists()
 
 
-_EXCLUDE_DIRS = frozenset({
-    "node_modules", ".git", "__pycache__", ".venv", "venv",
-    "dist", "build", ".next", ".nuxt", "coverage", ".cache",
-    ".mypy_cache", ".pytest_cache", ".ruff_cache",
-})
+_EXCLUDE_DIRS = frozenset(
+    {
+        "node_modules",
+        ".git",
+        "__pycache__",
+        ".venv",
+        "venv",
+        "dist",
+        "build",
+        ".next",
+        ".nuxt",
+        "coverage",
+        ".cache",
+        ".mypy_cache",
+        ".pytest_cache",
+        ".ruff_cache",
+    }
+)
 
 
 @mcp.tool()
@@ -218,9 +231,14 @@ def project_summary() -> str:
             data = json.loads(pkg.read_text())
             deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
             for lib, label in [
-                ("react", "React"), ("vue", "Vue"), ("svelte", "Svelte"),
-                ("next", "Next.js"), ("vite", "Vite"), ("typescript", "TypeScript"),
-                ("jest", "Jest"), ("vitest", "Vitest"),
+                ("react", "React"),
+                ("vue", "Vue"),
+                ("svelte", "Svelte"),
+                ("next", "Next.js"),
+                ("vite", "Vite"),
+                ("typescript", "TypeScript"),
+                ("jest", "Jest"),
+                ("vitest", "Vitest"),
             ]:
                 if lib in deps:
                     stack.append(label)
@@ -246,15 +264,12 @@ def project_summary() -> str:
     # file counts by extension
     counts: dict[str, int] = defaultdict(int)
     for f in root.rglob("*"):
-        if f.is_file() and not any(
-            p in _EXCLUDE_DIRS for p in f.parts
-        ):
+        if f.is_file() and not any(p in _EXCLUDE_DIRS for p in f.parts):
             counts[f.suffix or "(no ext)"] += 1
 
     top = sorted(counts.items(), key=lambda x: -x[1])[:10]
     sections.append(
-        "## File counts (top extensions)\n"
-        + "\n".join(f"  {ext:12} {n}" for ext, n in top) + "\n"
+        "## File counts (top extensions)\n" + "\n".join(f"  {ext:12} {n}" for ext, n in top) + "\n"
     )
 
     # directory tree (2 levels)
@@ -264,7 +279,8 @@ def project_summary() -> str:
             continue
         if entry.is_dir():
             children = sorted(
-                p.name for p in entry.iterdir()
+                p.name
+                for p in entry.iterdir()
                 if not p.name.startswith(".") and p.name not in _EXCLUDE_DIRS
             )
             tree.append(f"  {entry.name}/")
@@ -278,10 +294,19 @@ def project_summary() -> str:
 
     # entry points
     candidates = [
-        "main.py", "app.py", "index.py",
-        "src/main.jsx", "src/main.tsx", "src/main.js",
-        "src/App.jsx", "src/App.tsx", "src/index.js",
-        "index.js", "index.ts", "server.js", "server.ts",
+        "main.py",
+        "app.py",
+        "index.py",
+        "src/main.jsx",
+        "src/main.tsx",
+        "src/main.js",
+        "src/App.jsx",
+        "src/App.tsx",
+        "src/index.js",
+        "index.js",
+        "index.ts",
+        "server.js",
+        "server.ts",
     ]
     found = [c for c in candidates if (root / c).exists()]
     if found:
@@ -292,15 +317,20 @@ def project_summary() -> str:
         try:
             branch = subprocess.check_output(
                 ["git", "branch", "--show-current"],
-                cwd=root, text=True, stderr=subprocess.DEVNULL,
+                cwd=root,
+                text=True,
+                stderr=subprocess.DEVNULL,
             ).strip()
             log = subprocess.check_output(
                 ["git", "log", "--oneline", "-3"],
-                cwd=root, text=True, stderr=subprocess.DEVNULL,
+                cwd=root,
+                text=True,
+                stderr=subprocess.DEVNULL,
             ).strip()
             sections.append(
                 f"## Git\nbranch: {branch}\nrecent commits:\n"
-                + "\n".join(f"  {line}" for line in log.splitlines()) + "\n"
+                + "\n".join(f"  {line}" for line in log.splitlines())
+                + "\n"
             )
         except Exception:
             pass

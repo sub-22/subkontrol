@@ -34,8 +34,11 @@ def run_pytest(
 
     try:
         cmd = [
-            sys.executable, "-m", "pytest",
-            "--json-report", f"--json-report-file={report_path}",
+            sys.executable,
+            "-m",
+            "pytest",
+            "--json-report",
+            f"--json-report-file={report_path}",
             "-q",
         ]
         if paths:

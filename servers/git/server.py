@@ -184,10 +184,7 @@ def get_pr_template() -> dict:
     # Multi-template directory
     multi_dir = WORKSPACE_ROOT / ".github" / "PULL_REQUEST_TEMPLATE"
     if multi_dir.is_dir():
-        templates = {
-            f.stem: f.read_text(encoding="utf-8")
-            for f in sorted(multi_dir.glob("*.md"))
-        }
+        templates = {f.stem: f.read_text(encoding="utf-8") for f in sorted(multi_dir.glob("*.md"))}
         if templates:
             return {"source": "project", "templates": templates}
 
