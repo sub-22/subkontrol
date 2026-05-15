@@ -50,6 +50,14 @@ reflect (sau task) → evolve (sau sprint) → kaizen (weekly)
 
 ---
 
+## SETUP — Cài đặt ban đầu
+
+| Command | Khi nào | Mô tả |
+|---------|---------|-------|
+| `/morai:init` | Sau khi cài plugin lần đầu | Write Morai identity vào `~/.claude/CLAUDE.md` → apply toàn máy |
+
+---
+
 ## Auto-routing (không cần gõ command)
 
 Orchestrator tự route khi user nói tự nhiên:

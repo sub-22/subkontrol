@@ -7,7 +7,7 @@ Plugin name: `morai` → tất cả commands có dạng `/morai:<skill>`
 
 [![CI](https://github.com/sub-22/subkontrol/actions/workflows/ci.yml/badge.svg)](https://github.com/sub-22/subkontrol/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.7.0-green.svg)](.claude-plugin/plugin.json)
+[![Version](https://img.shields.io/badge/version-0.8.0-green.svg)](.claude-plugin/plugin.json)
 
 ---
 

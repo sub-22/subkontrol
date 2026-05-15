@@ -7,6 +7,22 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [0.8.0] — 2026-05-16
+
+### Phase 6 — Morai Identity Distribution
+
+#### Added
+
+- `skills/init/skill.md` — `/morai:init` skill: write Morai identity vào `~/.claude/CLAUDE.md`, apply toàn máy sau một lần chạy
+- `.claude-plugin/CLAUDE.md` — Morai identity bundled vào plugin directory
+- `.claude-plugin/plugin.json` — thêm `"skills": "../skills"` để `/reload-plugins` đếm đúng số skills
+
+#### Fixed
+
+- Plugin install vào project khác không còn mất Morai identity — user chạy `/morai:init` một lần là đủ
+
+---
+
 ## [0.7.0] — 2026-05-15
 
 ### Phase 5 — Team Knowledge Sharing + Git Workflow + Plugin Marketplace
