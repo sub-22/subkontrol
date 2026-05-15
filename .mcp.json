@@ -3,7 +3,7 @@
     "morai-pipeline": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "servers.pipeline.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.pipeline.server"],
       "env": {
         "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory",
         "MORAI_PIPELINE_PATH": "${CLAUDE_PROJECT_DIR}/.morai/pipeline",
@@ -13,7 +13,7 @@
     "morai-events": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "servers.events.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.events.server"],
       "env": {
         "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory"
       }
@@ -21,7 +21,7 @@
     "morai-memory": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "servers.memory.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.memory.server"],
       "env": {
         "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory",
         "MORAI_TASKS_PATH": "${user_config.MORAI_GLOBAL_PATH}/tasks",
@@ -31,7 +31,7 @@
     "morai-rag": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "servers.rag.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.rag.server"],
       "env": {
         "CHROMA_PATH": "${CLAUDE_PROJECT_DIR}/.morai/rag"
       }
@@ -39,7 +39,7 @@
     "morai-file": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "servers.file.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.file.server"],
       "env": {
         "WORKSPACE_ROOT": "${CLAUDE_PROJECT_DIR}"
       }
@@ -47,7 +47,7 @@
     "morai-git": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "servers.git.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.git.server"],
       "env": {
         "WORKSPACE_ROOT": "${CLAUDE_PROJECT_DIR}"
       }
@@ -55,7 +55,7 @@
     "morai-jira": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "servers.jira.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.jira.server"],
       "env": {
         "JIRA_URL": "${user_config.JIRA_URL}",
         "JIRA_EMAIL": "${user_config.JIRA_EMAIL}",
@@ -65,7 +65,7 @@
     "morai-confluence": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "servers.confluence.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.confluence.server"],
       "env": {
         "CONFLUENCE_URL": "${user_config.CONFLUENCE_URL}",
         "CONFLUENCE_EMAIL": "${user_config.CONFLUENCE_EMAIL}",
@@ -75,7 +75,7 @@
     "morai-slack": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "servers.morai.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.morai.server"],
       "env": {
         "SLACK_BOT_TOKEN": "${user_config.SLACK_BOT_TOKEN}",
         "SLACK_APP_TOKEN": "${user_config.SLACK_APP_TOKEN}"
@@ -84,7 +84,7 @@
     "morai-test": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "python", "-m", "servers.test_runner.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.test_runner.server"],
       "env": {
         "WORKSPACE_ROOT": "${CLAUDE_PROJECT_DIR}"
       }
