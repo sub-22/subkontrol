@@ -97,7 +97,7 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 - **Action**:
   1. STOP — không implement, không commit
   2. Xác định branch type từ task: feature→`feat/`, bug→`fix/`, chore→`chore/`, refactor→`refactor/`
-  3. Đề xuất branch name: `{type}/{TICKET-ID}-{slug-từ-title}` (e.g. `feat/PROJ-123-add-login`)
+  3. Đề xuất branch name: `{type}/{TICKET-ID}_{slug}` — slug: lowercase, dấu cách→`-`, ≤35 chars, detect ý nghĩa từ task title (e.g. `feat/PROJ-123_add-user-login`)
   4. **Hỏi human 2 thông tin cùng lúc — bắt buộc, không assume:**
      ```
      ⚠️ Đang ở branch protected: {current_branch}

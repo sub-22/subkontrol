@@ -28,13 +28,32 @@ morai-git: get_current_branch()
 **Protected branches** (không được commit trực tiếp):
 `master`, `main`, `develop`, `staging`, `production`, `release/*`
 
+**Branch naming convention** (áp dụng mọi lúc, không chỉ khi switch):
+
+```
+{type}/{ticket_id}_{what_it_does}
+
+feat/PROJ-123_add-user-authentication
+fix/PROJ-456_resolve-null-payment
+chore/PROJ-789_update-deps
+refactor/PROJ-101_extract-auth-middleware
+```
+
+| Task type | Prefix |
+|-----------|--------|
+| Feature / story / epic | `feat/` |
+| Bug / fix / hotfix | `fix/` |
+| Chore / config / ci / docs | `chore/` |
+| Refactor | `refactor/` |
+
+Rules:
+- Separator giữa ticket_id và description: `_` (underscore)
+- Description: lowercase, dấu cách → `-`, **tối đa 35 ký tự**, tự detect ý nghĩa ngắn gọn từ task title
+- Không viết tắt khó hiểu — "add-jwt-auth" tốt hơn "ajwta"
+
 **Nếu đang ở protected branch:**
-1. Xác định branch type từ task type:
-   - Feature / story → `feat/`
-   - Bug / fix → `fix/`
-   - Chore / config → `chore/`
-   - Refactor → `refactor/`
-2. Đề xuất branch name: `{type}/{TICKET-ID}-{slug}` (slug: lowercase, dấu cách → `-`, ≤30 chars)
+1. Xác định type từ task (bảng trên)
+2. Đề xuất branch name theo format trên
 3. **Hỏi human cả 2 thứ cùng lúc — bắt buộc:**
    ```
    ⚠️ Đang ở branch protected: {current_branch}
@@ -144,6 +163,37 @@ lint → format_check → typecheck → test
 ```
 
 Nếu bất kỳ bước nào fail → fix ngay, không tiếp tục đến GATE 2.
+
+## Commit Message — Detect Convention Trước Khi Commit
+
+Trước khi tạo commit message, detect convention của project:
+
+```
+morai-git: get_log(max_count=20)          ← đọc pattern commit gần nhất
+morai-file: read_file("CONTRIBUTING.md")  ← nếu tồn tại
+morai-file: read_file(".commitlintrc.json") ← hoặc .commitlintrc.yml / .commitlintrc.js
+```
+
+**Case 1 — Project có convention riêng** (detect được từ git log hoặc config):
+- Follow đúng format của project
+- Ví dụ: `[PROJ-123] Add JWT authentication` hoặc `PROJ-123 | feat | add auth`
+- Không override convention của dự án
+
+**Case 2 — Không detect được convention nào** (git log không có pattern rõ ràng):
+- Dùng format chuẩn của Morai:
+  ```
+  [{ticket_id}] {ticket_type}: {commit message mô tả task}
+
+  # Ví dụ:
+  [PROJ-123] feat: add JWT authentication middleware
+  [PROJ-456] fix: resolve null pointer in payment flow
+  [PROJ-789] refactor: extract auth logic to middleware
+  [PROJ-101] chore: update dependencies to latest stable
+  ```
+- `ticket_type`: feat / fix / refactor / chore / docs / test
+- `commit message`: tiếng Anh, imperative mood, ≤72 ký tự, mô tả WHAT không phải HOW
+
+**Hiển thị commit message đề xuất cho Dev xem trước khi commit.**
 
 ## ⛔ GATE 2 — Commit (formal gate, chỉ khi CI pass)
 
