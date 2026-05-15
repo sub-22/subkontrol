@@ -193,6 +193,11 @@ morai-file: read_file(".commitlintrc.json") ← hoặc .commitlintrc.yml / .comm
 - `ticket_type`: feat / fix / refactor / chore / docs / test
 - `commit message`: tiếng Anh, imperative mood, ≤72 ký tự, mô tả WHAT không phải HOW
 
+**Quan trọng — detect đúng format ticket trong prefix:**
+- Nếu git log dùng `[SK] feat:` → project không có ticket number → giữ `[SK]`
+- Nếu git log dùng `[SK-03] feat:` → project có ticket number trong prefix → dùng `[{PREFIX}-{ticket_num}]`
+- Luôn ưu tiên format có ticket number khi có ticket ID cụ thể
+
 **Hiển thị commit message đề xuất cho Dev xem trước khi commit.**
 
 ## ⛔ GATE 2 — Commit (formal gate, chỉ khi CI pass)
@@ -232,3 +237,9 @@ Dev respond: "push and create PR" → `resolve_gate` → `morai-git: push()` →
 - Update pipeline state
 
 > **Slack (optional):** Nếu configured → notify reviewer.
+
+**Auto-trigger reflect sau khi PR created:**
+```
+/morai:reflect $TICKET_ID
+```
+Không cần dev gọi tay — chạy ngay sau khi PR tạo xong để capture knowledge khi còn fresh.

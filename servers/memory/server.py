@@ -339,5 +339,84 @@ def archive_old_episodes(days: int = 90) -> str:
     return f"Archived {len(archive)} episodes → {archive_filename}. Kept {len(keep)}."
 
 
+DESIGN_REPO = Path(os.getenv("MORAI_DESIGN_REPO", ""))
+
+
+@mcp.tool()
+def sync_ticket_knowledge(
+    ticket_id: str,
+    summary: str,
+    learnings: str = "",
+) -> str:
+    """Ghi knowledge của ticket vào design repo để chia sẻ với cả team.
+
+    Writes to {MORAI_DESIGN_REPO}/tickets/{ticket_id}/summary.md (và learnings.md).
+    Sau đó commit + push design repo.
+
+    Args:
+        ticket_id: Jira ticket ID, e.g. "PROJ-123"
+        summary: Nội dung summary.md — what was built, key decisions, files changed
+        learnings: Nội dung learnings.md — gotchas, edge cases, unexpected issues (optional)
+    Returns:
+        Kết quả sync hoặc warning nếu MORAI_DESIGN_REPO chưa được set
+    """
+    if not DESIGN_REPO or not DESIGN_REPO.exists():
+        return (
+            "MORAI_DESIGN_REPO chưa được set hoặc không tồn tại. "
+            "Knowledge chỉ được lưu vào local memory. "
+            "Set MORAI_DESIGN_REPO=/path/to/{project}-design để chia sẻ với team."
+        )
+
+    import subprocess
+
+    ticket_dir = DESIGN_REPO / "tickets" / ticket_id
+    ticket_dir.mkdir(parents=True, exist_ok=True)
+
+    # Write summary.md
+    summary_path = ticket_dir / "summary.md"
+    summary_path.write_text(summary, encoding="utf-8")
+
+    # Write learnings.md nếu có nội dung
+    if learnings.strip():
+        learnings_path = ticket_dir / "learnings.md"
+        learnings_path.write_text(learnings, encoding="utf-8")
+
+    # Re-index RAG của design repo
+    chroma_path = str(DESIGN_REPO / ".morai" / "rag")
+    try:
+        import chromadb
+
+        client = chromadb.PersistentClient(path=chroma_path)
+        namespace = DESIGN_REPO.name  # e.g. "subkontrol-design"
+        collection = client.get_or_create_collection(namespace)
+        doc_id = f"{ticket_id}::summary"
+        collection.upsert(
+            ids=[doc_id],
+            documents=[summary],
+            metadatas=[{"source": f"tickets/{ticket_id}/summary.md", "ticket": ticket_id}],
+        )
+        if learnings.strip():
+            collection.upsert(
+                ids=[f"{ticket_id}::learnings"],
+                documents=[learnings],
+                metadatas=[{"source": f"tickets/{ticket_id}/learnings.md", "ticket": ticket_id}],
+            )
+    except Exception:
+        pass  # RAG indexing is best-effort
+
+    # Commit + push design repo
+    def run(cmd: list[str]) -> int:
+        return subprocess.run(cmd, cwd=DESIGN_REPO, capture_output=True).returncode
+
+    run(["git", "add", f"tickets/{ticket_id}"])
+    has_changes = run(["git", "diff", "--cached", "--quiet"]) != 0
+    if has_changes:
+        run(["git", "commit", "-m", f"knowledge: {ticket_id} — post-task learnings"])
+        run(["git", "push"])
+        return f"Synced {ticket_id} → {DESIGN_REPO.name}/tickets/{ticket_id}/ (committed + pushed)"
+
+    return f"Synced {ticket_id} → {DESIGN_REPO.name}/tickets/{ticket_id}/ (no git changes)"
+
+
 if __name__ == "__main__":
     mcp.run()

@@ -24,7 +24,8 @@
       "args": ["run", "python", "-m", "servers.memory.server"],
       "env": {
         "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory",
-        "MORAI_TASKS_PATH": "${user_config.MORAI_GLOBAL_PATH}/tasks"
+        "MORAI_TASKS_PATH": "${user_config.MORAI_GLOBAL_PATH}/tasks",
+        "MORAI_DESIGN_REPO": "${user_config.MORAI_DESIGN_REPO}"
       }
     },
     "morai-rag": {

@@ -78,3 +78,9 @@ morai-memory: save_pipeline_state($TICKET_ID, {
 Báo cáo tóm tắt cho user: verdict, số blockers, số suggestions.
 
 > **Slack (optional):** Nếu `morai-slack` configured → notify Dev về kết quả review.
+
+**Nếu verdict = APPROVE:** auto-trigger reflect để capture final knowledge:
+```
+/morai:reflect $TICKET_ID
+```
+Reviewer thường có góc nhìn tốt nhất về "what was actually changed" — reflect tại đây bổ sung perspective khác với lúc dev tự reflect.
