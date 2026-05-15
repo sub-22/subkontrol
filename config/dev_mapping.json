@@ -1,0 +1,18 @@
+{
+  "_comment": "Maps git identity → Jira assignee. Key = git user.email. Add one entry per dev.",
+  "devs": {
+    "contact.sub22@gmail.com": {
+      "git_name": "sub22",
+      "jira_account_id": "sub22-jira-account-id",
+      "jira_display_name": "Sub22",
+      "jira_email": "contact.sub22@gmail.com",
+      "project_keys": ["SK", "PROJ"]
+    }
+  },
+  "defaults": {
+    "max_tasks": 10,
+    "priority_order": ["Blocker", "Critical", "High", "Medium", "Low", "Trivial"],
+    "status_filter": ["To Do", "In Progress", "Open"],
+    "sprint_only": true
+  }
+}

@@ -35,6 +35,86 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(levelname)s — %(message)s")
 log = logging.getLogger("morai-onboard")
 
+_DEV_MAPPING_PATH = Path(__file__).parent.parent / "config" / "dev_mapping.json"
+
+
+def _git(field: str) -> str:
+    try:
+        return subprocess.check_output(["git", "config", field], text=True).strip()
+    except subprocess.CalledProcessError:
+        return ""
+
+
+def _fetch_jira_account_id(email: str) -> str:
+    """Try to resolve Jira account ID via /rest/api/3/myself using configured credentials."""
+    try:
+        import base64
+        import urllib.parse
+        import urllib.request
+        jira_url = os.getenv("JIRA_URL", "").rstrip("/")
+        jira_email = os.getenv("JIRA_EMAIL", "")
+        jira_token = os.getenv("JIRA_TOKEN", "")
+        if not all([jira_url, jira_email, jira_token]):
+            return ""
+        creds = base64.b64encode(f"{jira_email}:{jira_token}".encode()).decode()
+        req = urllib.request.Request(
+            f"{jira_url}/rest/api/3/myself",
+            headers={"Authorization": f"Basic {creds}", "Accept": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            import json as _json
+            data = _json.loads(resp.read())
+            return data.get("accountId", "")
+    except Exception:
+        return ""
+
+
+def _register_dev_mapping(project_keys: list[str]) -> None:
+    """Detect git identity và register vào config/dev_mapping.json."""
+    import json as _json
+
+    email = _git("user.email")
+    name = _git("user.name")
+    if not email:
+        log.warning("Không detect được git user.email — bỏ qua dev mapping")
+        return
+
+    _DEV_MAPPING_PATH.parent.mkdir(parents=True, exist_ok=True)
+    mapping = _json.loads(_DEV_MAPPING_PATH.read_text()) if _DEV_MAPPING_PATH.exists() else {
+        "_comment": "Maps git identity → Jira assignee. Key = git user.email.",
+        "devs": {},
+        "defaults": {
+            "max_tasks": 10,
+            "priority_order": ["Blocker", "Critical", "High", "Medium", "Low", "Trivial"],
+            "status_filter": ["To Do", "In Progress", "Open"],
+            "sprint_only": True,
+        },
+    }
+
+    if email in mapping.get("devs", {}):
+        log.info("Dev mapping đã tồn tại cho %s — bỏ qua", email)
+        return
+
+    account_id = _fetch_jira_account_id(email)
+    shadow = not account_id
+    if shadow:
+        account_id = f"TBD-{name.lower().replace(' ', '-')}"
+        log.info("Jira chưa configured → account_id placeholder: %s", account_id)
+    else:
+        log.info("Jira account ID resolved: %s", account_id)
+
+    mapping.setdefault("devs", {})[email] = {
+        "git_name": name,
+        "jira_account_id": account_id,
+        "jira_display_name": name,
+        "jira_email": email,
+        "project_keys": project_keys,
+    }
+
+    _DEV_MAPPING_PATH.write_text(_json.dumps(mapping, indent=2, ensure_ascii=False) + "\n")
+    status = "⚠️  shadow (update jira_account_id khi có Jira)" if shadow else "✅ live"
+    log.info("Dev mapping registered [%s]: %s → %s", status, email, account_id)
+
 
 def _has_confluence() -> bool:
     return all(os.getenv(k) for k in ["CONFLUENCE_URL", "CONFLUENCE_EMAIL", "CONFLUENCE_TOKEN"])
@@ -131,6 +211,9 @@ def onboard_dev(args: argparse.Namespace, repo_name: str, output_dir: Path) -> N
         project_name=args.project_name,
         project_key=args.project or args.project_name.upper(),
     )
+
+    project_keys = [args.project] if args.project else [args.project_name.upper()]
+    _register_dev_mapping(project_keys)
 
     has_external = False
 
