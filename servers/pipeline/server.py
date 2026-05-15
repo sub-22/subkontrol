@@ -738,7 +738,7 @@ def get_pending_gates(ticket_id: str) -> list[dict]:
         if gate.get("status") == "pending":
             pending.append(gate)
 
-    return sorted(pending, key=lambda g: g.get("created_at", ""))
+    return sorted(pending, key=lambda g: (g.get("created_at", ""), g.get("gate_id", "")))
 
 
 @mcp.tool()
