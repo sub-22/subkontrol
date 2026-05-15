@@ -143,3 +143,40 @@ skills:
     file_write: []
     git: []
     morai_memory: [get_episodes, get_preferences]
+
+  pr:
+    file_read: [source, artifacts, morai_internal]
+    file_write: []
+    git: [status, diff, log, push, create_pr, get_pr_template, get_open_pr, update_pr,
+          get_current_branch]
+    morai_memory: [save_pipeline_state, get_pipeline_state, record_episode]
+    external: [morai-slack.send_message]
+
+  init:
+    file_read: []
+    file_write: []
+    bash: ["~/.claude/plugins/cache/morai/**/scripts/init.sh"]
+    note: "writes to ~/.claude/CLAUDE.md (external path, outside zones) via init.sh"
+
+  doctor:
+    file_read: []
+    file_write: []
+    external:
+      - morai-jira.fetch_my_tasks
+      - morai-confluence.search
+      - morai-slack.get_pending_messages
+      - morai-memory.list_episodes
+      - morai-pipeline.get_state
+      - morai-rag.list_namespaces
+      - morai-git.git_status
+      - morai-file.list_files
+      - morai-test.detect_test_framework
+    note: "read-only health check — no writes"
+
+  onboard:
+    file_read: []
+    file_write: []
+    bash: ["~/.claude/plugins/cache/morai/**/scripts/onboard.py"]
+    external: [morai-jira.*, morai-confluence.*, morai-rag.scan_project]
+    invokes: [doctor]
+    note: "writes {project-name}-design/ to user's working directory via onboard.py script"
