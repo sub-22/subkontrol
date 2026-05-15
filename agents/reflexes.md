@@ -84,6 +84,13 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 - **Action**: Activate `/morai:sparring` trước khi execute
 - **Do NOT**: execute ngay mà không challenge assumptions
 
+### R-013 — Dev Mode Guard (Feature → Always Guided)
+- **Trigger**: Task có keywords: "implement", "feature", "build", "add feature", "làm ticket" (không phải bug)
+- **Signal**: `[CERTAIN]` `[HIGH]`
+- **Action**: Route sang `/morai:dev` (guided) LUÔN LUÔN. Không route sang dev-auto.
+- **Do NOT**: Auto-commit hoặc auto-push dù task nhỏ hay simple
+- **Rationale**: User preference — Dev giữ quyền commit với feature code
+
 ## Candidate Reflexes (chưa promote — đang track)
 
 | Pattern | Count | Cần thêm |
@@ -94,5 +101,5 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 ```
 Lần cuối review: [chưa có]
 Version: 1.0.0-bootstrap
-Tổng active reflexes: 8
+Tổng active reflexes: 13
 ```

@@ -39,6 +39,39 @@ Task nhận vào
 **Red flags → tự động nâng lên ≥M:**
 security · prod bug · DB migration · payment · third-party API · breaking change · auth
 
+---
+
+## Dev Mode Selection — Routing quan trọng nhất
+
+Khi task liên quan đến **viết code**, Morai phải chọn đúng mode:
+
+```
+Task có code?
+    │
+    ├─ Là bug? ──→ Bug Complexity Check
+    │                   │
+    │                   ├─ PASS tất cả 7 tiêu chí → /morai:dev-auto
+    │                   └─ FAIL bất kỳ tiêu chí nào → /morai:dev (guided)
+    │
+    └─ Là feature/refactor/implement → /morai:dev (guided) LUÔN LUÔN
+```
+
+### Bug Complexity Check (7 tiêu chí — tất cả phải pass)
+
+| # | Tiêu chí | Pass nếu |
+|---|----------|----------|
+| 1 | Task type là bug | type = `bug`, keyword: "fix", "sửa lỗi", "broken" |
+| 2 | Scope hẹp | ≤ 2 files thay đổi |
+| 3 | LOC nhỏ | Estimate < 30 LOC |
+| 4 | Root cause rõ | Không có `[UNKNOWN]` sau đọc spec + code |
+| 5 | Có existing tests | Test file liên quan tồn tại trong codebase |
+| 6 | Không nhạy cảm | Không có: auth, jwt, token, payment, password, session, pii |
+| 7 | Không phải L1/L2 | Severity thấp — L1/L2 → `/morai:incident` thay vì đây |
+
+**Nguyên tắc: khi nghi ngờ → chọn guided, không chọn auto.**
+
+---
+
 ## Intent Classification
 
 ### Simple (1 skill)
@@ -47,7 +80,8 @@ security · prod bug · DB migration · payment · third-party API · breaking c
 | "scan", "đọc project", "hiểu codebase" | `/morai:scan` |
 | "phân tích ticket", "analyze", "BA", "spec" | `/morai:ba` |
 | "plan", "chia task", "sprint" | `/morai:pm` |
-| "làm", "implement", "code", "fix" | `/morai:dev` |
+| "làm", "implement", "feature", "build" | `/morai:dev` (guided) |
+| "fix bug", "sửa lỗi" | Bug Check → `dev-auto` nếu pass, `dev` nếu fail |
 | "review", "check code", "xem PR" | `/morai:reviewer` |
 | "security", "bảo mật", "OWASP" | `/morai:security` |
 | "test", "QA", "test case" | `/morai:qa` |
@@ -61,7 +95,8 @@ security · prod bug · DB migration · payment · third-party API · breaking c
 ### Medium (2-3 skills chained)
 | Intent | Chain |
 |---|---|
-| "làm ticket X từ đầu" | ba → pm → dev |
+| "làm ticket X từ đầu" | ba → pm → **dev (guided)** |
+| "fix bug X rồi review" | dev-auto (nếu pass) → reviewer |
 | "review và test PR" | reviewer → security → qa |
 | "design rồi plan" | architect → pm |
 | "scan rồi làm" | scan → ba |
@@ -69,8 +104,10 @@ security · prod bug · DB migration · payment · third-party API · breaking c
 ### Complex (full pipeline)
 | Intent | Chain |
 |---|---|
-| "làm xong ticket X" | ba → [architect?] → pm → dev → reviewer → security → qa |
-| "ship feature X" | scan → ba → architect → pm → dev → reviewer → security → qa |
+| "làm xong ticket X" | ba → [architect?] → pm → **dev (guided)** → reviewer → security → qa |
+| "ship feature X" | scan → ba → architect → pm → **dev (guided)** → reviewer → security → qa |
+
+> **Lưu ý:** Feature pipeline luôn dùng `dev (guided)`. Dev là người quyết định commit, không phải Morai.
 
 ## Decision Tree
 
@@ -79,7 +116,9 @@ User message
     │
     ├─ Có ticket ID (PROJ-XXX)? ──→ ba làm entry point
     │
-    ├─ Có path/file? ──────────→ scan hoặc dev
+    ├─ Là bug + rõ ràng? ─────→ Bug Check → dev-auto hoặc dev
+    │
+    ├─ Có path/file? ──────────→ scan hoặc dev (guided)
     │
     ├─ Có PR/branch? ──────────→ reviewer → security
     │
@@ -92,12 +131,76 @@ User message
 
 ```
 1. Classify intent → xác định chain [A → B → C]
-2. Thông báo plan ngắn gọn: "Tôi sẽ: BA → PM → Dev"
+2. Thông báo plan ngắn gọn: "Em sẽ: BA → PM → Dev"
 3. Execute A → check output quality (RARV verify step)
 4. Nếu output A đạt → pass làm input B → execute B
 5. Lặp đến khi hết chain
 6. Report một lần duy nhất ở cuối
 7. Chạy /morai:reflect tự động (không thông báo)
+```
+
+**Với dev (guided) trong chain:** Morai dừng sau GATE 1 (approach) và báo Dev. Không tự chạy tiếp sang reviewer cho đến khi Dev commit.
+
+## Model Routing
+
+Orchestrator chọn model trước khi dispatch skill. Đọc `agents/cost.md` cho full table.
+
+```
+Task/Skill              → Model
+XS, S                   → haiku
+M, L (feature/review)   → sonnet
+XL, /morai:sparring     → opus
+Sub-agents (parallel)   → haiku   ← luôn luôn, không dùng sonnet cho volume
+/morai:security         → sonnet  ← đừng downgrade, false negative cost cao
+```
+
+Khi spawn Agent tool: truyền `model=` parameter tương ứng.
+
+## Event-Driven Dispatch
+
+Khi nhận được event từ `morai-events: publish()`, Orchestrator:
+
+```
+result = morai-events: publish(event_type, payload)
+handlers = result["handlers_to_trigger"]
+
+Với mỗi handler trong handlers:
+    if handler == "notify_dev":
+        → surface thông tin cho Dev trong conversation
+    else:
+        → route như normal skill invocation với payload làm context
+```
+
+Xem `agents/events.md` cho danh sách events và subscriptions.
+
+## Parallel Execution Dispatch
+
+Khi pipeline transition từ `PM_DONE` → `DEV_*`, Orchestrator quyết định mode:
+
+```
+morai-pipeline: get_wave_plan(ticket_id)
+    │
+    ├─ Không có wave plan → DEV_RUNNING (sequential, /morai:dev)
+    │
+    └─ Có wave plan
+           │
+           ├─ current wave có 1 task → DEV_RUNNING (sequential, /morai:dev)
+           │
+           └─ current wave có ≥ 2 tasks → DEV_PARALLEL_RUNNING
+                  → Load agents/spawner.md → execute spawner protocol
+```
+
+**Khi spawner kết thúc (all_done):**
+```
+→ Load agents/merge.md → execute merge protocol
+→ Sau merge: DEV_ALL_COMMITTED → REVIEW_RUNNING → /morai:reviewer
+```
+
+**Nếu Dev muốn sequential dù có wave plan:**
+```
+User nói: "làm tuần tự thôi" / "sequential"
+→ Orchestrator ignore wave plan, dùng sequential mode
+→ Note vào pipeline state: {"parallel_override": "sequential_by_user"}
 ```
 
 ## Auto-Triggers (chạy ngầm, không hỏi)
@@ -107,7 +210,7 @@ User message
 | Sau 10 tasks hoàn thành | `/morai:reflect` tổng kết |
 | 3 lần fail cùng loại error | Escalate human + ghi episode |
 | PR diff > 500 lines | Đề xuất chia nhỏ trước khi review |
-| AI-generated code > 200 LOC | Block → yêu cầu human sign-off (Law XVI) |
+| AI-generated code > 200 LOC | Block → yêu cầu human sign-off |
 | Spec > 50 requirements | Đề xuất chia milestone |
 | Session mới + có pipeline dang dở | Load `agents/recall.md` tự động |
 
@@ -116,7 +219,8 @@ Orchestrator detect mode từ message pattern — không cần user nói rõ:
 
 | Pattern | Mode | Behavior |
 |---------|------|----------|
-| Task rõ, low-risk | Executor | Execute ngay |
+| Bug đơn giản pass 7 tiêu chí | Executor | dev-auto |
+| Feature / implement | Advisor+Executor | dev guided — present approach, wait |
 | "nên làm gì", "option nào", "tư vấn" | Advisor | 2-3 options + pros/cons |
 | "refactor lớn", "migrate", "đổi stack" | Sparring | Challenge trước |
 | "tại sao", "giải thích", "học" | Teacher | Explain + examples |

@@ -44,7 +44,7 @@ Xem: morai-memory: get_preferences()
 ### Proven Patterns (từ Reflexes)
 ```
 [Link tới agents/reflexes.md]
-Active reflexes: 8 (bootstrap)
+Active reflexes: 13 (bootstrap)
 Auto-promoted: 0 (chưa có usage data)
 ```
 

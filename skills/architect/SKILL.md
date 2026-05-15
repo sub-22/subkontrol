@@ -17,6 +17,15 @@ Spec file path hoặc mô tả yêu cầu: $ARGUMENTS
 
 ## Quy trình thực hiện
 
+### Bước 0 — Load pipeline state
+```
+morai-memory: get_pipeline_state($TICKET_ID)
+morai-memory: save_pipeline_state($TICKET_ID, {
+  "current_step": "architect",
+  "status": "active"
+})
+```
+
 ### Bước 1 — Đọc context
 - Dùng `morai-file` MCP: đọc spec tương ứng (`specs/<id>.md`)
 - Dùng `morai-rag` MCP: search kiến trúc hiện tại, patterns đang dùng
@@ -67,6 +76,32 @@ Proposed | Accepted | Deprecated
 [Gợi ý cụ thể cho Dev: file cần tạo/sửa, patterns nên dùng]
 ```
 
-### Bước 5 — Notify
-- Dùng `morai-slack` MCP: thông báo ADR đã sẵn sàng cho PM/Dev review
-- Tóm tắt quyết định chính và những điểm Dev cần lưu ý
+### Bước 5 — Viết Detail Design
+Dùng `morai-file` MCP để:
+1. Đọc template tại `templates/detail_design.md`
+2. Ghi file `designs/<ticket-id>-detail.md` dựa trên template
+
+Các section **bắt buộc** điền:
+- **Metadata** — link spec, ADR, status
+- **Data Model** — nếu có thay đổi schema: DDL đầy đủ, migration up/down
+- **API Design** — endpoint mới hoặc thay đổi: request/response schema, error table
+- **Sequence Diagram** — flow chính của feature
+- **Error Handling Matrix** — các scenario lỗi và cách xử lý
+
+Các section **bỏ qua nếu không áp dụng**:
+- Module/Class Design — chỉ cần khi thiết kế có class mới phức tạp
+- Non-functional Requirements — chỉ điền nếu có yêu cầu cụ thể về performance/security
+
+### Bước 6 — Update pipeline state + Báo cáo
+```
+morai-memory: save_pipeline_state($TICKET_ID, {
+  "current_step": "architect",
+  "completed_steps": [...previous, "architect"],
+  "status": "active",
+  "design_path": "designs/$TICKET_ID-detail.md"
+})
+```
+
+Báo cáo tóm tắt cho user: quyết định kiến trúc chính, link đến ADR và detail design.
+
+> **Slack (optional):** Nếu `morai-slack` configured → notify PM/Dev.

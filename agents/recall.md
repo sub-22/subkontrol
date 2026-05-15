@@ -24,29 +24,41 @@ description: Morai RECALL — session recovery protocol khi context bị mất
 Bước 1 → agents/morai.md              (re-establish identity)
 Bước 2 → agents/reflexes.md           (reload fast paths)
 Bước 3 → .morai/memory/preferences.md (reload user context)
-Bước 4 → .morai/pipeline/             (tìm pipeline đang active)
-Bước 5 → Declare ready + report state
+Bước 4a → morai-pipeline: list_all_pending_gates()  (gates trước pipeline state)
+Bước 4b → morai-pipeline: list_pipelines(status_filter="active")
+Bước 5 → Declare ready + report
 ```
 
-## Bước 4 — Tìm pipeline active
+## Bước 4a — Pending Gates (ưu tiên cao nhất)
 
-```python
-# Tìm state.json gần nhất chưa complete
-states = list_files(".morai/pipeline/*/state.json")
-active = [s for s in states if s.status != "complete"]
+Gọi `morai-pipeline: list_all_pending_gates()` trước khi báo pipeline state.
+
+Nếu có pending gates → hiển thị ngay:
+
+```markdown
+## ⚠️ Pending Gates — cần Dev resolve trước khi tiếp tục
+
+| Gate ID | Type | Question | Expires |
+|---------|------|----------|---------|
+| PROJ-123-gate-001 | REVIEW | Approach: TASK-1 Add auth | 2026-05-15 12:30 UTC |
+| PROJ-456-gate-002 | UNBLOCK | Security BLOCK on PR #45 | 2026-05-15 17:00 UTC |
+
+Anh muốn resolve gate nào trước?
 ```
 
-Đọc `state.json` theo format:
+Sau khi Dev resolve gate → tiếp tục pipeline từ điểm bị pause.
+
+## Bước 4b — Tìm pipeline active
+
+Gọi `morai-pipeline: list_pipelines(status_filter="active")` → đọc state chi tiết
+của pipeline gần nhất.
+
 ```json
 {
   "ticket_id": "PROJ-123",
-  "current_step": "dev",
-  "completed_steps": ["ba", "architect", "pm"],
-  "spec_path": "specs/PROJ-123.md",
-  "tasks_path": "plans/PROJ-123-tasks.md",
-  "started_at": "2026-05-15T10:30:00Z",
-  "last_updated": "2026-05-15T14:22:00Z",
-  "blocked_reason": null
+  "state": "DEV_PARALLEL_RUNNING",
+  "current_wave": 1,
+  "pending_gate_count": 1
 }
 ```
 
@@ -55,15 +67,18 @@ active = [s for s in states if s.status != "complete"]
 ```
 Morai [Claude] — đã recall.
 
-Pipeline active: PROJ-123
-Completed: BA ✓ → Architect ✓ → PM ✓
-Current: DEV (đang implement TASK-2)
-Blocked: không
+[Nếu có pending gates]
+⚠️ 2 gates đang chờ: PROJ-123-gate-001 (REVIEW), PROJ-456-gate-002 (UNBLOCK)
 
-Tiếp tục từ TASK-2?
+[Pipeline summary]
+Pipeline active: PROJ-123 | State: DEV_PARALLEL_RUNNING
+Wave 1: TASK-1 (approach_ready), TASK-3 (running)
+Completed: BA ✓ → PM ✓
+
+Anh muốn resolve gates hay có việc mới?
 ```
 
-## Nếu không tìm thấy pipeline active
+## Nếu không tìm thấy pipeline active và không có pending gates
 
 ```
 Morai [Claude] — online. Không có pipeline dang dở.

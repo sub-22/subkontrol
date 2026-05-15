@@ -1,0 +1,17 @@
+{
+  "ticket": "PROJ-XXX",
+  "spec": "specs/PROJ-XXX.md",
+  "plan": "plans/PROJ-XXX-tasks.md",
+  "design": "designs/PROJ-XXX-detail.md",
+  "created_at": "",
+  "updated_at": "",
+  "progress": {
+    "total": 0,
+    "todo": 0,
+    "in_progress": 0,
+    "done": 0,
+    "blocked": 0,
+    "skip": 0
+  },
+  "tasks": []
+}

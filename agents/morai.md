@@ -85,6 +85,13 @@ Default: **Executor**. Switch khi detect signal.
 
 ### TIER B — Load theo task
 - `agents/recall.md` ← khi session bị gián đoạt
+- `agents/context_gateway.md` ← khi cần biết active pipelines, system state hiện tại
+- `agents/knowledge_gateway.md` ← khi cần domain knowledge, proven patterns, user preferences distilled
+- `agents/spawner.md` ← khi pipeline có wave plan với ≥2 tasks parallel
+- `agents/merge.md` ← khi cần merge worktrees sau parallel execution
+- `agents/hitl.md` ← khi cần tạo/handle gate, xem format chuẩn
+- `agents/cost.md` ← khi chọn model, check budget, optimize token usage
+- `agents/events.md` ← khi handle event trigger hoặc setup subscription
 - `.morai/memory/episodes.md` ← khi cần review history
 - `.morai/pipeline/<id>/state.json` ← khi resume pipeline
 - `rules/quality.md` ← khi review/QA/test

@@ -1,0 +1,145 @@
+# Morai — Skill Permission Matrix
+# Source of truth cho access control của tất cả skills
+
+# Zone definitions
+zones:
+  source:
+    description: Application source code (everything not in artifact dirs)
+    write_tool: write_source_file   # explicit tool — only dev skills use this
+    read_tool: read_file, morai-rag.search
+
+  artifacts:
+    description: Morai-generated documents
+    paths:
+      specs: "specs/"
+      plans: "plans/"
+      designs: "designs/"
+      adr: "docs/adr/"
+      reviews: "reviews/"
+      qa_reports: "tests/*-test-plan.md"
+      incidents: "incidents/"
+      tasks: "tasks/"
+    write_tool: write_file
+
+  morai_internal:
+    description: Morai brain files, memory, knowledge
+    paths: ".morai/"
+    write_tool: morai-memory.* or write_file(.morai/)
+
+# Per-skill permissions
+skills:
+  scan:
+    file_read: [source, artifacts, morai_internal]
+    file_write:
+      - path: ".morai/knowledge/**"
+        zone: morai_internal
+    git: [status, log]
+    morai_memory: [save_pipeline_state, get_pipeline_state]
+    note: "writes CLAUDE.md to scanned project root via write_file (external path)"
+
+  ba:
+    file_read: [artifacts, morai_internal]
+    file_write:
+      - path: "specs/**"
+        zone: artifacts
+    git: []
+    morai_memory: [save_pipeline_state, get_pipeline_state, record_episode]
+    external: [morai-jira.*, morai-confluence.*]
+
+  architect:
+    file_read: [source, artifacts, morai_internal]
+    file_write:
+      - path: "designs/**"
+        zone: artifacts
+      - path: "docs/adr/**"
+        zone: artifacts
+    git: [status, diff, log, get_pr_diff]
+    morai_memory: [save_pipeline_state, get_pipeline_state, record_episode]
+
+  pm:
+    file_read: [artifacts, morai_internal]
+    file_write:
+      - path: "plans/**"
+        zone: artifacts
+      - path: "tasks/**"
+        zone: artifacts
+    git: [status, log]
+    morai_memory: [save_pipeline_state, get_pipeline_state, record_episode]
+    external: [morai-jira.get_ticket_comments]
+
+  dev:
+    file_read: [source, artifacts, morai_internal]
+    file_write:
+      - path: "**"                # all source paths via write_source_file
+        zone: source
+      - path: "tasks/**"          # update task status only
+        zone: artifacts
+    git: [status, diff, log, commit, push, create_branch, get_current_branch,
+          create_pr, get_pr_diff]
+    morai_memory: [save_pipeline_state, get_pipeline_state, record_episode]
+    note: "ONLY skill allowed to call write_source_file"
+
+  "dev-auto":
+    inherits: dev
+    note: "Same permissions as dev, auto mode"
+
+  reviewer:
+    file_read: [source, artifacts, morai_internal]
+    file_write:
+      - path: "reviews/*-review.md"
+        zone: artifacts
+    git: [status, diff, log, get_pr_diff, add_pr_comment]
+    morai_memory: [save_pipeline_state, get_pipeline_state, record_episode]
+
+  security:
+    file_read: [source, artifacts, morai_internal]
+    file_write:
+      - path: "reviews/*-security.md"
+        zone: artifacts
+    git: [status, diff, log, get_pr_diff, add_pr_comment]
+    morai_memory: [save_pipeline_state, get_pipeline_state, record_episode]
+
+  qa:
+    file_read: [source, artifacts, morai_internal]
+    file_write:
+      - path: "tests/*-test-plan.md"   # report ONLY — NOT actual test code files
+        zone: artifacts
+    git: [status, diff, log, get_pr_diff]
+    morai_memory: [save_pipeline_state, get_pipeline_state, record_episode]
+    explicit_deny:
+      - write_source_file               # QA cannot write source or test code
+
+  incident:
+    file_read: [source, artifacts, morai_internal]
+    file_write:
+      - path: "incidents/**"
+        zone: artifacts
+    git: [status, diff, log]
+    morai_memory: [save_pipeline_state, get_pipeline_state, record_episode,
+                   update_preference]
+
+  reflect:
+    file_read: [artifacts, morai_internal]
+    file_write: []
+    git: [log]
+    morai_memory: [record_episode, get_episodes, get_pipeline_state,
+                   save_pipeline_state, update_preference]
+
+  evolve:
+    file_read: [morai_internal]
+    file_write: []
+    git: []
+    morai_memory: [get_episodes, get_pattern_counts, get_reflex_candidates,
+                   promote_to_reflex, update_preference, get_preferences]
+
+  kaizen:
+    file_read: [morai_internal]
+    file_write: []
+    git: []
+    morai_memory: [get_episodes, record_episode, get_pattern_counts]
+
+  sparring:
+    file_read: [source, artifacts, morai_internal]
+    file_write: []
+    git: []
+    morai_memory: [get_episodes, get_preferences]

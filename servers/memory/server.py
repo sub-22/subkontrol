@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+import re
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
@@ -271,6 +272,61 @@ def list_active_pipelines() -> list[dict]:
             })
 
     return sorted(active, key=lambda x: x.get("last_updated", ""), reverse=True)
+
+
+# ── Memory Decay ─────────────────────────────────────────────────────────────
+
+@mcp.tool()
+def archive_old_episodes(days: int = 90) -> str:
+    """Archive episodes cũ hơn `days` ngày vào thư mục archive/.
+
+    Args:
+        days: Số ngày tối đa giữ episode (default: 90)
+    Returns:
+        Số episodes đã archive
+    """
+    _ensure_dirs()
+    content = _read_md("episodes.md")
+    if not content:
+        return "Không có episodes để archive."
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    # Episode header format: "## YYYY-MM-DD HH:MM UTC ..."
+    date_pattern = re.compile(r"^## (\d{4}-\d{2}-\d{2})")
+
+    blocks = [b for b in content.split("##") if b.strip()]
+    keep: list[str] = []
+    archive: list[str] = []
+
+    for block in blocks:
+        match = date_pattern.match(block.strip())
+        if match:
+            try:
+                ep_date = datetime.strptime(match.group(1), "%Y-%m-%d").replace(
+                    tzinfo=timezone.utc
+                )
+                if ep_date < cutoff:
+                    archive.append(block)
+                    continue
+            except ValueError:
+                pass
+        keep.append(block)
+
+    if not archive:
+        return f"Không có episodes nào cũ hơn {days} ngày."
+
+    # Write archive
+    archive_filename = f"archive/episodes_{datetime.now(timezone.utc).strftime('%Y%m%d')}.md"
+    archive_content = "## " + "\n\n## ".join(archive)
+    _ensure_dirs()
+    (MEMORY_ROOT / archive_filename).write_text(archive_content, encoding="utf-8")
+
+    # Rewrite episodes.md with only kept entries
+    (MEMORY_ROOT / "episodes.md").write_text(
+        "## " + "\n\n## ".join(keep) if keep else "", encoding="utf-8"
+    )
+
+    return f"Archived {len(archive)} episodes → {archive_filename}. Kept {len(keep)}."
 
 
 if __name__ == "__main__":

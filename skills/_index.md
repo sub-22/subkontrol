@@ -16,7 +16,8 @@ scan → ba → [architect] → pm → dev → reviewer → security → qa
 | `/morai:ba` | "phân tích ticket", "analyze PROJ-123" | Jira/Confluence → spec.md |
 | `/morai:architect` | "design solution", "cần ADR", "architecture" | spec → Architecture Decision Record |
 | `/morai:pm` | "plan sprint", "chia task", "làm plan" | spec → sprint plan + tasks.md |
-| `/morai:dev` | "làm ticket", "implement", "code" | task → code + PR |
+| `/morai:dev` | "làm ticket", "implement", "feature", "build" | Guided — pair programming, Dev giữ quyền commit |
+| `/morai:dev-auto` | "fix bug X" (simple, pass 7 tiêu chí) | Auto — fix → test → commit → PR không cần review từng bước |
 | `/morai:reviewer` | "review PR", "check code" | PR → review comments |
 | `/morai:security` | "security check", "bảo mật" | PR → OWASP + STRIDE audit |
 | `/morai:qa` | "test", "QA", "viết test case" | spec → test plan + test report |

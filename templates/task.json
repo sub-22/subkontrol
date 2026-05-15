@@ -1,0 +1,23 @@
+{
+  "id": "TASK-1",
+  "ticket": "PROJ-XXX",
+  "title": "",
+  "type": "backend | frontend | infra | test",
+  "size": "S | M | L",
+  "priority": "P0 | P1 | P2",
+  "status": "todo | in-progress | done | blocked | skip",
+  "depends_on": [],
+  "assignee": "",
+  "estimate": "",
+  "created_at": "",
+  "updated_at": "",
+  "started_at": "",
+  "completed_at": "",
+  "description": "",
+  "definition_of_done": [
+    { "item": "", "done": false }
+  ],
+  "block_reason": "",
+  "pr_url": "",
+  "notes": ""
+}

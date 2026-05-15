@@ -19,14 +19,15 @@ Plugin name: **morai** → commands: `/morai:ba`, `/morai:dev`, ...
 
 ## MCP Servers
 
-| Server | Mô tả |
-|---|---|
-| `morai-rag` | Vector search — index và search documents/codebase |
-| `morai-jira` | Fetch/search Jira tickets |
-| `morai-confluence` | Fetch/search Confluence pages |
-| `morai-slack` | Gửi messages, request approval qua Slack |
-| `morai-file` | Đọc/ghi files trong workspace |
-| `morai-git` | Git status, diff, commit, branch |
+| Server | Mô tả | Status |
+|---|---|---|
+| `morai-rag` | Vector search — index và search documents/codebase | ✓ implemented |
+| `morai-memory` | Long-term memory — episodes, preferences, reflexes, pipeline state | ✓ implemented |
+| `morai-file` | Đọc/ghi files trong workspace | ✓ implemented |
+| `morai-git` | Git status, diff, commit, branch | ✓ implemented |
+| `morai-jira` | Fetch/search Jira tickets | stub |
+| `morai-confluence` | Fetch/search Confluence pages | stub |
+| `morai-slack` | Gửi messages, request approval qua Slack | stub |
 
 ## Cài đặt
 
@@ -43,8 +44,19 @@ cd subkontrol
 
 cp .env.example .env
 # Điền API keys vào .env
+# WORKSPACE_ROOT là bắt buộc — set absolute path tới project của bạn
 
 uv sync
+```
+
+### First run — verify setup
+
+```bash
+# Chạy tests để đảm bảo servers hoạt động
+uv run pytest tests/ -v
+
+# Lint check
+uv run ruff check servers/
 ```
 
 ### Cài plugin vào Claude Code
@@ -109,7 +121,7 @@ Sau đó các agents khác đã có đủ context để hoạt động.
 subkontrol/
 ├── .claude-plugin/
 │   └── plugin.json          # Plugin manifest
-├── skills/                  # Claude Code slash commands
+├── skills/                  # Source of truth cho slash 
 │   ├── scan/SKILL.md
 │   ├── ba/SKILL.md
 │   ├── architect/SKILL.md

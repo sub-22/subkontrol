@@ -30,8 +30,13 @@ CHUNK_OVERLAP = 15
 
 
 def _get_client():
-    import chromadb
-    return chromadb.PersistentClient(path=CHROMA_PATH)
+    try:
+        import chromadb
+        return chromadb.PersistentClient(path=CHROMA_PATH)
+    except ImportError:
+        raise RuntimeError("chromadb not installed — run: uv sync")
+    except Exception as e:
+        raise RuntimeError(f"ChromaDB init failed at '{CHROMA_PATH}': {e}") from e
 
 
 def _get_collection(namespace: str):

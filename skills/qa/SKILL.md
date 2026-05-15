@@ -11,10 +11,19 @@ Spec path, ticket ID, hoặc feature description: $ARGUMENTS
 
 ## Quy trình thực hiện
 
+### Bước 0 — Load pipeline state
+```
+morai-memory: get_pipeline_state($TICKET_ID)
+morai-memory: save_pipeline_state($TICKET_ID, {
+  "current_step": "qa",
+  "status": "active"
+})
+```
+
 ### Bước 1 — Đọc spec & code
 - Dùng `morai-file` MCP: đọc `specs/<id>.md`
 - Dùng `morai-rag` MCP: search code đã implement
-- Dùng `morai-git` MCP: xem diff của PR để biết chính xác thay đổi gì
+- Dùng `morai-git` MCP: `get_pr_diff()` hoặc `diff()` để biết chính xác thay đổi gì
 
 ### Bước 2 — Thiết kế test cases
 
@@ -36,7 +45,7 @@ Dùng `morai-file` MCP để ghi `tests/<ticket-id>-test-plan.md`:
 
 ### TC-01: [Happy path]
 - **Precondition**: ...
-- **Steps**: 
+- **Steps**:
   1. ...
 - **Expected result**: ...
 - **Priority**: P0
@@ -52,11 +61,23 @@ Dùng `morai-file` MCP để ghi `tests/<ticket-id>-test-plan.md`:
 - ...
 ```
 
-### Bước 4 — Chạy tests (nếu có thể)
-- Dùng `morai-file` MCP: viết automated test files nếu cần
-- Kiểm tra tests đã pass
+### Bước 4 — Verify (không viết test code)
+- Dùng `morai-rag` MCP: tìm existing test files liên quan
+- Dùng `morai-git` MCP: xem test results từ CI nếu có
+- **QA KHÔNG viết source code hay test files** — chỉ ghi nhận kết quả
+- Nếu test cần thêm: ghi vào "Automation candidates" trong test plan report
+  để Dev implement sau
 
-### Bước 5 — Report & Notify
-- Dùng `morai-slack` MCP: gửi test report tóm tắt
-- Kết luận: **PASS** / **FAIL** / **BLOCKED**
+### Bước 5 — Update pipeline state + Báo cáo
+```
+morai-memory: save_pipeline_state($TICKET_ID, {
+  "current_step": "qa",
+  "completed_steps": [...previous, "qa"],
+  "status": "complete"
+})
+```
+
+Kết luận rõ ràng cho user: **PASS** / **FAIL** / **BLOCKED**
 - Nếu FAIL: mô tả rõ bug, steps to reproduce, severity
+
+> **Slack (optional):** Nếu `morai-slack` configured → gửi test report tóm tắt.

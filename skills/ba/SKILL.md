@@ -11,15 +11,25 @@ Ticket ID hoặc mô tả yêu cầu từ người dùng: $ARGUMENTS
 
 ## Quy trình thực hiện
 
-### Bước 1 — Fetch dữ liệu
+### Bước 0 — Khởi tạo pipeline state
+```
+morai-memory: save_pipeline_state($TICKET_ID, {
+  "current_step": "ba",
+  "status": "active",
+  "started_at": <timestamp>
+})
+```
+
+### Bước 1 — Fetch dữ liệu (nếu Jira/Confluence configured)
 - Dùng `morai-jira` MCP: fetch ticket theo ID
+  - Nếu trả về `error` (stub/not configured) → bỏ qua, tiếp tục với thông tin user cung cấp
 - Dùng `morai-confluence` MCP: tìm kiếm tài liệu liên quan đến ticket summary
-- Nếu ticket có link Confluence đính kèm, fetch page đó luôn
+  - Nếu trả về `error` → bỏ qua
+- Nếu cả hai đều không có data → dùng $ARGUMENTS làm nguồn duy nhất
 
 ### Bước 2 — Build context
-- Dùng `morai-rag` MCP: index toàn bộ tài liệu vừa fetch
-- Dùng `morai-rag` MCP: search để lấy context liên quan nhất
-- Đọc kỹ: mô tả ticket, acceptance criteria, comments, attachments
+- Dùng `morai-rag` MCP: search context liên quan trong codebase
+- Đọc kỹ: mô tả ticket, acceptance criteria, comments, attachments (nếu có từ Bước 1)
 
 ### Bước 3 — Phân tích requirements
 Phân tích theo các góc độ:
@@ -39,34 +49,32 @@ Trước khi viết spec, tự hỏi:
 Nếu thiếu thông tin quan trọng, hỏi người dùng trước khi tiếp tục.
 
 ### Bước 5 — Viết spec.md
-Dùng `morai-file` MCP để ghi file `specs/<ticket-id>.md` với cấu trúc:
+Dùng `morai-file` MCP để:
+1. Đọc template tại `templates/ba_spec.md`
+2. Ghi file `specs/<ticket-id>.md` dựa trên template, điền đầy đủ thông tin
 
-```markdown
-# [Ticket ID] — [Title]
+Các section **bắt buộc** điền:
+- **Metadata** — ticket ID, priority, stakeholder, status
+- **Business Context** — problem, goal, success metric
+- **User Stories** — ít nhất 1 story per user role
+- **Acceptance Criteria** — cụ thể, đo được, QA viết test case được
+- **Edge Cases & Error Handling** — các scenario lỗi phổ biến
 
-## Overview
-[Mô tả ngắn gọn mục tiêu business]
+Các section **bỏ qua nếu không áp dụng**:
+- Business Rules — chỉ cần khi có logic tính toán / validation phức tạp
+- Non-functional Requirements — chỉ điền khi có yêu cầu cụ thể
+- References — điền nếu có link Figma, Confluence, PRD
 
-## User Stories
-- As a [user], I want [goal] so that [benefit]
-
-## Acceptance Criteria
-- [ ] AC1: ...
-- [ ] AC2: ...
-
-## Edge Cases & Error Handling
-- ...
-
-## Out of Scope
-- ...
-
-## Technical Notes
-[Gợi ý kỹ thuật nếu có, không bắt buộc]
-
-## Dependencies
-- ...
+### Bước 6 — Update pipeline state + Báo cáo
+```
+morai-memory: save_pipeline_state($TICKET_ID, {
+  "current_step": "ba",
+  "completed_steps": ["ba"],
+  "status": "active",
+  "spec_path": "specs/$TICKET_ID.md"
+})
 ```
 
-### Bước 6 — Notify
-- Dùng `morai-slack` MCP: gửi thông báo đến Slack channel với link spec
-- Báo cáo tóm tắt cho người dùng: spec đã tạo tại đâu, những điểm chính là gì
+Báo cáo tóm tắt cho user: spec đã tạo tại đâu, những điểm chính là gì.
+
+> **Slack (optional):** Nếu `morai-slack` configured → gửi thêm thông báo đến channel.

@@ -165,7 +165,7 @@ Dùng `morai-file: write_file` để tạo `CLAUDE.md` ngay tại root của pro
 [Lệnh để chạy project]
 
 ## Architecture
-[Tóm tắt 3-5 dòng về kiến trúc]
+[Tóm tắt về kiến trúc]
 
 ## Key Directories
 | Path | Purpose |
@@ -188,10 +188,16 @@ Xem chi tiết tại `.morai/knowledge/`:
 
 ### Bước 6 — Index knowledge docs vào RAG
 Dùng `morai-rag: index_documents` để index tất cả các file vừa tạo vào cùng namespace.
-Giờ đây tất cả agents có thể search được knowledge này.
 
-### Bước 7 — Báo cáo
-Tóm tắt cho người dùng:
+### Bước 7 — Update context gateway + Báo cáo
+Dùng `morai-file: append_file("agents/context_gateway.md", ...)` để update:
+```
+Last scanned: <timestamp>
+Active projects: <project name>
+RAG namespaces: [<namespace>]
+```
+
+Báo cáo cho user:
 - Đã index bao nhiêu files
 - Tech stack phát hiện được
 - Những điểm đặc biệt của project cần lưu ý

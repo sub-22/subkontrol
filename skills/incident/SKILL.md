@@ -23,7 +23,7 @@ Mô tả incident hoặc ticket ID: $ARGUMENTS
 
 ### Bước 1 — Triage ngay
 - Classify severity (L1-L4)
-- Nếu L1: notify Slack ngay, stop mọi deploys
+- Nếu L1: thông báo cho user ngay, stop mọi deploys
 - Dùng `morai-git: status` + `morai-git: get_log(10)` → xem recent changes
 - Dùng `morai-rag: search(incident description)` → tìm related code
 
@@ -95,6 +95,9 @@ Dùng `morai-file: write_file("incidents/<date>-<title>.md", ...)`:
 - [ ] ...
 ```
 
-### Bước 7 — Notify & Close
-- Dùng `morai-slack`: gửi summary + resolution
-- Update `agents/context_gateway.md` — remove từ active incidents
+Dùng `morai-file: append_file("agents/context_gateway.md", ...)` → remove incident khỏi active list.
+
+### Bước 7 — Báo cáo cho user
+Tóm tắt: severity, root cause, fix applied, bước tiếp theo.
+
+> **Slack (optional):** Nếu `morai-slack` configured → gửi summary + resolution.

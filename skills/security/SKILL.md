@@ -17,8 +17,17 @@ PR URL, branch name, hoặc ticket ID: $ARGUMENTS
 
 ## Quy trình thực hiện
 
+### Bước 0 — Load pipeline state
+```
+morai-memory: get_pipeline_state($TICKET_ID)
+morai-memory: save_pipeline_state($TICKET_ID, {
+  "current_step": "security",
+  "status": "active"
+})
+```
+
 ### Bước 1 — Lấy context
-- Dùng `morai-git` MCP: lấy full diff của PR/branch
+- Dùng `morai-git` MCP: `get_pr_diff()` hoặc `diff()` để lấy full diff của PR/branch
 - Dùng `morai-file` MCP: đọc spec (`specs/<id>.md`) để hiểu intent
 - Dùng `morai-rag` MCP: search auth patterns, security configs hiện tại
 
@@ -63,7 +72,7 @@ Dùng STRIDE để phân tích:
 - **D**enial of Service: có attack vector nào không?
 - **E**levation of Privilege: có thể leo thang quyền không?
 
-### Bước 4 — Output
+### Bước 4 — Output + Báo cáo + BLOCK Gate (nếu cần)
 Dùng `morai-file` MCP để ghi `reviews/<ticket-id>-security.md`:
 
 ```markdown
@@ -85,7 +94,26 @@ Dùng `morai-file` MCP để ghi `reviews/<ticket-id>-security.md`:
 - ...
 ```
 
-### Bước 5 — Notify
-- Dùng `morai-slack` MCP: gửi security verdict lên channel
-- Nếu BLOCK: tag Dev và Reviewer, mô tả rõ issue cần fix
-- Nếu PASS: confirm cho PM/QA tiếp tục pipeline
+**Nếu verdict = BLOCK:** Tạo UNBLOCK gate trước khi advance pipeline:
+
+```python
+gate = morai-pipeline: create_gate(
+    ticket_id=$TICKET_ID,
+    gate_type="UNBLOCK",
+    question="Security review BLOCKED — pipeline không thể advance đến QA",
+    context=f"Critical issues:\n{critical_issues_list}\n\nDev cần fix và tạo PR mới trước khi QA.",
+    timeout_minutes=480,  # 8 giờ
+)
+```
+
+Pipeline **không được** transition sang `SECURITY_DONE` / `QA_RUNNING` khi gate này còn pending.
+Dev phải fix issues → resolve gate → pipeline tiếp tục.
+
+```
+morai-pipeline: transition($TICKET_ID, "SECURITY_DONE",
+  context={"security_review_path": "reviews/$TICKET_ID-security.md"})
+```
+
+Báo cáo tóm tắt cho user: verdict (BLOCK/WARN/PASS), critical issues nếu có.
+
+> **Slack (optional):** Nếu `morai-slack` configured → notify verdict. Nếu BLOCK: tag Dev và Reviewer, mô tả rõ issue cần fix.
