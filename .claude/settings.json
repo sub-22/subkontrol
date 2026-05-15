@@ -1,8 +1,1 @@
-{
-  "enabledPlugins": {
-    "engineering-advanced-skills@claude-code-skills": true,
-    "engineering-skills@claude-code-skills": true,
-    "handoff@claude-code-skills": true,
-    "agenthub@claude-code-skills": true
-  }
-}
+// Your settings claude
