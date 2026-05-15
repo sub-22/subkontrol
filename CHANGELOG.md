@@ -7,6 +7,101 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [0.7.0] — 2026-05-15
+
+### Phase 5 — Team Knowledge Sharing + Git Workflow + Plugin Marketplace
+
+#### Added — MCP Servers (fully implemented)
+
+- `servers/jira/server.py` — `get_ticket`, `search_tickets`, `get_ticket_comments`, `get_project_epics`, `get_active_sprint`, `fetch_my_tasks` (với shadow mode khi chưa configure)
+- `servers/confluence/server.py` — `get_page`, `search`, `get_children`, `get_space_pages` (filter theo label)
+- `servers/morai/server.py` (morai-slack) — `send_message`, `get_thread`, `get_pending_messages`, `request_approval` (reaction polling)
+- `servers/test_runner/server.py` (morai-test) — `run_pytest`, `run_coverage`, `detect_test_framework`
+- `servers/git/server.py` — thêm `get_pr_template`, `get_open_pr`, `update_pr`
+- `servers/file/server.py` — thêm `project_summary`
+- `servers/memory/server.py` — thêm `sync_ticket_knowledge` (ghi knowledge vào design repo + re-index RAG + push)
+
+#### Added — morai-onboard CLI
+
+- `scripts/onboard.py` — bootstrap `{project-name}-design` knowledge repo cho non-dev
+- `scripts/onboard/` — `repo_manager`, `confluence_puller`, `jira_puller`, `rag_indexer`, `generator`
+- Hỗ trợ `--role dev|non-dev`: dev pull Confluence/Jira; non-dev fallback clone source + `/morai:scan`
+- Idempotent: chạy lại chỉ update file mới/changed (hash-based)
+- Confluece label mapping: `basic-design`→`basic_design/`, `detail-design`→`detail_design/`, `adr`→`decisions/`
+
+#### Added — Skills
+
+- `skills/pr/SKILL.md` — `/morai:pr`: collect context → detect PR type → load template (project first, fallback subkontrol) → fill description → CI gate → push → create/update PR → notify Slack
+- `skills/reflect/SKILL.md` — Bước 5: generate `summary.md` + `learnings.md` → `sync_ticket_knowledge`
+
+#### Added — Reflexes
+
+- `R-014` — Task recording: persist to `morai-memory` + `~/.morai/tasks/backlog.md`
+- `R-015` — Branch guard: STOP khi chuẩn bị tạo branch → hỏi cả branch name + base branch
+- `R-016` — Auto-fetch Jira tasks khi pipeline empty → `fetch_my_tasks` với shadow mode
+
+#### Added — Git Workflow Rules
+
+- Branch naming: `{type}/{TICKET-ID}_{slug}` (underscore separator, ≤35 chars)
+- Commit convention detection: Case 1 (project có convention) → follow; Case 2 → `[{PREFIX}-{num}] {type}: {msg}`
+- Bước 0 trong `/morai:dev`: check protected branch → propose branch → hỏi base → tạo
+- `/morai:pr` Bước 0: detect open PR → update description nếu đã tồn tại
+
+#### Added — Non-dev Profile
+
+- `profiles/non-dev/.mcp.json` — chỉ load: jira, confluence, rag, slack, memory
+- `profiles/non-dev/CLAUDE.md` — Morai identity cho BA/PM/QA không có source code
+
+#### Added — Storage Architecture
+
+- `~/.morai/memory/` — global user memory (cross-project)
+- `~/.morai/tasks/backlog.md` — global task backlog
+- `{WORKSPACE}/.morai/rag/` — per-project vector index
+- `{WORKSPACE}/.morai/pipeline/` — per-project FSM state
+- `MORAI_DESIGN_REPO` env var — path tới local clone của `{project}-design` repo
+
+#### Added — Dev Identity
+
+- `config/dev_mapping.example.json` — template mapping git email → Jira account
+- `servers/jira/server.py: fetch_my_tasks()` — fetch + prioritize tasks của dev hiện tại (Blocker > Critical > High)
+- Shadow mode: hiển thị badge `⚠️ SHADOW` khi Jira chưa configure
+
+#### Added — Slack → Skill Routing
+
+- `agents/orchestrator.md` — intent map: `code_review`→`/morai:reviewer`, `security_audit`→`/morai:security`, `analyze_ticket`→`/morai:ba`
+- PR ref extraction: GitHub URL, Bitbucket URL, `#number` pattern
+
+#### Added — Public Repo & Marketplace
+
+- `LICENSE` — MIT
+- `SECURITY.md` — vulnerability reporting process
+- `.claude-plugin/marketplace.json` — marketplace index cho `claude plugin install morai@sub22`
+- Branch protection master: require PR + 1 approval + CI pass; no force push; no deletion
+- `install.sh` — one-command install script
+
+#### Changed
+
+- `skills/dev/SKILL.md` — Bước 0 branch setup; commit message detection (2 cases); auto-trigger reflect sau GATE 3
+- `skills/reviewer/SKILL.md` — trigger reflect sau APPROVE
+- `.mcp.json` — fix `MORAI_MEMORY_PATH`/`MORAI_PIPELINE_PATH` paths; add `morai-test`, `MORAI_DESIGN_REPO`
+- `agents/reflexes.md` — R-015 extended: require base branch confirm; update R-016
+
+#### Fixed
+
+- `DESIGN_REPO = Path("")` truthy bug → dùng `None` sentinel
+- Silent `git push` failure trong `sync_ticket_knowledge` → return error message
+- Pipeline tests: add `MORAI_PIPELINE_PATH` fixture
+- `plugin.json`: remove unsupported `"secret"` field từ `userConfig`
+- `marketplace.json`: thêm required top-level `name` field
+
+#### Security
+
+- Gitignore `config/dev_mapping.json` (chứa real email/account IDs)
+- Sanitize `servers/jira/stubs/assigned_tasks.json`: replace real email → `dev@example.com`
+- Gitignore `makeingbest.md` (internal notes)
+
+---
+
 ## [Unreleased] — v0.6.0
 
 ### Phase 4 — Event Triggers + Cost Management
