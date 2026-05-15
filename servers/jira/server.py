@@ -1,6 +1,9 @@
 """Jira MCP server — fetch tickets, search issues."""
 
+import json
 import os
+import subprocess
+from pathlib import Path
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
@@ -10,6 +13,12 @@ mcp = FastMCP("morai-jira")
 JIRA_URL = os.getenv("JIRA_URL", "")
 JIRA_EMAIL = os.getenv("JIRA_EMAIL", "")
 JIRA_TOKEN = os.getenv("JIRA_TOKEN", "")
+
+_REPO_ROOT = Path(__file__).parent.parent.parent
+_DEV_MAPPING_PATH = _REPO_ROOT / "config" / "dev_mapping.json"
+_STUBS_PATH = Path(__file__).parent / "stubs" / "assigned_tasks.json"
+
+_PRIORITY_ORDER = ["Blocker", "Critical", "High", "Medium", "Low", "Trivial"]
 
 _NOT_CONFIGURED = {
     "error": "morai-jira not configured — set JIRA_URL, JIRA_EMAIL, JIRA_TOKEN in .env"
@@ -146,6 +155,119 @@ def get_active_sprint(project_key: str) -> dict:
         "ticket_count": len(issues),
         "tickets": [_format_ticket(i) for i in issues],
     }
+
+
+def _resolve_dev_identity() -> dict[str, Any] | None:
+    """Resolve current dev from git config → dev_mapping.json."""
+    try:
+        email = subprocess.check_output(["git", "config", "user.email"], text=True).strip()
+    except subprocess.CalledProcessError:
+        return None
+
+    if not _DEV_MAPPING_PATH.exists():
+        return None
+
+    mapping: dict[str, Any] = json.loads(_DEV_MAPPING_PATH.read_text())
+    result: dict[str, Any] | None = mapping.get("devs", {}).get(email)
+    return result
+
+
+def _priority_rank(priority_name: str) -> int:
+    try:
+        return _PRIORITY_ORDER.index(priority_name)
+    except ValueError:
+        return len(_PRIORITY_ORDER)
+
+
+def _fetch_from_stub(dev: dict, max_results: int) -> list[dict]:
+    if not _STUBS_PATH.exists():
+        return []
+    data = json.loads(_STUBS_PATH.read_text())
+    dev_email = dev["jira_email"].lower()
+    issues = [
+        i
+        for i in data.get("issues", [])
+        if (i.get("fields", {}).get("assignee") or {}).get("emailAddress", "").lower() == dev_email
+    ]
+    return issues[:max_results]
+
+
+def _prioritize(issues: list[dict]) -> list[dict]:
+    def sort_key(issue: dict) -> tuple:
+        f = issue.get("fields", {})
+        priority = f.get("priority", {}).get("name", "Trivial")
+        points = f.get("story_points", 99)
+        return (_priority_rank(priority), points)
+
+    return sorted(issues, key=sort_key)
+
+
+def _format_task_list(issues: list[dict], jira_url: str, shadow: bool) -> dict:
+    tasks = []
+    for i, issue in enumerate(issues, 1):
+        f = issue.get("fields", {})
+        url = f"{jira_url}/browse/{issue['key']}" if jira_url else f"[shadow] {issue['key']}"
+        tasks.append(
+            {
+                "rank": i,
+                "id": issue["key"],
+                "summary": f.get("summary", ""),
+                "priority": f.get("priority", {}).get("name", ""),
+                "type": f.get("issuetype", {}).get("name", ""),
+                "status": f.get("status", {}).get("name", ""),
+                "story_points": f.get("story_points"),
+                "labels": f.get("labels", []),
+                "url": url,
+            }
+        )
+    return {
+        "shadow_mode": shadow,
+        "total": len(tasks),
+        "tasks": tasks,
+    }
+
+
+@mcp.tool()
+def fetch_my_tasks(max_results: int = 10) -> dict:
+    """Fetch và prioritize tasks được assign cho dev hiện tại.
+
+    Tự động resolve identity từ git config → config/dev_mapping.json.
+    Shadow mode: đọc từ servers/jira/stubs/assigned_tasks.json khi Jira chưa configured.
+
+    Args:
+        max_results: Số task tối đa trả về
+    Returns:
+        dict với shadow_mode, total, tasks (đã sort theo priority + story_points)
+    """
+    dev = _resolve_dev_identity()
+    if dev is None:
+        return {
+            "error": (
+                "Cannot resolve dev identity. "
+                "Check git config user.email và config/dev_mapping.json."
+            )
+        }
+
+    mapping = json.loads(_DEV_MAPPING_PATH.read_text())
+    cfg = mapping.get("defaults", {})
+    max_results = min(max_results, cfg.get("max_tasks", 10))
+
+    shadow = not _is_configured()
+
+    if shadow:
+        issues = _fetch_from_stub(dev, max_results)
+    else:
+        jql = (
+            f'assignee = "{dev["jira_account_id"]}"'
+            f' AND status in ("To Do","In Progress","Open")'
+            f" AND sprint in openSprints()"
+            f" ORDER BY priority ASC"
+        )
+        results = _client().jql(jql, limit=max_results)
+        issues = results.get("issues", [])
+
+    prioritized = _prioritize(issues)
+    return _format_task_list(prioritized, JIRA_URL, shadow)
 
 
 if __name__ == "__main__":
