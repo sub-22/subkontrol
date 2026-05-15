@@ -155,6 +155,52 @@ def create_pr(
 
 
 @mcp.tool()
+def get_pr_template() -> dict:
+    """Đọc PR template của project, fallback về subkontrol templates.
+
+    Lookup order:
+      1. .github/PULL_REQUEST_TEMPLATE.md
+      2. .github/pull_request_template.md
+      3. .github/PULL_REQUEST_TEMPLATE/*.md (trả về tất cả)
+      4. docs/pull_request_template.md
+      5. Fallback: subkontrol templates (feature / bugfix / refactor)
+
+    Returns:
+        {
+          "source": "project" | "subkontrol",
+          "templates": {"<name>": "<content>", ...}
+        }
+    """
+    # Project template locations
+    candidates = [
+        WORKSPACE_ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md",
+        WORKSPACE_ROOT / ".github" / "pull_request_template.md",
+        WORKSPACE_ROOT / "docs" / "pull_request_template.md",
+    ]
+    for path in candidates:
+        if path.exists():
+            return {"source": "project", "templates": {"default": path.read_text(encoding="utf-8")}}
+
+    # Multi-template directory
+    multi_dir = WORKSPACE_ROOT / ".github" / "PULL_REQUEST_TEMPLATE"
+    if multi_dir.is_dir():
+        templates = {
+            f.stem: f.read_text(encoding="utf-8")
+            for f in sorted(multi_dir.glob("*.md"))
+        }
+        if templates:
+            return {"source": "project", "templates": templates}
+
+    # Fallback: subkontrol built-in templates
+    subkontrol_tpl = Path(__file__).parent.parent.parent / "templates" / "pr"
+    templates = {}
+    if subkontrol_tpl.is_dir():
+        for f in sorted(subkontrol_tpl.glob("*.md")):
+            templates[f.stem] = f.read_text(encoding="utf-8")
+    return {"source": "subkontrol", "templates": templates}
+
+
+@mcp.tool()
 def get_pr_diff(pr_number: int | None = None) -> str:
     """Lấy diff của PR hiện tại hoặc một PR cụ thể.
 

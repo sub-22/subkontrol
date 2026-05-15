@@ -7,7 +7,7 @@ Quick reference cho tất cả `/morai:*` commands.
 ## PIPELINE — Software Development Flow
 
 ```
-scan → ba → [architect] → pm → dev → reviewer → security → qa
+scan → ba → [architect] → pm → dev → pr → reviewer → security → qa
 ```
 
 | Command | Trigger tự nhiên | Mô tả |
@@ -18,6 +18,7 @@ scan → ba → [architect] → pm → dev → reviewer → security → qa
 | `/morai:pm` | "plan sprint", "chia task", "làm plan" | spec → sprint plan + tasks.md |
 | `/morai:dev` | "làm ticket", "implement", "feature", "build" | Guided — pair programming, Dev giữ quyền commit |
 | `/morai:dev-auto` | "fix bug X" (simple, pass 7 tiêu chí) | Auto — fix → test → commit → PR không cần review từng bước |
+| `/morai:pr` | "tạo PR", "push và tạo PR", "xong rồi tạo PR" | Push branch → fill template → tạo PR → notify Slack |
 | `/morai:reviewer` | "review PR", "check code" | PR → review comments |
 | `/morai:security` | "security check", "bảo mật" | PR → OWASP + STRIDE audit |
 | `/morai:qa` | "test", "QA", "viết test case" | spec → test plan + test report |
@@ -54,7 +55,7 @@ reflect (sau task) → evolve (sau sprint) → kaizen (weekly)
 Orchestrator tự route khi user nói tự nhiên:
 
 ```
-"làm xong PROJ-123"        → ba → architect? → pm → dev → reviewer → security → qa
+"làm xong PROJ-123"        → ba → architect? → pm → dev → pr → reviewer → security → qa
 "review và test PR #45"    → reviewer → security → qa
 "refactor toàn bộ auth"    → sparring trước → architect → dev
 "có bug production"        → incident
