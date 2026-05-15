@@ -157,20 +157,19 @@ def get_active_sprint(project_key: str) -> dict:
     }
 
 
-def _resolve_dev_identity() -> dict | None:
+def _resolve_dev_identity() -> dict[str, Any] | None:
     """Resolve current dev from git config → dev_mapping.json."""
     try:
-        email = subprocess.check_output(
-            ["git", "config", "user.email"], text=True
-        ).strip()
+        email = subprocess.check_output(["git", "config", "user.email"], text=True).strip()
     except subprocess.CalledProcessError:
         return None
 
     if not _DEV_MAPPING_PATH.exists():
         return None
 
-    mapping = json.loads(_DEV_MAPPING_PATH.read_text())
-    return mapping.get("devs", {}).get(email)
+    mapping: dict[str, Any] = json.loads(_DEV_MAPPING_PATH.read_text())
+    result: dict[str, Any] | None = mapping.get("devs", {}).get(email)
+    return result
 
 
 def _priority_rank(priority_name: str) -> int:
@@ -186,9 +185,9 @@ def _fetch_from_stub(dev: dict, max_results: int) -> list[dict]:
     data = json.loads(_STUBS_PATH.read_text())
     dev_email = dev["jira_email"].lower()
     issues = [
-        i for i in data.get("issues", [])
-        if (i.get("fields", {}).get("assignee") or {})
-        .get("emailAddress", "").lower() == dev_email
+        i
+        for i in data.get("issues", [])
+        if (i.get("fields", {}).get("assignee") or {}).get("emailAddress", "").lower() == dev_email
     ]
     return issues[:max_results]
 
@@ -208,17 +207,19 @@ def _format_task_list(issues: list[dict], jira_url: str, shadow: bool) -> dict:
     for i, issue in enumerate(issues, 1):
         f = issue.get("fields", {})
         url = f"{jira_url}/browse/{issue['key']}" if jira_url else f"[shadow] {issue['key']}"
-        tasks.append({
-            "rank": i,
-            "id": issue["key"],
-            "summary": f.get("summary", ""),
-            "priority": f.get("priority", {}).get("name", ""),
-            "type": f.get("issuetype", {}).get("name", ""),
-            "status": f.get("status", {}).get("name", ""),
-            "story_points": f.get("story_points"),
-            "labels": f.get("labels", []),
-            "url": url,
-        })
+        tasks.append(
+            {
+                "rank": i,
+                "id": issue["key"],
+                "summary": f.get("summary", ""),
+                "priority": f.get("priority", {}).get("name", ""),
+                "type": f.get("issuetype", {}).get("name", ""),
+                "status": f.get("status", {}).get("name", ""),
+                "story_points": f.get("story_points"),
+                "labels": f.get("labels", []),
+                "url": url,
+            }
+        )
     return {
         "shadow_mode": shadow,
         "total": len(tasks),
@@ -259,7 +260,7 @@ def fetch_my_tasks(max_results: int = 10) -> dict:
         jql = (
             f'assignee = "{dev["jira_account_id"]}"'
             f' AND status in ("To Do","In Progress","Open")'
-            f' AND sprint in openSprints()'
+            f" AND sprint in openSprints()"
             f" ORDER BY priority ASC"
         )
         results = _client().jql(jql, limit=max_results)
