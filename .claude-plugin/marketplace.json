@@ -1,0 +1,15 @@
+{
+  "owner": {
+    "name": "sub-22"
+  },
+  "plugins": [
+    {
+      "name": "morai",
+      "description": "Morai — AI Operator cho team phát triển phần mềm. Self-learning, adaptive, BA→QA pipeline.",
+      "source": {
+        "source": "github",
+        "repo": "sub-22/subkontrol"
+      }
+    }
+  ]
+}
