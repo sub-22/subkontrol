@@ -7,12 +7,6 @@
   },
   "defaultAgent": "morai",
   "userConfig": {
-    "WORKSPACE_ROOT": {
-      "type": "string",
-      "title": "Workspace root path",
-      "description": "Absolute path tới project đang làm việc",
-      "required": true
-    },
     "MORAI_GLOBAL_PATH": {
       "type": "string",
       "title": "Morai global data path",

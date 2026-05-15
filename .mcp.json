@@ -6,7 +6,7 @@
       "args": ["run", "python", "-m", "servers.pipeline.server"],
       "env": {
         "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory",
-        "MORAI_PIPELINE_PATH": "${user_config.WORKSPACE_ROOT}/.morai/pipeline",
+        "MORAI_PIPELINE_PATH": "${workspaceFolder}/.morai/pipeline",
         "MORAI_BUDGET_TOKENS": "200000"
       }
     },
@@ -33,7 +33,7 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.rag.server"],
       "env": {
-        "CHROMA_PATH": "${user_config.WORKSPACE_ROOT}/.morai/rag"
+        "CHROMA_PATH": "${workspaceFolder}/.morai/rag"
       }
     },
     "morai-file": {
@@ -41,7 +41,7 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.file.server"],
       "env": {
-        "WORKSPACE_ROOT": "${user_config.WORKSPACE_ROOT}"
+        "WORKSPACE_ROOT": "${workspaceFolder}"
       }
     },
     "morai-git": {
@@ -49,7 +49,7 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.git.server"],
       "env": {
-        "WORKSPACE_ROOT": "${user_config.WORKSPACE_ROOT}"
+        "WORKSPACE_ROOT": "${workspaceFolder}"
       }
     },
     "morai-jira": {
@@ -86,7 +86,7 @@
       "command": "uv",
       "args": ["run", "python", "-m", "servers.test_runner.server"],
       "env": {
-        "WORKSPACE_ROOT": "${user_config.WORKSPACE_ROOT}"
+        "WORKSPACE_ROOT": "${workspaceFolder}"
       }
     }
   }
