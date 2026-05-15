@@ -1,0 +1,82 @@
+{
+  "mcpServers": {
+    "morai-pipeline": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "servers.pipeline.server"],
+      "env": {
+        "MORAI_MEMORY_PATH": "${config.memory_path:-\".morai/memory\"}",
+        "MORAI_BUDGET_TOKENS": "200000"
+      }
+    },
+    "morai-events": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "servers.events.server"],
+      "env": {
+        "MORAI_MEMORY_PATH": "${config.memory_path:-\".morai/memory\"}"
+      }
+    },
+    "morai-memory": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "servers.memory.server"],
+      "env": {
+        "MORAI_MEMORY_PATH": "${config.memory_path:-\".morai/memory\"}"
+      }
+    },
+    "morai-rag": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "servers.rag.server"],
+      "env": {
+        "CHROMA_PATH": ".morai/rag"
+      }
+    },
+    "morai-file": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "servers.file.server"],
+      "env": {
+        "WORKSPACE_ROOT": "${config.workspace_root}"
+      }
+    },
+    "morai-git": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "servers.git.server"],
+      "env": {
+        "WORKSPACE_ROOT": "${config.workspace_root}"
+      }
+    },
+    "morai-jira": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "servers.jira.server"],
+      "env": {
+        "JIRA_URL": "${config.jira_url}",
+        "JIRA_EMAIL": "${config.jira_email}",
+        "JIRA_TOKEN": "${config.jira_token}"
+      }
+    },
+    "morai-confluence": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "servers.confluence.server"],
+      "env": {
+        "CONFLUENCE_URL": "${config.confluence_url}",
+        "CONFLUENCE_EMAIL": "${config.confluence_email}",
+        "CONFLUENCE_TOKEN": "${config.confluence_token}"
+      }
+    },
+    "morai-slack": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "python", "-m", "servers.morai.server"],
+      "env": {
+        "SLACK_BOT_TOKEN": "${config.slack_bot_token}",
+        "SLACK_APP_TOKEN": "${config.slack_app_token}"
+      }
+    }
+  }
+}

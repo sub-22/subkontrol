@@ -1,31 +1,66 @@
 {
   "name": "morai",
   "description": "Morai — AI Operator cho team phát triển phần mềm. Self-learning, adaptive, BA→QA pipeline.",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": {
     "name": "morai"
   },
   "defaultAgent": "morai",
   "userConfig": {
+    "workspace_root": {
+      "type": "string",
+      "title": "Workspace root path",
+      "description": "Absolute path tới project đang làm việc (bắt buộc)",
+      "required": true
+    },
     "jira_url": {
       "type": "string",
       "title": "Jira URL",
-      "description": "e.g. https://yourorg.atlassian.net"
+      "description": "e.g. https://yourorg.atlassian.net (để trống nếu không dùng Jira)"
+    },
+    "jira_email": {
+      "type": "string",
+      "title": "Jira Email",
+      "description": "Email đăng nhập Jira"
+    },
+    "jira_token": {
+      "type": "string",
+      "secret": true,
+      "title": "Jira API Token",
+      "description": "Tạo tại: Atlassian Account → Security → API tokens"
     },
     "confluence_url": {
       "type": "string",
       "title": "Confluence URL",
-      "description": "e.g. https://yourorg.atlassian.net/wiki"
+      "description": "e.g. https://yourorg.atlassian.net/wiki (để trống nếu không dùng)"
+    },
+    "confluence_email": {
+      "type": "string",
+      "title": "Confluence Email",
+      "description": "Email đăng nhập Confluence"
+    },
+    "confluence_token": {
+      "type": "string",
+      "secret": true,
+      "title": "Confluence API Token",
+      "description": "Dùng chung Atlassian API token với Jira"
+    },
+    "slack_bot_token": {
+      "type": "string",
+      "secret": true,
+      "title": "Slack Bot Token",
+      "description": "xoxb-... — tạo tại api.slack.com/apps (để trống nếu không dùng Slack)"
+    },
+    "slack_app_token": {
+      "type": "string",
+      "secret": true,
+      "title": "Slack App Token",
+      "description": "xapp-... — cần cho Socket Mode"
     },
     "slack_channel": {
       "type": "string",
       "title": "Slack default channel",
       "description": "Channel nhận notifications, e.g. #dev-pipeline"
-    },
-    "workspace_root": {
-      "type": "string",
-      "title": "Workspace root path",
-      "description": "Absolute path tới project đang làm việc"
     },
     "memory_path": {
       "type": "string",

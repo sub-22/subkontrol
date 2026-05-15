@@ -14,9 +14,6 @@ build/
 .env.local
 .env.*.local
 
-# MCP config (machine-specific paths — use .mcp.json.example)
-.mcp.json
-
 # RAG / ChromaDB / Runtime data
 .morai/
 *.db
