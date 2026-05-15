@@ -13,6 +13,11 @@
       "description": "Absolute path nơi Morai lưu memory, tasks (default: ~/.morai)",
       "required": true
     },
+    "MORAI_DESIGN_REPO": {
+      "type": "string",
+      "title": "Design repo path",
+      "description": "Local path tới {project-name}-design repo — để trống nếu chưa có"
+    },
     "JIRA_URL": {
       "type": "string",
       "title": "Jira URL",
