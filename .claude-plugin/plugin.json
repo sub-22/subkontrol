@@ -16,7 +16,7 @@
     "MORAI_GLOBAL_PATH": {
       "type": "string",
       "title": "Morai global data path",
-      "description": "Absolute path nơi Morai lưu memory, tasks, và pipeline state (default: ~/.morai)",
+      "description": "Absolute path nơi Morai lưu memory, tasks (default: ~/.morai)",
       "required": true
     },
     "JIRA_URL": {
@@ -31,7 +31,6 @@
     },
     "JIRA_TOKEN": {
       "type": "string",
-      "secret": true,
       "title": "Jira API Token",
       "description": "Tạo tại: Atlassian Account → Security → API tokens"
     },
@@ -47,19 +46,16 @@
     },
     "CONFLUENCE_TOKEN": {
       "type": "string",
-      "secret": true,
       "title": "Confluence API Token",
       "description": "Dùng chung Atlassian API token với Jira"
     },
     "SLACK_BOT_TOKEN": {
       "type": "string",
-      "secret": true,
       "title": "Slack Bot Token",
       "description": "xoxb-... từ api.slack.com/apps — để trống nếu không dùng Slack"
     },
     "SLACK_APP_TOKEN": {
       "type": "string",
-      "secret": true,
       "title": "Slack App Token",
       "description": "xapp-... cần cho Socket Mode"
     },
