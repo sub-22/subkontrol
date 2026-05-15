@@ -10,6 +10,7 @@ import json
 import os
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
@@ -108,7 +109,7 @@ def _load_state(ticket_id: str) -> dict:
     path = _pipeline_path(ticket_id)
     if not path.exists():
         return {}
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast(dict, json.loads(path.read_text(encoding="utf-8")))
 
 
 def _save_state(ticket_id: str, state: dict) -> None:
@@ -277,7 +278,7 @@ def list_pipelines(status_filter: str = "") -> list[dict]:
 @mcp.tool()
 def block_pipeline(ticket_id: str, reason: str) -> dict:
     """Block pipeline với lý do cụ thể."""
-    return transition(ticket_id, "BLOCKED", context={"blocked_reason": reason})
+    return cast(dict, transition(ticket_id, "BLOCKED", context={"blocked_reason": reason}))
 
 
 @mcp.tool()
@@ -529,7 +530,7 @@ def get_wave_plan(ticket_id: str) -> dict:
     wave_plan = state.get("wave_plan")
     if not wave_plan:
         return {"error": "Pipeline này không có wave plan (sequential mode)"}
-    return wave_plan
+    return cast(dict, wave_plan)
 
 
 # ── HITL Gate Management ───────────────────────────────────────────────────────
@@ -574,7 +575,7 @@ def _load_gate(ticket_id: str, gate_id: str) -> dict:
     path = _gate_path(ticket_id, gate_id)
     if not path.exists():
         return {}
-    gate = json.loads(path.read_text(encoding="utf-8"))
+    gate: dict = cast(dict, json.loads(path.read_text(encoding="utf-8")))
     # Lazy expiry check
     if gate.get("status") == "pending" and _is_expired(gate):
         gate["status"] = "expired"

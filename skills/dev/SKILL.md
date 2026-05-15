@@ -95,14 +95,30 @@ Anh xem thử chunk này, em tiếp sang [chunk tiếp theo] nhé?
 
 ---
 
-## ⛔ GATE 2 — Commit (formal gate)
+## CI Check — Bắt buộc trước GATE 2
+
+Đọc CI commands của project:
+```
+morai-file: read_file(".morai/knowledge/ci.json")
+```
+
+Nếu file chưa tồn tại → nhắc Dev chạy `/morai:scan` trước, hoặc hỏi trực tiếp CI commands là gì.
+
+Chạy theo thứ tự từ `commands` trong ci.json:
+```
+lint → format_check → typecheck → test
+```
+
+Nếu bất kỳ bước nào fail → fix ngay, không tiếp tục đến GATE 2.
+
+## ⛔ GATE 2 — Commit (formal gate, chỉ khi CI pass)
 
 ```python
 gate = morai-pipeline: create_gate(
     ticket_id=$TICKET_ID,
     gate_type="CONFIRM",
     question="Ready to commit",
-    context=f"Files changed: {files_changed}\nTests: {test_results}",
+    context=f"CI: ✅ all pass\nFiles changed: {files_changed}\nTests: {test_results}",
     options=["commit", "review more", "abort"],
     timeout_minutes=60,
 )
@@ -110,7 +126,7 @@ gate = morai-pipeline: create_gate(
 
 Dev respond: "commit" → `resolve_gate` → `morai-git: commit(message, files)`
 
-**Không tự commit dù code đã xong và tests pass.**
+**Không tự commit dù code đã xong và tests pass — CI phải pass trước.**
 
 ---
 

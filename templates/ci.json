@@ -1,0 +1,12 @@
+{
+  "project": "<project name>",
+  "detected_from": "<package.json | Makefile | .github/workflows/ | pyproject.toml | go.mod | ...>",
+  "commands": {
+    "lint": "<e.g. npm run lint | golangci-lint run | uv run ruff check .>",
+    "format_check": "<e.g. npm run format:check | uv run ruff format --check .>",
+    "typecheck": "<e.g. npm run typecheck | uv run mypy . | null if not applicable>",
+    "test": "<e.g. npm test | go test ./... | uv run pytest | cargo test>"
+  },
+  "run_from": "<absolute path hoặc 'project_root'>",
+  "notes": "<điều gì đặc biệt cần lưu ý, e.g. 'cần DB running cho integration tests'>"
+}

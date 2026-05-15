@@ -67,18 +67,30 @@ Nếu root cause vẫn `[UNKNOWN]` sau research → **STOP, fall back guided.**
 
 ---
 
-## Phase 3 — Commit & PR (tự động)
+## Phase 3 — CI Check + Commit & PR (tự động)
 
-### Bước 6 — Commit
+### Bước 6 — CI Check (bắt buộc trước commit)
+
+Đọc CI commands của project:
+```
+morai-file: read_file(".morai/knowledge/ci.json")
+```
+
+Chạy theo thứ tự `lint → format_check → typecheck → test`.
+
+Nếu bất kỳ bước nào fail → **STOP, fix, không tiếp tục.**
+Nếu `ci.json` chưa tồn tại → STOP, yêu cầu chạy `/morai:scan` trước.
+
+### Bước 7 — Commit
 - Dùng `morai-git: commit(message)` — format: `fix(<scope>): <mô tả ngắn>`
 - Dùng `morai-git: push()`
 
-### Bước 7 — Tạo PR
+### Bước 8 — Tạo PR
 - Dùng template `templates/pr/bugfix.md`
 - Dùng `morai-git: create_pr(title, body, base)`
 - Cập nhật task: `status → "done"`, `pr_url → <url>`
 
-### Bước 8 — Update pipeline state + Báo cáo
+### Bước 9 — Update pipeline state + Báo cáo
 
 ```
 morai-memory: save_pipeline_state($TICKET_ID, {

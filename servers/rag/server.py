@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import os
 from pathlib import Path
+from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
@@ -62,7 +63,7 @@ CHUNK_SIZE = 80  # lines per chunk
 CHUNK_OVERLAP = 15
 
 
-def _get_client():
+def _get_client() -> Any:
     try:
         import chromadb
 
@@ -73,7 +74,7 @@ def _get_client():
         raise RuntimeError(f"ChromaDB init failed at '{CHROMA_PATH}': {e}") from e
 
 
-def _get_collection(namespace: str):
+def _get_collection(namespace: str) -> Any:
     client = _get_client()
     return client.get_or_create_collection(
         name=namespace,

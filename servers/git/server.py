@@ -3,6 +3,7 @@
 import os
 import subprocess
 from pathlib import Path
+from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
@@ -38,8 +39,8 @@ def _run_str(cmd: list[str]) -> str:
     """Run a command and return stdout string (raises on failure)."""
     result = _run(cmd)
     if not result["ok"]:
-        raise RuntimeError(result["error"])
-    return result["output"]
+        raise RuntimeError(cast(str, result["error"]))
+    return cast(str, result["output"])
 
 
 @mcp.tool()

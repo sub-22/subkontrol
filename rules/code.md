@@ -1,5 +1,39 @@
 # Code Rules
 
+## CI Gate — Bắt buộc trước khi commit
+
+**Không commit nếu CI chưa pass.** Áp dụng cho cả Dev lẫn agent/MCP.
+
+CI commands của từng project được detect khi `/morai:scan` và lưu tại:
+```
+.morai/knowledge/ci.json
+```
+
+Trước mỗi commit, đọc file này và chạy đủ 4 nhóm:
+```
+lint          → e.g. npm run lint | golangci-lint run | uv run ruff check .
+format_check  → e.g. npm run format:check | uv run ruff format --check .
+typecheck     → e.g. npm run typecheck | uv run mypy . | go vet ./...
+test          → e.g. npm test | go test ./... | uv run pytest | cargo test
+```
+
+**Flow bắt buộc:**
+```
+Code done
+    ↓
+Đọc .morai/knowledge/ci.json → lấy commands
+    ↓
+Chạy lint → format_check → typecheck → test (theo thứ tự)
+    ↓ (nếu bất kỳ bước nào fail → fix, không tiếp tục)
+GATE 2 — Confirm commit với Dev
+    ↓
+git commit
+```
+
+**Nếu `.morai/knowledge/ci.json` chưa tồn tại:** chạy `/morai:scan` trước, hoặc hỏi Dev CI commands là gì.
+
+`--no-verify` chỉ dùng khi có lý do cụ thể được Tech Lead approve.
+
 ## Single Source of Truth per Domain
 - Schema, config, constants → define 1 chỗ, import everywhere
 - Không duplicate logic — nếu thấy copy-paste → extract

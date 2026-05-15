@@ -6,6 +6,7 @@ import json
 import os
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
@@ -123,7 +124,7 @@ def _load_subscriptions() -> list[dict]:
         _ensure_dirs()
         _save_subscriptions(DEFAULT_SUBSCRIPTIONS)
         return DEFAULT_SUBSCRIPTIONS
-    return json.loads(SUBSCRIPTIONS_FILE.read_text(encoding="utf-8"))
+    return cast(list[dict], json.loads(SUBSCRIPTIONS_FILE.read_text(encoding="utf-8")))
 
 
 def _save_subscriptions(subs: list[dict]) -> None:

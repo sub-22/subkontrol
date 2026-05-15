@@ -7,6 +7,7 @@ import os
 import re
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
@@ -149,7 +150,7 @@ def update_preference(key: str, value: str, source: str = "user_feedback") -> st
 def _load_patterns() -> dict[str, int]:
     path = MEMORY_ROOT / "patterns.json"
     if path.exists():
-        return json.loads(path.read_text())
+        return cast(dict[str, int], json.loads(path.read_text()))
     return {}
 
 
@@ -256,7 +257,7 @@ def get_pipeline_state(ticket_id: str) -> dict:
     path = Path(".morai/pipeline") / ticket_id / "state.json"
     if not path.exists():
         return {"error": f"Không tìm thấy pipeline state cho {ticket_id}"}
-    return json.loads(path.read_text(encoding="utf-8"))
+    return cast(dict, json.loads(path.read_text(encoding="utf-8")))
 
 
 @mcp.tool()

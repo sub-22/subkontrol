@@ -42,6 +42,39 @@ Trả lời các câu hỏi:
 - **Testing approach**: unit, integration, e2e? framework nào?
 - **Code conventions**: naming style, error handling pattern, logging
 
+### Bước 3b — Detect CI commands
+
+Tìm CI commands của project theo thứ tự ưu tiên:
+
+| File tìm kiếm | Commands detect |
+|---------------|-----------------|
+| `.github/workflows/ci.yml` hoặc `*.yml` trong `.github/workflows/` | Đọc steps, tìm run commands |
+| `Makefile` | Tìm targets: `test`, `lint`, `check`, `ci`, `format` |
+| `package.json` → `scripts` | Tìm: `test`, `lint`, `format`, `typecheck`, `check` |
+| `pyproject.toml` → `[tool.pytest]`, `[tool.ruff]`, `[tool.mypy]` | Xác định `uv run pytest`, `uv run ruff check`, `uv run mypy` |
+| `go.mod` | `go test ./...`, kiểm tra có `golangci-lint` không |
+| `Cargo.toml` | `cargo test`, `cargo clippy` |
+| `pom.xml` | `mvn test` hoặc `./mvnw test` |
+
+Dùng `morai-file: write_file` để tạo `.morai/knowledge/ci.json` (dựa trên `templates/ci.json`):
+
+```json
+{
+  "project": "<tên project>",
+  "detected_from": "<file nào dùng để detect>",
+  "commands": {
+    "lint": "<lệnh lint>",
+    "format_check": "<lệnh check format>",
+    "typecheck": "<lệnh type check hoặc null>",
+    "test": "<lệnh chạy tests>"
+  },
+  "run_from": "project_root",
+  "notes": "<e.g. cần service X running, env var Y cần set>"
+}
+```
+
+**Nếu không detect được:** điền `null` và ghi vào notes. Dev skill sẽ hỏi Dev khi cần commit.
+
 ### Bước 4 — Sinh knowledge docs
 
 Dùng `morai-file: write_file` để tạo từng file:
@@ -184,6 +217,7 @@ Xem chi tiết tại `.morai/knowledge/`:
 - `conventions.md` — coding conventions
 - `api.md` — API endpoints
 - `database.md` — database schema
+- `ci.json` — CI commands (lint, format, typecheck, test)
 ```
 
 ### Bước 6 — Index knowledge docs vào RAG
