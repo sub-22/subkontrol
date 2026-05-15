@@ -11,6 +11,7 @@ def tmp_pipeline(tmp_path, monkeypatch):
     import importlib
 
     import servers.pipeline.server as mod
+
     importlib.reload(mod)
     yield tmp_path
 
@@ -19,6 +20,7 @@ def _reload():
     import importlib
 
     import servers.pipeline.server as mod
+
     importlib.reload(mod)
     return mod
 
@@ -102,8 +104,12 @@ class TestTransition:
         mod = _reload()
         mod.create_pipeline("PROJ-1")
         mod.transition("PROJ-1", "BA_RUNNING")
-        mod.transition("PROJ-1", "BA_DONE", context={"_skip_precondition": True},
-                       workspace_root=str(tmp_pipeline))
+        mod.transition(
+            "PROJ-1",
+            "BA_DONE",
+            context={"_skip_precondition": True},
+            workspace_root=str(tmp_pipeline),
+        )
         # Navigate to DEV_RUNNING (force via multiple transitions)
         # Simpler: just test the precondition directly
         # Set state to DEV_REVIEWING manually
@@ -123,7 +129,8 @@ class TestTransition:
         state["state"] = "DEV_REVIEWING"
         state_path.write_text(json.dumps(state))
         result = mod.transition(
-            "PROJ-1", "DEV_COMMITTED",
+            "PROJ-1",
+            "DEV_COMMITTED",
             context={"pr_url": "https://github.com/org/repo/pull/1"},
             workspace_root=str(tmp_pipeline),
         )

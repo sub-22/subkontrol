@@ -19,65 +19,80 @@ PIPELINE_ROOT = Path(os.getenv("MORAI_MEMORY_PATH", ".morai/memory")).parent / "
 
 # ── FSM Definition ─────────────────────────────────────────────────────────────
 
-STATES = frozenset({
-    "IDLE",
-    "BA_RUNNING", "BA_DONE",
-    "ARCHITECT_RUNNING", "ARCHITECT_DONE",
-    "PM_RUNNING", "PM_DONE",
-    # Sequential dev path
-    "DEV_RUNNING",
-    "DEV_REVIEWING",         # guided: waiting for Dev to review approach/code
-    "DEV_COMMITTED",         # single task committed
-    # Parallel dev path
-    "DEV_PARALLEL_RUNNING",  # wave-based, N agents running in worktrees
-    "DEV_ALL_COMMITTED",     # all waves committed, ready for merge + review
-    # Review / QA
-    "REVIEW_RUNNING", "REVIEW_DONE",
-    "SECURITY_RUNNING", "SECURITY_DONE",
-    "QA_RUNNING", "QA_DONE",
-    "COMPLETE",
-    "BLOCKED",
-    "FAILED",
-})
+STATES = frozenset(
+    {
+        "IDLE",
+        "BA_RUNNING",
+        "BA_DONE",
+        "ARCHITECT_RUNNING",
+        "ARCHITECT_DONE",
+        "PM_RUNNING",
+        "PM_DONE",
+        # Sequential dev path
+        "DEV_RUNNING",
+        "DEV_REVIEWING",  # guided: waiting for Dev to review approach/code
+        "DEV_COMMITTED",  # single task committed
+        # Parallel dev path
+        "DEV_PARALLEL_RUNNING",  # wave-based, N agents running in worktrees
+        "DEV_ALL_COMMITTED",  # all waves committed, ready for merge + review
+        # Review / QA
+        "REVIEW_RUNNING",
+        "REVIEW_DONE",
+        "SECURITY_RUNNING",
+        "SECURITY_DONE",
+        "QA_RUNNING",
+        "QA_DONE",
+        "COMPLETE",
+        "BLOCKED",
+        "FAILED",
+    }
+)
 
 TRANSITIONS: dict[str, list[str]] = {
-    "IDLE":                  ["BA_RUNNING"],
-    "BA_RUNNING":            ["BA_DONE", "BLOCKED"],
-    "BA_DONE":               ["ARCHITECT_RUNNING", "PM_RUNNING"],
-    "ARCHITECT_RUNNING":     ["ARCHITECT_DONE", "BLOCKED"],
-    "ARCHITECT_DONE":        ["PM_RUNNING"],
-    "PM_RUNNING":            ["PM_DONE", "BLOCKED"],
+    "IDLE": ["BA_RUNNING"],
+    "BA_RUNNING": ["BA_DONE", "BLOCKED"],
+    "BA_DONE": ["ARCHITECT_RUNNING", "PM_RUNNING"],
+    "ARCHITECT_RUNNING": ["ARCHITECT_DONE", "BLOCKED"],
+    "ARCHITECT_DONE": ["PM_RUNNING"],
+    "PM_RUNNING": ["PM_DONE", "BLOCKED"],
     # PM_DONE branches: sequential (1 task or sequential mode) vs parallel (wave plan exists)
-    "PM_DONE":               ["DEV_RUNNING", "DEV_PARALLEL_RUNNING"],
+    "PM_DONE": ["DEV_RUNNING", "DEV_PARALLEL_RUNNING"],
     # Sequential path
-    "DEV_RUNNING":           ["DEV_REVIEWING", "DEV_COMMITTED", "BLOCKED"],
-    "DEV_REVIEWING":         ["DEV_COMMITTED", "DEV_RUNNING", "BLOCKED"],
-    "DEV_COMMITTED":         ["REVIEW_RUNNING"],
+    "DEV_RUNNING": ["DEV_REVIEWING", "DEV_COMMITTED", "BLOCKED"],
+    "DEV_REVIEWING": ["DEV_COMMITTED", "DEV_RUNNING", "BLOCKED"],
+    "DEV_COMMITTED": ["REVIEW_RUNNING"],
     # Parallel path
-    "DEV_PARALLEL_RUNNING":  ["DEV_ALL_COMMITTED", "DEV_RUNNING", "BLOCKED"],
-    "DEV_ALL_COMMITTED":     ["REVIEW_RUNNING"],
+    "DEV_PARALLEL_RUNNING": ["DEV_ALL_COMMITTED", "DEV_RUNNING", "BLOCKED"],
+    "DEV_ALL_COMMITTED": ["REVIEW_RUNNING"],
     # Review
-    "REVIEW_RUNNING":        ["REVIEW_DONE", "DEV_RUNNING", "DEV_PARALLEL_RUNNING", "BLOCKED"],
-    "REVIEW_DONE":           ["SECURITY_RUNNING", "QA_RUNNING"],
-    "SECURITY_RUNNING":      ["SECURITY_DONE", "DEV_RUNNING", "BLOCKED"],
-    "SECURITY_DONE":         ["QA_RUNNING"],
-    "QA_RUNNING":            ["QA_DONE", "DEV_RUNNING", "BLOCKED"],
-    "QA_DONE":               ["COMPLETE"],
-    "COMPLETE":              [],
-    "BLOCKED":               ["BA_RUNNING", "ARCHITECT_RUNNING", "PM_RUNNING",
-                              "DEV_RUNNING", "DEV_PARALLEL_RUNNING",
-                              "REVIEW_RUNNING", "SECURITY_RUNNING", "QA_RUNNING"],
-    "FAILED":                [],
+    "REVIEW_RUNNING": ["REVIEW_DONE", "DEV_RUNNING", "DEV_PARALLEL_RUNNING", "BLOCKED"],
+    "REVIEW_DONE": ["SECURITY_RUNNING", "QA_RUNNING"],
+    "SECURITY_RUNNING": ["SECURITY_DONE", "DEV_RUNNING", "BLOCKED"],
+    "SECURITY_DONE": ["QA_RUNNING"],
+    "QA_RUNNING": ["QA_DONE", "DEV_RUNNING", "BLOCKED"],
+    "QA_DONE": ["COMPLETE"],
+    "COMPLETE": [],
+    "BLOCKED": [
+        "BA_RUNNING",
+        "ARCHITECT_RUNNING",
+        "PM_RUNNING",
+        "DEV_RUNNING",
+        "DEV_PARALLEL_RUNNING",
+        "REVIEW_RUNNING",
+        "SECURITY_RUNNING",
+        "QA_RUNNING",
+    ],
+    "FAILED": [],
 }
 
 PRECONDITIONS: dict[str, dict] = {
-    "BA_DONE":          {"file_exists": "specs/{ticket_id}.md"},
-    "PM_DONE":          {"file_exists": "tasks/{ticket_id}/index.json"},
-    "DEV_COMMITTED":    {"field_set": "commit_sha_or_pr_url"},
-    "DEV_ALL_COMMITTED":{"wave_plan_complete": True},
-    "REVIEW_DONE":      {"file_exists": "reviews/{ticket_id}-review.md"},
-    "SECURITY_DONE":    {"file_exists": "reviews/{ticket_id}-security.md"},
-    "QA_DONE":          {"file_exists": "tests/{ticket_id}-test-plan.md"},
+    "BA_DONE": {"file_exists": "specs/{ticket_id}.md"},
+    "PM_DONE": {"file_exists": "tasks/{ticket_id}/index.json"},
+    "DEV_COMMITTED": {"field_set": "commit_sha_or_pr_url"},
+    "DEV_ALL_COMMITTED": {"wave_plan_complete": True},
+    "REVIEW_DONE": {"file_exists": "reviews/{ticket_id}-review.md"},
+    "SECURITY_DONE": {"file_exists": "reviews/{ticket_id}-security.md"},
+    "QA_DONE": {"file_exists": "tests/{ticket_id}-test-plan.md"},
 }
 
 
@@ -128,10 +143,7 @@ def _check_precondition(
         waves = wave_plan.get("waves", [])
         if not waves:
             return "Precondition failed: không có wave plan — gọi init_waves() trước"
-        incomplete = [
-            w["wave"] for w in waves
-            if w.get("status") != "committed"
-        ]
+        incomplete = [w["wave"] for w in waves if w.get("status") != "committed"]
         if incomplete:
             return f"Precondition failed: wave(s) {incomplete} chưa committed"
 
@@ -139,6 +151,7 @@ def _check_precondition(
 
 
 # ── Core Pipeline Tools ────────────────────────────────────────────────────────
+
 
 @mcp.tool()
 def create_pipeline(ticket_id: str, spec_path: str = "") -> dict:
@@ -248,14 +261,16 @@ def list_pipelines(status_filter: str = "") -> list[dict]:
         s = json.loads(state_file.read_text(encoding="utf-8"))
         if status_filter and s.get("status") != status_filter:
             continue
-        result.append({
-            "ticket_id": s.get("ticket_id"),
-            "state": s.get("state"),
-            "status": s.get("status"),
-            "last_updated": s.get("last_updated"),
-            "blocked_reason": s.get("blocked_reason"),
-            "current_wave": s.get("wave_plan", {}).get("current_wave"),
-        })
+        result.append(
+            {
+                "ticket_id": s.get("ticket_id"),
+                "state": s.get("state"),
+                "status": s.get("status"),
+                "last_updated": s.get("last_updated"),
+                "blocked_reason": s.get("blocked_reason"),
+                "current_wave": s.get("wave_plan", {}).get("current_wave"),
+            }
+        )
     return sorted(result, key=lambda x: x.get("last_updated", ""), reverse=True)
 
 
@@ -276,6 +291,7 @@ def get_valid_transitions(ticket_id: str) -> dict:
 
 
 # ── Wave Management ────────────────────────────────────────────────────────────
+
 
 @mcp.tool()
 def init_waves(ticket_id: str, waves: list[dict]) -> dict:
@@ -475,8 +491,7 @@ def commit_wave(ticket_id: str, wave_num: int) -> dict:
 
     # Validate all tasks committed
     not_committed = [
-        tid for tid, tdata in wave.get("tasks", {}).items()
-        if tdata.get("status") != "committed"
+        tid for tid, tdata in wave.get("tasks", {}).items() if tdata.get("status") != "committed"
     ]
     if not_committed:
         return {
@@ -489,7 +504,11 @@ def commit_wave(ticket_id: str, wave_num: int) -> dict:
 
     # Find next wave
     next_wave = next(
-        (w["wave"] for w in wave_plan["waves"] if w["wave"] > wave_num and w["status"] == "pending"),  # noqa: E501
+        (
+            w["wave"]
+            for w in wave_plan["waves"]
+            if w["wave"] > wave_num and w["status"] == "pending"
+        ),  # noqa: E501
         None,
     )
 
@@ -537,9 +556,7 @@ def _next_gate_id(ticket_id: str) -> str:
 
 
 def _expires_at(timeout_minutes: int) -> str:
-    return (datetime.now(UTC) + timedelta(minutes=timeout_minutes)).strftime(
-        "%Y-%m-%d %H:%M UTC"
-    )
+    return (datetime.now(UTC) + timedelta(minutes=timeout_minutes)).strftime("%Y-%m-%d %H:%M UTC")
 
 
 def _is_expired(gate: dict) -> bool:
@@ -740,15 +757,17 @@ def list_all_pending_gates() -> list[dict]:
         for gate_file in gates_dir.glob("*.json"):
             gate = _load_gate(ticket_id, gate_file.stem)
             if gate.get("status") == "pending":
-                all_pending.append({
-                    "ticket_id": ticket_id,
-                    "gate_id": gate["gate_id"],
-                    "gate_type": gate["gate_type"],
-                    "question": gate["question"],
-                    "created_at": gate.get("created_at", ""),
-                    "expires_at": gate.get("expires_at", ""),
-                    "pipeline_state": gate.get("pipeline_state_at_creation", ""),
-                })
+                all_pending.append(
+                    {
+                        "ticket_id": ticket_id,
+                        "gate_id": gate["gate_id"],
+                        "gate_type": gate["gate_type"],
+                        "question": gate["question"],
+                        "created_at": gate.get("created_at", ""),
+                        "expires_at": gate.get("expires_at", ""),
+                        "pipeline_state": gate.get("pipeline_state_at_creation", ""),
+                    }
+                )
 
     # Sort: UNBLOCK > CONFIRM > APPROVE > REVIEW > CHOICE, then by age (oldest first)
     urgency = {"UNBLOCK": 0, "CONFIRM": 1, "APPROVE": 2, "REVIEW": 3, "CHOICE": 4}
@@ -791,9 +810,9 @@ DEFAULT_BUDGET_TOKENS = int(os.getenv("MORAI_BUDGET_TOKENS", "200000"))
 
 # Approximate cost per 1M tokens (USD) for budget estimation
 _MODEL_COST_PER_1M: dict[str, dict] = {
-    "haiku":  {"input": 0.80,  "output": 4.00},
-    "sonnet": {"input": 3.00,  "output": 15.00},
-    "opus":   {"input": 15.00, "output": 75.00},
+    "haiku": {"input": 0.80, "output": 4.00},
+    "sonnet": {"input": 3.00, "output": 15.00},
+    "opus": {"input": 15.00, "output": 75.00},
 }
 
 
@@ -822,22 +841,31 @@ def record_token_usage(
     if not state:
         return {"ok": False, "error": f"Pipeline '{ticket_id}' chưa tồn tại"}
 
-    cost_data = state.setdefault("cost", {
-        "total_input_tokens": 0,
-        "total_output_tokens": 0,
-        "budget_tokens": DEFAULT_BUDGET_TOKENS,
-        "by_skill": {},
-        "estimated_usd": 0.0,
-    })
+    cost_data = state.setdefault(
+        "cost",
+        {
+            "total_input_tokens": 0,
+            "total_output_tokens": 0,
+            "budget_tokens": DEFAULT_BUDGET_TOKENS,
+            "by_skill": {},
+            "estimated_usd": 0.0,
+        },
+    )
 
     # Update totals
     cost_data["total_input_tokens"] += input_tokens
     cost_data["total_output_tokens"] += output_tokens
 
     # Update by_skill
-    skill_data = cost_data["by_skill"].setdefault(skill_name, {
-        "input_tokens": 0, "output_tokens": 0, "calls": 0, "model": model,
-    })
+    skill_data = cost_data["by_skill"].setdefault(
+        skill_name,
+        {
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "calls": 0,
+            "model": model,
+        },
+    )
     skill_data["input_tokens"] += input_tokens
     skill_data["output_tokens"] += output_tokens
     skill_data["calls"] += 1
@@ -845,8 +873,9 @@ def record_token_usage(
 
     # Estimate cost USD
     rates = _MODEL_COST_PER_1M.get(model, _MODEL_COST_PER_1M["sonnet"])
-    call_cost = (input_tokens / 1_000_000) * rates["input"] + \
-                (output_tokens / 1_000_000) * rates["output"]
+    call_cost = (input_tokens / 1_000_000) * rates["input"] + (output_tokens / 1_000_000) * rates[
+        "output"
+    ]
     cost_data["estimated_usd"] = round(cost_data.get("estimated_usd", 0) + call_cost, 4)
 
     total_tokens = cost_data["total_input_tokens"] + cost_data["total_output_tokens"]
@@ -918,16 +947,19 @@ def get_cost_summary_all() -> list[dict]:
         s = json.loads(state_file.read_text(encoding="utf-8"))
         cost = s.get("cost", {})
         total = cost.get("total_input_tokens", 0) + cost.get("total_output_tokens", 0)
-        summaries.append({
-            "ticket_id": s.get("ticket_id"),
-            "state": s.get("state"),
-            "total_tokens": total,
-            "estimated_usd": cost.get("estimated_usd", 0.0),
-            "budget_used_pct": (
-                round(total / cost.get("budget_tokens", DEFAULT_BUDGET_TOKENS) * 100, 1)
-                if total > 0 else 0.0
-            ),
-        })
+        summaries.append(
+            {
+                "ticket_id": s.get("ticket_id"),
+                "state": s.get("state"),
+                "total_tokens": total,
+                "estimated_usd": cost.get("estimated_usd", 0.0),
+                "budget_used_pct": (
+                    round(total / cost.get("budget_tokens", DEFAULT_BUDGET_TOKENS) * 100, 1)
+                    if total > 0
+                    else 0.0
+                ),
+            }
+        )
 
     return sorted(summaries, key=lambda x: x["total_tokens"], reverse=True)
 

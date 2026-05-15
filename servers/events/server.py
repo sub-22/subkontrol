@@ -19,26 +19,26 @@ EVENT_LOG_FILE = EVENTS_ROOT / "event_log.jsonl"
 
 EVENT_TYPES = {
     # External: GitHub webhooks
-    "github.pr_opened":    "PR được mở — trigger reviewer",
-    "github.pr_merged":    "PR được merge — trigger reflect",
-    "github.pr_closed":    "PR bị close/reject",
-    "github.test_failed":  "CI test fail — trigger incident L3",
-    "github.push":         "Push lên branch",
+    "github.pr_opened": "PR được mở — trigger reviewer",
+    "github.pr_merged": "PR được merge — trigger reflect",
+    "github.pr_closed": "PR bị close/reject",
+    "github.test_failed": "CI test fail — trigger incident L3",
+    "github.push": "Push lên branch",
     # External: Jira webhooks
-    "jira.ticket_created":    "Ticket mới được tạo",
+    "jira.ticket_created": "Ticket mới được tạo",
     "jira.ticket_in_progress": "Ticket chuyển sang In Progress — trigger ba→pm",
-    "jira.ticket_done":        "Ticket done",
+    "jira.ticket_done": "Ticket done",
     # Scheduled (via CronCreate)
-    "cron.daily_morning":   "Mỗi ngày 8:00 — check blocked pipelines",
-    "cron.weekly_friday":   "Thứ Sáu mỗi tuần — trigger kaizen",
-    "cron.sprint_end":      "Cuối sprint — trigger evolve",
+    "cron.daily_morning": "Mỗi ngày 8:00 — check blocked pipelines",
+    "cron.weekly_friday": "Thứ Sáu mỗi tuần — trigger kaizen",
+    "cron.sprint_end": "Cuối sprint — trigger evolve",
     # Internal: Morai-generated
     "internal.tasks_completed_10": "10 tasks hoàn thành — trigger reflect",
-    "internal.same_error_x3":      "Cùng lỗi lặp 3 lần — escalate human",
-    "internal.pipeline_blocked":    "Pipeline bị block — notify Dev",
-    "internal.pipeline_idle_2d":    "Pipeline idle 2 ngày — ping Dev",
-    "internal.budget_warning_80":   "Budget 80% used — compress context",
-    "internal.budget_critical_95":  "Budget 95% used — pause pipeline",
+    "internal.same_error_x3": "Cùng lỗi lặp 3 lần — escalate human",
+    "internal.pipeline_blocked": "Pipeline bị block — notify Dev",
+    "internal.pipeline_idle_2d": "Pipeline idle 2 ngày — ping Dev",
+    "internal.budget_warning_80": "Budget 80% used — compress context",
+    "internal.budget_critical_95": "Budget 95% used — pause pipeline",
 }
 
 # Default subscriptions — pre-configured at install time
@@ -143,6 +143,7 @@ def _append_event_log(event: dict) -> None:
 
 
 # ── Tools ──────────────────────────────────────────────────────────────────────
+
 
 @mcp.tool()
 def list_event_types() -> dict[str, str]:
@@ -272,11 +273,13 @@ def publish(
                 match = False
                 break
         if match:
-            handlers.append({
-                "subscription_id": sub["subscription_id"],
-                "handler": sub["handler"],
-                "description": sub.get("description", ""),
-            })
+            handlers.append(
+                {
+                    "subscription_id": sub["subscription_id"],
+                    "handler": sub["handler"],
+                    "description": sub.get("description", ""),
+                }
+            )
 
     return {
         "ok": True,

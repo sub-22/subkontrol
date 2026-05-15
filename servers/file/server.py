@@ -17,10 +17,19 @@ mcp = FastMCP("morai-file")
 WORKSPACE_ROOT = Path(os.getenv("WORKSPACE_ROOT", "."))
 
 # Directories considered "artifact zone" — non-source Morai outputs
-ARTIFACT_DIRS = frozenset({
-    "specs", "plans", "designs", "docs", "reviews",
-    "tests", "tasks", "incidents", ".morai",
-})
+ARTIFACT_DIRS = frozenset(
+    {
+        "specs",
+        "plans",
+        "designs",
+        "docs",
+        "reviews",
+        "tests",
+        "tasks",
+        "incidents",
+        ".morai",
+    }
+)
 
 
 def _safe_path(relative_path: str) -> Path:
@@ -97,10 +106,7 @@ def write_source_file(path: str, content: str) -> str:
         Thông báo thành công hoặc error
     """
     if _is_artifact_path(path):
-        return (
-            f"ERROR: '{path}' nằm trong artifact zone. "
-            f"Dùng write_file() để ghi artifacts."
-        )
+        return f"ERROR: '{path}' nằm trong artifact zone. Dùng write_file() để ghi artifacts."
     target = _safe_path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(content, encoding="utf-8")
@@ -131,8 +137,7 @@ def append_file(path: str, content: str) -> str:
     """
     if not _is_artifact_path(path):
         return (
-            f"ERROR: '{path}' nằm trong source zone. "
-            f"Dùng write_source_file() để ghi source code."
+            f"ERROR: '{path}' nằm trong source zone. Dùng write_source_file() để ghi source code."
         )
     target = _safe_path(path)
     target.parent.mkdir(parents=True, exist_ok=True)

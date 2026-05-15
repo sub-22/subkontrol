@@ -14,25 +14,58 @@ CHROMA_PATH = os.getenv("CHROMA_PATH", ".morai/rag")
 
 # File extensions được index
 INDEXABLE_EXTENSIONS = {
-    ".py", ".ts", ".tsx", ".js", ".jsx", ".go", ".java", ".rb", ".rs",
-    ".md", ".mdx", ".txt", ".yaml", ".yml", ".json", ".toml", ".env.example",
-    ".sql", ".graphql", ".proto", ".sh", ".dockerfile",
+    ".py",
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".go",
+    ".java",
+    ".rb",
+    ".rs",
+    ".md",
+    ".mdx",
+    ".txt",
+    ".yaml",
+    ".yml",
+    ".json",
+    ".toml",
+    ".env.example",
+    ".sql",
+    ".graphql",
+    ".proto",
+    ".sh",
+    ".dockerfile",
 }
 
 # Thư mục bỏ qua
 SKIP_DIRS = {
-    "node_modules", ".git", "__pycache__", ".venv", "venv", "env",
-    "dist", "build", ".next", ".nuxt", "coverage", ".pytest_cache",
-    ".mypy_cache", ".ruff_cache", "vendor", "target",
+    "node_modules",
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "env",
+    "dist",
+    "build",
+    ".next",
+    ".nuxt",
+    "coverage",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    "vendor",
+    "target",
 }
 
-CHUNK_SIZE = 80   # lines per chunk
+CHUNK_SIZE = 80  # lines per chunk
 CHUNK_OVERLAP = 15
 
 
 def _get_client():
     try:
         import chromadb
+
         return chromadb.PersistentClient(path=CHROMA_PATH)
     except ImportError:
         raise RuntimeError("chromadb not installed — run: uv sync")
@@ -60,11 +93,13 @@ def _chunk_text(text: str, source: str) -> list[dict]:
     while start < len(lines):
         end = min(start + CHUNK_SIZE, len(lines))
         chunk_text = "\n".join(lines[start:end])
-        chunks.append({
-            "content": chunk_text,
-            "source": source,
-            "chunk": chunk_idx,
-        })
+        chunks.append(
+            {
+                "content": chunk_text,
+                "source": source,
+                "chunk": chunk_idx,
+            }
+        )
         chunk_idx += 1
         start += CHUNK_SIZE - CHUNK_OVERLAP
 
@@ -132,11 +167,13 @@ def scan_project(path: str, namespace: str = "default") -> dict:
             doc_id = _make_id(chunk["source"], chunk["chunk"])
             all_ids.append(doc_id)
             all_docs.append(chunk["content"])
-            all_metas.append({
-                "source": chunk["source"],
-                "chunk": chunk["chunk"],
-                "extension": file_path.suffix,
-            })
+            all_metas.append(
+                {
+                    "source": chunk["source"],
+                    "chunk": chunk["chunk"],
+                    "extension": file_path.suffix,
+                }
+            )
 
         indexed_files.append(rel_path)
 
@@ -219,11 +256,13 @@ def search(query: str, namespace: str = "default", k: int = 5) -> list[dict]:
         results["metadatas"][0],
         results["distances"][0],
     ):
-        output.append({
-            "content": doc,
-            "source": meta.get("source", ""),
-            "score": round(1 - dist, 4),
-        })
+        output.append(
+            {
+                "content": doc,
+                "source": meta.get("source", ""),
+                "score": round(1 - dist, 4),
+            }
+        )
 
     return output
 

@@ -10,6 +10,7 @@ def tmp_pipeline(tmp_path, monkeypatch):
     import importlib
 
     import servers.pipeline.server as mod
+
     importlib.reload(mod)
     yield tmp_path
 
@@ -18,6 +19,7 @@ def _reload():
     import importlib
 
     import servers.pipeline.server as mod
+
     importlib.reload(mod)
     return mod
 
@@ -33,11 +35,11 @@ class TestRecordTokenUsage:
     def test_accumulates_across_skills(self, tmp_pipeline):
         mod = _reload()
         mod.create_pipeline("PROJ-1")
-        mod.record_token_usage("PROJ-1", "ba",  "haiku",  1000, 500)
-        mod.record_token_usage("PROJ-1", "pm",  "haiku",  800,  400)
+        mod.record_token_usage("PROJ-1", "ba", "haiku", 1000, 500)
+        mod.record_token_usage("PROJ-1", "pm", "haiku", 800, 400)
         mod.record_token_usage("PROJ-1", "dev", "sonnet", 2000, 800)
         cost = mod.get_pipeline_cost("PROJ-1")
-        assert cost["total_tokens"] == (1000+500 + 800+400 + 2000+800)
+        assert cost["total_tokens"] == (1000 + 500 + 800 + 400 + 2000 + 800)
         assert "ba" in cost["by_skill"]
         assert "pm" in cost["by_skill"]
         assert "dev" in cost["by_skill"]
@@ -106,7 +108,7 @@ class TestGetCostSummaryAll:
         mod.create_pipeline("PROJ-1")
         mod.create_pipeline("PROJ-2")
         mod.record_token_usage("PROJ-1", "ba", "sonnet", 5000, 2000)
-        mod.record_token_usage("PROJ-2", "ba", "haiku",  1000, 500)
+        mod.record_token_usage("PROJ-2", "ba", "haiku", 1000, 500)
         summary = mod.get_cost_summary_all()
         # PROJ-1 has more tokens, should be first
         assert summary[0]["ticket_id"] == "PROJ-1"

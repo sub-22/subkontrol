@@ -11,6 +11,7 @@ def tmp_pipeline(tmp_path, monkeypatch):
     import importlib
 
     import servers.pipeline.server as mod
+
     importlib.reload(mod)
     yield tmp_path
 
@@ -19,6 +20,7 @@ def _reload():
     import importlib
 
     import servers.pipeline.server as mod
+
     importlib.reload(mod)
     return mod
 
@@ -103,8 +105,9 @@ class TestUpdateTaskInWave:
         mod.create_pipeline("PROJ-1")
         _make_pipeline_with_waves(mod)
         mod.start_wave("PROJ-1", 1)
-        result = mod.update_task_in_wave("PROJ-1", 1, "TASK-1", "approach_ready",
-                                          approach_summary="Plan to add user auth")
+        result = mod.update_task_in_wave(
+            "PROJ-1", 1, "TASK-1", "approach_ready", approach_summary="Plan to add user auth"
+        )
         assert result["ok"] is True
 
     def test_update_commit(self, tmp_pipeline):
@@ -112,8 +115,9 @@ class TestUpdateTaskInWave:
         mod.create_pipeline("PROJ-1")
         _make_pipeline_with_waves(mod)
         mod.start_wave("PROJ-1", 1)
-        result = mod.update_task_in_wave("PROJ-1", 1, "TASK-1", "committed",
-                                          commit_sha="abc123", files_changed=["src/user.py"])
+        result = mod.update_task_in_wave(
+            "PROJ-1", 1, "TASK-1", "committed", commit_sha="abc123", files_changed=["src/user.py"]
+        )
         assert result["ok"] is True
 
     def test_wrong_task_id_fails(self, tmp_pipeline):
@@ -130,10 +134,12 @@ class TestGetWaveStatus:
         mod.create_pipeline("PROJ-1")
         _make_pipeline_with_waves(mod)
         mod.start_wave("PROJ-1", 1)
-        mod.update_task_in_wave("PROJ-1", 1, "TASK-1", "approach_ready",
-                                 approach_summary="Approach A")
-        mod.update_task_in_wave("PROJ-1", 1, "TASK-3", "approach_ready",
-                                 approach_summary="Approach B")
+        mod.update_task_in_wave(
+            "PROJ-1", 1, "TASK-1", "approach_ready", approach_summary="Approach A"
+        )
+        mod.update_task_in_wave(
+            "PROJ-1", 1, "TASK-3", "approach_ready", approach_summary="Approach B"
+        )
         status = mod.get_wave_status("PROJ-1", 1)
         assert status["all_approaches_ready"] is True
         assert status["all_committed"] is False
@@ -154,8 +160,9 @@ class TestGetWaveStatus:
         mod.create_pipeline("PROJ-1")
         _make_pipeline_with_waves(mod)
         mod.start_wave("PROJ-1", 1)
-        mod.update_task_in_wave("PROJ-1", 1, "TASK-1", "approach_ready",
-                                 approach_summary="Use repository pattern")
+        mod.update_task_in_wave(
+            "PROJ-1", 1, "TASK-1", "approach_ready", approach_summary="Use repository pattern"
+        )
         status = mod.get_wave_status("PROJ-1", 1)
         assert "TASK-1" in status["approaches"]
         assert status["approaches"]["TASK-1"] == "Use repository pattern"
@@ -225,7 +232,6 @@ class TestParallelFSMPath:
         state["state"] = "DEV_PARALLEL_RUNNING"
         state_path.write_text(json.dumps(state))
         # Wave not committed yet → should fail
-        result = mod.transition("PROJ-1", "DEV_ALL_COMMITTED",
-                                 workspace_root=str(tmp_pipeline))
+        result = mod.transition("PROJ-1", "DEV_ALL_COMMITTED", workspace_root=str(tmp_pipeline))
         assert result["ok"] is False
         assert "Precondition failed" in result["error"]

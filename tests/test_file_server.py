@@ -9,6 +9,7 @@ def tmp_workspace(tmp_path, monkeypatch):
     import importlib
 
     import servers.file.server as mod
+
     importlib.reload(mod)
     yield tmp_path
 
@@ -17,6 +18,7 @@ def _reload():
     import importlib
 
     import servers.file.server as mod
+
     importlib.reload(mod)
     return mod
 

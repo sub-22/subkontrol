@@ -12,23 +12,30 @@ def git_repo(tmp_path, monkeypatch):
     subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
     subprocess.run(
         ["git", "config", "user.email", "test@test.com"],
-        cwd=tmp_path, check=True, capture_output=True,
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
     )
     subprocess.run(
         ["git", "config", "user.name", "Test"],
-        cwd=tmp_path, check=True, capture_output=True,
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
     )
     # Initial commit so HEAD exists
     (tmp_path / "README.md").write_text("init")
     subprocess.run(["git", "add", "README.md"], cwd=tmp_path, check=True, capture_output=True)
     subprocess.run(
         ["git", "commit", "-m", "init"],
-        cwd=tmp_path, check=True, capture_output=True,
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
     )
 
     import importlib
 
     import servers.git.server as mod
+
     importlib.reload(mod)
     yield tmp_path
 
@@ -37,6 +44,7 @@ def _reload():
     import importlib
 
     import servers.git.server as mod
+
     importlib.reload(mod)
     return mod
 

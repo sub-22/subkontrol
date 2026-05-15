@@ -46,7 +46,9 @@ def request_approval(channel: str, message: str, context: str = "") -> str:
     """
     if not _is_configured():
         # Slack not configured — surface to LLM to ask user directly instead
-        return f"SLACK_NOT_CONFIGURED: Cannot send approval request. Ask the user directly: {message}"  # noqa: E501
+        return (
+            f"SLACK_NOT_CONFIGURED: Cannot send approval request. Ask the user directly: {message}"  # noqa: E501
+        )
     # TODO: implement approval flow với Block Kit buttons
     return f"morai-slack: request_approval not yet implemented. Ask the user directly: {message}"
 

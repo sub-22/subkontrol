@@ -9,6 +9,7 @@ def tmp_events(tmp_path, monkeypatch):
     import importlib
 
     import servers.events.server as mod
+
     importlib.reload(mod)
     yield tmp_path
 
@@ -17,6 +18,7 @@ def _reload():
     import importlib
 
     import servers.events.server as mod
+
     importlib.reload(mod)
     return mod
 
@@ -45,8 +47,9 @@ class TestSubscribe:
 
     def test_subscription_with_filter(self, tmp_events):
         mod = _reload()
-        mod.subscribe("github.pr_opened", "/morai:reviewer",
-                       filter_conditions={"branch_prefix": "feat/"})
+        mod.subscribe(
+            "github.pr_opened", "/morai:reviewer", filter_conditions={"branch_prefix": "feat/"}
+        )
         subs = mod.get_subscriptions("github.pr_opened")
         user_subs = [s for s in subs if s["subscription_id"].startswith("sub-")]
         assert len(user_subs) == 1
@@ -109,8 +112,11 @@ class TestPublish:
 
     def test_filter_branch_prefix_match(self, tmp_events):
         mod = _reload()
-        mod.subscribe("github.pr_opened", "/morai:custom",
-                       filter_conditions={"branch_prefix": "feat/PROJ-123"})
+        mod.subscribe(
+            "github.pr_opened",
+            "/morai:custom",
+            filter_conditions={"branch_prefix": "feat/PROJ-123"},
+        )
         # Matching branch
         result = mod.publish("github.pr_opened", {"branch": "feat/PROJ-123-auth"})
         handlers = [h["handler"] for h in result["handlers_to_trigger"]]
@@ -118,8 +124,11 @@ class TestPublish:
 
     def test_filter_branch_prefix_no_match(self, tmp_events):
         mod = _reload()
-        mod.subscribe("github.pr_opened", "/morai:custom",
-                       filter_conditions={"branch_prefix": "feat/PROJ-999"})
+        mod.subscribe(
+            "github.pr_opened",
+            "/morai:custom",
+            filter_conditions={"branch_prefix": "feat/PROJ-999"},
+        )
         result = mod.publish("github.pr_opened", {"branch": "feat/PROJ-123-auth"})
         handlers = [h["handler"] for h in result["handlers_to_trigger"]]
         assert "/morai:custom" not in handlers

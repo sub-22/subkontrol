@@ -12,6 +12,7 @@ def tmp_pipeline(tmp_path, monkeypatch):
     import importlib
 
     import servers.pipeline.server as mod
+
     importlib.reload(mod)
     yield tmp_path
 
@@ -20,6 +21,7 @@ def _reload():
     import importlib
 
     import servers.pipeline.server as mod
+
     importlib.reload(mod)
     return mod
 
@@ -74,8 +76,9 @@ class TestCreateGate:
     def test_choice_gate_stores_options(self, tmp_pipeline):
         mod = _reload()
         _make_pipeline(mod)
-        mod.create_gate("PROJ-1", "CHOICE", "Which approach?",
-                         options=["Option A", "Option B", "Option C"])
+        mod.create_gate(
+            "PROJ-1", "CHOICE", "Which approach?", options=["Option A", "Option B", "Option C"]
+        )
         gate = mod.get_gate("PROJ-1", "PROJ-1-gate-001")
         assert gate["options"] == ["Option A", "Option B", "Option C"]
 

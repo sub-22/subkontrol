@@ -10,6 +10,7 @@ def tmp_memory(tmp_path, monkeypatch):
     import importlib
 
     import servers.memory.server as mod
+
     importlib.reload(mod)
     yield tmp_path / "memory"
 
@@ -18,6 +19,7 @@ def _reload():
     import importlib
 
     import servers.memory.server as mod
+
     importlib.reload(mod)
     return mod
 

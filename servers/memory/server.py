@@ -38,6 +38,7 @@ def _now() -> str:
 
 # ── Episodes ──────────────────────────────────────────────────────────────────
 
+
 @mcp.tool()
 def record_episode(
     event: str,
@@ -95,6 +96,7 @@ def get_episodes(limit: int = 10, filter_event: str = "") -> str:
 
 # ── Preferences ───────────────────────────────────────────────────────────────
 
+
 @mcp.tool()
 def get_preferences() -> str:
     """Lấy toàn bộ user preferences đã học."""
@@ -142,6 +144,7 @@ def update_preference(key: str, value: str, source: str = "user_feedback") -> st
 
 
 # ── Patterns & Reflexes ───────────────────────────────────────────────────────
+
 
 def _load_patterns() -> dict[str, int]:
     path = MEMORY_ROOT / "patterns.json"
@@ -222,6 +225,7 @@ def get_reflexes() -> str:
 
 # ── Pipeline State ────────────────────────────────────────────────────────────
 
+
 @mcp.tool()
 def save_pipeline_state(ticket_id: str, state: dict) -> str:
     """Lưu trạng thái pipeline cho một ticket.
@@ -266,17 +270,20 @@ def list_active_pipelines() -> list[dict]:
     for state_file in pipeline_root.glob("*/state.json"):
         state = json.loads(state_file.read_text(encoding="utf-8"))
         if state.get("status") != "complete":
-            active.append({
-                "ticket_id": state.get("ticket_id"),
-                "current_step": state.get("current_step"),
-                "last_updated": state.get("last_updated"),
-                "blocked_reason": state.get("blocked_reason"),
-            })
+            active.append(
+                {
+                    "ticket_id": state.get("ticket_id"),
+                    "current_step": state.get("current_step"),
+                    "last_updated": state.get("last_updated"),
+                    "blocked_reason": state.get("blocked_reason"),
+                }
+            )
 
     return sorted(active, key=lambda x: x.get("last_updated", ""), reverse=True)
 
 
 # ── Memory Decay ─────────────────────────────────────────────────────────────
+
 
 @mcp.tool()
 def archive_old_episodes(days: int = 90) -> str:
@@ -304,9 +311,7 @@ def archive_old_episodes(days: int = 90) -> str:
         match = date_pattern.match(block.strip())
         if match:
             try:
-                ep_date = datetime.strptime(match.group(1), "%Y-%m-%d").replace(
-                    tzinfo=UTC
-                )
+                ep_date = datetime.strptime(match.group(1), "%Y-%m-%d").replace(tzinfo=UTC)
                 if ep_date < cutoff:
                     archive.append(block)
                     continue
