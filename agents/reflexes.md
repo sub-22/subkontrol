@@ -117,6 +117,19 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 - **Rationale**: Fix bug trên `release/stg` có thể cần tách từ `release/stg` (hotfix tại chỗ) hoặc từ `develop` (backport) — Morai không thể tự quyết, phải hỏi.
 - **Promoted**: User instruction 2026-05-15
 
+### R-016 — Dev Pipeline Empty → Auto-Fetch My Tasks
+- **Trigger**: Pipeline `dev` step báo xong / hết task, hoặc user nói: "xong rồi làm gì tiếp", "hết task", "pipeline trống", "pull task mới"
+- **Signal**: `[CERTAIN]` `[MED]`
+- **Action**:
+  1. Resolve dev identity: `git config user.email` → `config/dev_mapping.json`
+  2. `morai-jira: fetch_my_tasks()` — shadow mode nếu Jira chưa configured
+  3. Present prioritized task list (format chuẩn trong `agents/task_fetcher.md`)
+  4. Hỏi dev chọn task để bắt đầu pipeline mới
+- **Do NOT**: tự chọn task và start pipeline — phải chờ dev confirm
+- **Do NOT**: fetch task của người khác — filter strict theo assignee của dev hiện tại
+- **Shadow guard**: Nếu Jira chưa có credentials → chạy shadow mode từ stub, hiển thị badge `⚠️ SHADOW`
+- **Promoted**: User instruction 2026-05-15
+
 ## Candidate Reflexes (chưa promote — đang track)
 
 | Pattern | Count | Cần thêm |
@@ -135,6 +148,6 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 ## Reflex Log
 ```
 Lần cuối review: 2026-05-15
-Version: 1.0.1
-Tổng active reflexes: 15
+Version: 1.0.2
+Tổng active reflexes: 16
 ```
