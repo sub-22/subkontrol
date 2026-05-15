@@ -248,3 +248,38 @@ Nếu intent không map được vào skill nào:
 **Done**: [tóm tắt 1-2 dòng]
 **Next**: [gợi ý bước tiếp theo nếu có]
 ```
+
+---
+
+## Slack → Skill Routing (mcp_slack integration)
+
+Khi trigger qua Slack bot, message được pre-classified bởi `mcp_slack/orchestrator.py`
+trước khi đến Morai. Intent map → skill như sau:
+
+| Slack intent | Morai skill | Trigger pattern |
+|---|---|---|
+| `code_review` | `/morai:reviewer {pr_ref}` | "review PR #45", GitHub/Bitbucket URL |
+| `security_audit` | `/morai:security {pr_ref}` | "security audit", "vulnerability" |
+| `analyze_ticket` | `/morai:ba {ticket_id}` | "PROJ-123" (bare ticket ID) |
+| `architecture` | `/morai:sparring {text}` | "thiết kế hệ thống", "architecture" |
+| `general` | Raw text forwarded | Anything else |
+
+**PR ref extraction** — `mcp_slack/orchestrator.py` tự detect:
+- `https://github.com/org/repo/pull/45` → full URL
+- `https://bitbucket.org/org/repo/pull-requests/45` → full URL
+- `review PR #45` → `#45`
+
+**Local agent flow:**
+
+```
+PM/TechLead: "@morai review PR #45"
+    ↓ mcp_slack classifies → code_review, pr_ref="#45"
+    ↓ dispatcher routes → local_agent WebSocket
+    ↓ local_agent._build_prompt() → "/morai:reviewer #45"
+    ↓ Claude Code CLI (cwd=WORKSPACE_ROOT) runs /morai:reviewer
+    ↓ reviewer skill: get_pr_diff → analyze → comment on PR → notify Slack thread
+```
+
+**Per-role behavior:**
+- **TechLead/Dev** (`WORKSPACE_ROOT` = source repo): full review — đọc được code, conventions, RAG
+- **PM** (`WORKSPACE_ROOT` = design repo): review theo spec/AC — không đọc implementation
