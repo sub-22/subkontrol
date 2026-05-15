@@ -91,31 +91,31 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 - **Do NOT**: Auto-commit hoặc auto-push dù task nhỏ hay simple
 - **Rationale**: User preference — Dev giữ quyền commit với feature code
 
-### R-015 — Wrong Branch Guard (Protected Branch → Ask Base + Create Feature Branch)
-- **Trigger**: Chuẩn bị implement/commit nhưng đang đứng ở protected branch (`master`, `main`, `develop`, `staging`, `production`, hoặc branch có pattern `release/*`, `hotfix/*`)
+### R-015 — Branch Guard (Tạo branch mới → luôn confirm name + base)
+- **Trigger**: Bất kỳ lúc nào chuẩn bị tạo feature branch mới — dù đang đứng ở protected branch HAY đang chuẩn bị checkout base để tạo branch
 - **Signal**: `[CERTAIN]` `[HIGH]`
 - **Action**:
-  1. STOP — không implement, không commit
+  1. STOP — không tạo branch, không checkout base, không stash-and-switch
   2. Xác định branch type từ task: feature→`feat/`, bug→`fix/`, chore→`chore/`, refactor→`refactor/`
-  3. Đề xuất branch name: `{type}/{TICKET-ID}_{slug}` — slug: lowercase, dấu cách→`-`, ≤35 chars, detect ý nghĩa từ task title (e.g. `feat/PROJ-123_add-user-login`)
+  3. Đề xuất branch name: `{type}/{TICKET-ID}_{slug}` — slug: lowercase, dấu cách→`-`, ≤35 chars
   4. **Hỏi human 2 thông tin cùng lúc — bắt buộc, không assume:**
      ```
-     ⚠️ Đang ở branch protected: {current_branch}
-     Em cần tạo branch mới trước khi tiếp tục.
+     ⚠️ Em cần tạo branch mới cho task này.
 
      Branch name đề xuất: `{proposed_branch}`
-     Tách từ nhánh nào sếp? (ví dụ: develop, main, release/stg)
+     Tách từ nhánh nào sếp? (ví dụ: master, develop, release/stg)
 
      Sếp confirm hoặc chỉnh lại cả hai nhé.
      ```
   5. Chờ human trả lời rõ cả branch name và base branch
-  6. `morai-git: create_branch({confirmed_branch})` — tạo từ đúng base đã được confirm
+  6. `git checkout {confirmed_base} && git pull && git checkout -b {confirmed_branch}` — tạo từ đúng base đã confirm
 - **Do NOT**:
-  - Tự assume base branch (ví dụ: bug trên stg KHÔNG có nghĩa tách từ `develop`)
+  - Tự assume base branch dù task rõ ràng — `master` không phải lúc nào cũng đúng
   - Tạo branch trước khi có đủ 2 thông tin: name + base
   - Commit thẳng lên protected branch dù urgent
-- **Rationale**: Fix bug trên `release/stg` có thể cần tách từ `release/stg` (hotfix tại chỗ) hoặc từ `develop` (backport) — Morai không thể tự quyết, phải hỏi.
-- **Promoted**: User instruction 2026-05-15
+  - Checkout base branch rồi tạo branch mới mà không có confirm trước
+- **Rationale**: SK-05 tạo từ master mà không hỏi — base có thể là develop, release/stg, hoặc branch khác tùy context. Morai không thể tự quyết.
+- **Promoted**: User instruction 2026-05-15, extended 2026-05-15
 
 ### R-016 — Dev Pipeline Empty → Auto-Fetch My Tasks
 - **Trigger**: Pipeline `dev` step báo xong / hết task, hoặc user nói: "xong rồi làm gì tiếp", "hết task", "pipeline trống", "pull task mới"

@@ -90,14 +90,14 @@ Không bịa thông tin. Nếu không có data → để `[cần bổ sung]` tha
 
 ### Bước 5 — Tạo PR title
 
-Format: `[TYPE] PROJ-XXX — <tóm tắt ngắn>`
+Format: `[TICKET-ID] type: <tóm tắt ngắn>` — khớp với commit message format
 
 Ví dụ:
-- `[feat] PROJ-123 — add JWT authentication`
-- `[fix] PROJ-456 — resolve null pointer in payment flow`
-- `[refactor] PROJ-789 — extract auth middleware`
+- `[SK-123] feat: add JWT authentication`
+- `[SK-456] fix: resolve null pointer in payment flow`
+- `[SK-789] refactor: extract auth middleware`
 
-Nếu không có ticket ID: `[TYPE] <tóm tắt từ branch name>`
+Nếu không có ticket ID: `[type] <tóm tắt từ branch name>`
 
 ### Bước 6 — Check CI trước khi push
 
