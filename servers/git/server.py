@@ -223,5 +223,71 @@ def add_pr_comment(body: str, pr_number: int | None = None) -> dict:
     return _run(args)
 
 
+@mcp.tool()
+def get_open_pr(branch: str = "") -> dict:
+    """Kiểm tra PR đang open cho branch hiện tại hoặc branch chỉ định.
+
+    Args:
+        branch: Branch name. Để trống = current branch.
+    Returns:
+        {"exists": bool, "number": int|None, "url": str, "title": str, "state": str}
+    """
+    import json as _json
+
+    target = branch or _run_str(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+    result = _run(
+        [
+            "gh",
+            "pr",
+            "list",
+            "--head",
+            target,
+            "--state",
+            "open",
+            "--json",
+            "number,title,url,state",
+        ],
+        check=False,
+    )
+    if not result["ok"] or not result["output"]:
+        return {"exists": False, "number": None, "url": "", "title": "", "state": ""}
+    try:
+        prs = _json.loads(result["output"])
+        if prs:
+            pr = prs[0]
+            return {
+                "exists": True,
+                "number": pr["number"],
+                "url": pr["url"],
+                "title": pr["title"],
+                "state": pr["state"],
+            }
+    except (_json.JSONDecodeError, KeyError):
+        pass
+    return {"exists": False, "number": None, "url": "", "title": "", "state": ""}
+
+
+@mcp.tool()
+def update_pr(number: int, title: str = "", body: str = "") -> dict:
+    """Cập nhật title hoặc body của một PR đang open.
+
+    Args:
+        number: PR number
+        title: PR title mới (bỏ trống = giữ nguyên)
+        body: PR description mới (bỏ trống = giữ nguyên)
+    Returns:
+        {"ok": bool, "url": str, "error": str}
+    """
+    args = ["gh", "pr", "edit", str(number)]
+    if title:
+        args += ["--title", title]
+    if body:
+        args += ["--body", body]
+    result = _run(args, check=False)
+    if result["ok"]:
+        return {"ok": True, "url": result["output"], "error": ""}
+    return {"ok": False, "url": "", "error": result["error"]}
+
+
 if __name__ == "__main__":
     mcp.run()

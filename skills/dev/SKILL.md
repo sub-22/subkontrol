@@ -19,6 +19,35 @@ Task ID hoặc mô tả task: $ARGUMENTS
 
 ---
 
+## Bước 0 — Branch Setup (trước tất cả)
+
+```
+morai-git: get_current_branch()
+```
+
+**Protected branches** (không được commit trực tiếp):
+`master`, `main`, `develop`, `staging`, `production`, `release/*`
+
+**Nếu đang ở protected branch:**
+1. Xác định branch type từ task type:
+   - Feature / story → `feat/`
+   - Bug / fix → `fix/`
+   - Chore / config → `chore/`
+   - Refactor → `refactor/`
+2. Tạo branch name: `{type}/{TICKET-ID}-{slug}` (e.g. `feat/PROJ-123-add-login`)
+   - Slug: lowercase, dấu cách → `-`, tối đa 30 chars
+3. Hiển thị:
+   ```
+   ⚠️ Đang ở branch protected: {current_branch}
+   Em cần tạo branch mới: `{new_branch}`
+   Xác nhận không sếp?
+   ```
+4. Chờ human confirm → `morai-git: create_branch({new_branch})`
+
+**Nếu đang ở đúng feature/fix branch** → tiếp tục Phase 1 bình thường.
+
+---
+
 ## Phase 1 — Hiểu task (không cần Dev approve)
 
 ### Bước 1 — Đọc task & load context

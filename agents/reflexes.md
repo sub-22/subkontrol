@@ -91,6 +91,18 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 - **Do NOT**: Auto-commit hoặc auto-push dù task nhỏ hay simple
 - **Rationale**: User preference — Dev giữ quyền commit với feature code
 
+### R-015 — Wrong Branch Guard (Protected Branch → Auto-create Feature Branch)
+- **Trigger**: Chuẩn bị implement/commit nhưng đang đứng ở protected branch (`master`, `main`, `develop`, `staging`, `production`, hoặc branch có pattern `release/*`)
+- **Signal**: `[CERTAIN]` `[HIGH]`
+- **Action**:
+  1. STOP — không implement, không commit
+  2. Xác định branch type từ task: feature→`feat/`, bug→`fix/`, chore→`chore/`, refactor→`refactor/`
+  3. Tạo branch name: `{type}/{TICKET-ID}-{slug-từ-title}` (e.g. `feat/PROJ-123-add-login`)
+  4. Hỏi human: "Em cần tạo branch `{branch}` trước. Xác nhận không sếp?"
+  5. Sau khi human confirm → `morai-git: create_branch({branch})` → tiếp tục
+- **Do NOT**: Tự tạo branch mà không hỏi, hoặc commit thẳng lên protected branch
+- **Promoted**: User instruction 2026-05-15
+
 ## Candidate Reflexes (chưa promote — đang track)
 
 | Pattern | Count | Cần thêm |
@@ -110,5 +122,5 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 ```
 Lần cuối review: 2026-05-15
 Version: 1.0.1
-Tổng active reflexes: 14
+Tổng active reflexes: 15
 ```

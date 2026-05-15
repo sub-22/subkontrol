@@ -11,6 +11,29 @@ Branch name hoặc ticket ID: $ARGUMENTS
 
 ## Quy trình thực hiện
 
+### Bước 0 — Kiểm tra branch và PR hiện tại
+
+```
+morai-git: get_current_branch()
+morai-git: get_open_pr()
+```
+
+**Nếu đang ở protected branch** (`master`, `main`, `develop`, `staging`, `release/*`):
+```
+⚠️ Đang ở branch {branch} — không thể tạo PR từ protected branch.
+Chạy /morai:dev với ticket ID để tạo đúng feature branch trước.
+```
+→ STOP.
+
+**Nếu PR đã tồn tại (open):**
+- Ghi nhận `pr.number` và `pr.url`
+- Tiếp tục collect context, fill description
+- Ở Bước 7: **update PR** thay vì tạo mới
+
+**Nếu chưa có PR:** flow bình thường → tạo PR mới.
+
+---
+
 ### Bước 1 — Thu thập context
 
 ```
@@ -106,16 +129,30 @@ morai-test: run_pytest()   ← hoặc framework tương ứng
 
 **Nếu CI pass:** tiếp tục Bước 7.
 
-### Bước 7 — Push và tạo PR
+### Bước 7 — Push và tạo / cập nhật PR
 
 ```
 morai-git: push()
+```
+
+**Nếu PR chưa tồn tại:**
+```
 morai-git: create_pr(
   title="<title từ Bước 5>",
   body="<description đã fill từ Bước 4>",
   base="main"
 )
 ```
+
+**Nếu PR đã open (từ Bước 0):**
+```
+morai-git: update_pr(
+  number=<pr.number>,
+  title="<title từ Bước 5>",
+  body="<description đã fill từ Bước 4>"
+)
+```
+Thông báo: "PR #`{number}` đã được cập nhật description."
 
 ### Bước 8 — Notify Slack (nếu configured)
 
@@ -130,13 +167,19 @@ Nếu Slack chưa configured → bỏ qua, không báo lỗi.
 
 ### Bước 9 — Báo cáo
 
-Output cho user:
+**Tạo mới:**
 ```
 ✅ PR created: <URL>
-
 Title: <title>
 Base: main ← <branch>
 Template: <project|subkontrol> / <template name>
-
-[Preview description đầu tiên 10 dòng...]
 ```
+
+**Cập nhật:**
+```
+✅ PR #<number> updated: <URL>
+Title: <title>
+Template: <project|subkontrol> / <template name>
+```
+
+Preview 5 dòng đầu của description.
