@@ -18,19 +18,9 @@ Plugin name: `morai` → tất cả commands có dạng `/morai:<skill>`
 
 ---
 
-### Cách 1 — Install trực tiếp từ GitHub (khuyên dùng)
+### Cách 1 — Qua marketplace (khuyên dùng)
 
-```bash
-claude plugin install github:sub-22/subkontrol
-```
-
-Claude Code sẽ tự clone repo, cài dependencies và hỏi config.
-
----
-
-### Cách 2 — Thêm vào marketplace rồi install
-
-Thêm vào `~/.claude/settings.json`:
+**Bước 1** — Thêm subkontrol vào `~/.claude/settings.json`:
 
 ```json
 {
@@ -45,15 +35,25 @@ Thêm vào `~/.claude/settings.json`:
 }
 ```
 
-Sau đó install:
+**Bước 2** — Install plugin:
 
 ```bash
 claude plugin install morai@sub22
 ```
 
+Claude Code sẽ tự clone repo, cài dependencies và hỏi config.
+
 ---
 
-### Cách 3 — Clone và install local (cho dev/contributor)
+### Cách 2 — Install trực tiếp từ GitHub
+
+```bash
+claude plugin install github:sub-22/subkontrol
+```
+
+---
+
+### Cách 3 — Clone local (cho contributor)
 
 ```bash
 git clone https://github.com/sub-22/subkontrol
