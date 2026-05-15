@@ -11,33 +11,62 @@ Plugin name: `morai` → tất cả commands có dạng `/morai:<skill>`
 
 ### Yêu cầu
 
+- [Claude Code CLI](https://claude.ai/code)
 - Python 3.11+
 - [uv](https://docs.astral.sh/uv/)
-- Claude Code CLI
-- `gh` CLI (để tạo PR — `brew install gh` hoặc từ [cli.github.com](https://cli.github.com))
+- `gh` CLI — để tạo PR (`brew install gh` hoặc [cli.github.com](https://cli.github.com))
 
-### Setup
+---
+
+### Cách 1 — Install trực tiếp từ GitHub (khuyên dùng)
 
 ```bash
-git clone https://github.com/your-org/subkontrol
-cd subkontrol
-
-cp .env.example .env
-# Chỉnh sửa .env — WORKSPACE_ROOT là bắt buộc
-
-uv sync
-
-# Verify
-uv run pytest tests/ -q   # 144 tests, phải pass hết
+claude plugin install github:sub-22/subkontrol
 ```
 
-### Cài vào Claude Code
+Claude Code sẽ tự clone repo, cài dependencies và hỏi config.
+
+---
+
+### Cách 2 — Thêm vào marketplace rồi install
+
+Thêm vào `~/.claude/settings.json`:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "sub22": {
+      "source": {
+        "source": "github",
+        "repo": "sub-22/subkontrol"
+      }
+    }
+  }
+}
+```
+
+Sau đó install:
 
 ```bash
+claude plugin install morai@sub22
+```
+
+---
+
+### Cách 3 — Clone và install local (cho dev/contributor)
+
+```bash
+git clone https://github.com/sub-22/subkontrol
+cd subkontrol
+uv sync
 claude plugin install .
 ```
 
-Sau khi install, Claude Code hỏi các fields:
+---
+
+### Config sau khi install
+
+Claude Code sẽ hỏi các fields sau. Điền đúng rồi nhấn Save:
 
 | Field | Bắt buộc | Ví dụ |
 |-------|----------|-------|
@@ -48,6 +77,29 @@ Sau khi install, Claude Code hỏi các fields:
 | `SLACK_BOT_TOKEN` | Không | `xoxb-...` |
 
 > Jira, Confluence, Slack là optional — Morai vẫn hoạt động đầy đủ mà không cần.
+
+### Dev identity mapping (optional)
+
+Để Morai biết bạn là ai trên Jira, copy template và điền thông tin:
+
+```bash
+# Tìm plugin directory sau khi install
+PLUGIN_DIR=$(claude plugin path morai@sub22 2>/dev/null || claude plugin path morai)
+
+cp "$PLUGIN_DIR/config/dev_mapping.example.json" "$PLUGIN_DIR/config/dev_mapping.json"
+# Điền git email, Jira account ID, project keys vào dev_mapping.json
+```
+
+### Verify
+
+Mở Claude Code trong project của bạn và thử:
+
+```
+Morai đây anh — [tên project].
+Anh cần em làm gì ạ?
+```
+
+Nếu thấy greeting trên → install thành công.
 
 ---
 
