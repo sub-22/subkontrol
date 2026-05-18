@@ -17,6 +17,7 @@ mcp = FastMCP("morai-memory")
 
 MEMORY_ROOT = resolve_path("MORAI_MEMORY_PATH", ".morai/memory")
 TASKS_ROOT = resolve_path("MORAI_TASKS_PATH", ".morai/tasks")
+PIPELINE_ROOT = resolve_path("MORAI_PIPELINE_PATH", ".morai/pipeline")
 
 
 def _ensure_dirs() -> None:
@@ -239,7 +240,7 @@ def save_pipeline_state(ticket_id: str, state: dict) -> str:
         ticket_id: Jira ticket ID
         state: Dict với current_step, completed_steps, paths, etc.
     """
-    pipeline_dir = Path(".morai/pipeline") / ticket_id
+    pipeline_dir = PIPELINE_ROOT / ticket_id
     pipeline_dir.mkdir(parents=True, exist_ok=True)
 
     state["last_updated"] = _now()
@@ -258,7 +259,7 @@ def get_pipeline_state(ticket_id: str) -> dict:
     Args:
         ticket_id: Jira ticket ID
     """
-    path = Path(".morai/pipeline") / ticket_id / "state.json"
+    path = PIPELINE_ROOT / ticket_id / "state.json"
     if not path.exists():
         return {"error": f"Không tìm thấy pipeline state cho {ticket_id}"}
     return cast(dict, json.loads(path.read_text(encoding="utf-8")))
@@ -267,7 +268,7 @@ def get_pipeline_state(ticket_id: str) -> dict:
 @mcp.tool()
 def list_active_pipelines() -> list[dict]:
     """Liệt kê tất cả pipelines đang active (chưa complete)."""
-    pipeline_root = Path(".morai/pipeline")
+    pipeline_root = PIPELINE_ROOT
     if not pipeline_root.exists():
         return []
 

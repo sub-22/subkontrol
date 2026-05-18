@@ -10,6 +10,7 @@ from servers._env import resolve
 mcp = FastMCP("morai-slack")
 
 SLACK_BOT_TOKEN = resolve("SLACK_BOT_TOKEN")
+SLACK_DEFAULT_CHANNEL = resolve("SLACK_CHANNEL")
 _NOT_CONFIGURED = "morai-slack not configured — set SLACK_BOT_TOKEN in .env"
 
 
@@ -24,11 +25,11 @@ def _is_configured() -> bool:
 
 
 @mcp.tool()
-def send_message(channel: str, text: str, thread_ts: str | None = None) -> str:
+def send_message(channel: str = "", text: str = "", thread_ts: str | None = None) -> str:
     """Gửi message đến Slack channel hoặc thread.
 
     Args:
-        channel: Channel ID hoặc name, e.g. "C01234" hoặc "#dev-pipeline"
+        channel: Channel ID hoặc name, e.g. "#dev-pipeline". Để trống = dùng SLACK_CHANNEL từ config.
         text: Nội dung message (supports Slack mrkdwn)
         thread_ts: Thread timestamp để reply vào thread (optional)
     Returns:
@@ -36,7 +37,10 @@ def send_message(channel: str, text: str, thread_ts: str | None = None) -> str:
     """
     if not _is_configured():
         return _NOT_CONFIGURED
-    kwargs: dict = {"channel": channel, "text": text}
+    target = channel or SLACK_DEFAULT_CHANNEL
+    if not target:
+        return "SLACK_NO_CHANNEL: set SLACK_CHANNEL in plugin config hoặc truyền channel vào"
+    kwargs: dict = {"channel": target, "text": text}
     if thread_ts:
         kwargs["thread_ts"] = thread_ts
     resp = _client().chat_postMessage(**kwargs)

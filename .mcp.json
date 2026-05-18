@@ -25,6 +25,7 @@
       "env": {
         "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory",
         "MORAI_TASKS_PATH": "${user_config.MORAI_GLOBAL_PATH}/tasks",
+        "MORAI_PIPELINE_PATH": "${CLAUDE_PROJECT_DIR}/.morai/pipeline",
         "MORAI_DESIGN_REPO": "${user_config.MORAI_DESIGN_REPO}"
       }
     },
@@ -49,23 +50,31 @@
       "command": "uv",
       "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.git.server"],
       "env": {
-        "WORKSPACE_ROOT": "${CLAUDE_PROJECT_DIR}"
+        "WORKSPACE_ROOT": "${CLAUDE_PROJECT_DIR}",
+        "GITHUB_TOKEN": "${user_config.GITHUB_TOKEN}",
+        "BITBUCKET_USERNAME": "${user_config.BITBUCKET_USERNAME}",
+        "BITBUCKET_TOKEN": "${user_config.BITBUCKET_TOKEN}",
+        "BITBUCKET_BASE_URL": "${user_config.BITBUCKET_BASE_URL}"
       }
     },
     "morai-jira": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "--directory", "/home/tunglt02/Workspaces/subkontrol", "python", "-m", "servers.jira.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.jira.server"],
       "env": {
-        "MORAI_GLOBAL_PATH": "${user_config.MORAI_GLOBAL_PATH}"
+        "JIRA_URL": "${user_config.JIRA_URL}",
+        "JIRA_EMAIL": "${user_config.JIRA_EMAIL}",
+        "JIRA_TOKEN": "${user_config.JIRA_TOKEN}"
       }
     },
     "morai-confluence": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "--directory", "/home/tunglt02/Workspaces/subkontrol", "python", "-m", "servers.confluence.server"],
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.confluence.server"],
       "env": {
-        "MORAI_GLOBAL_PATH": "${user_config.MORAI_GLOBAL_PATH}"
+        "CONFLUENCE_URL": "${user_config.CONFLUENCE_URL}",
+        "CONFLUENCE_EMAIL": "${user_config.CONFLUENCE_EMAIL}",
+        "CONFLUENCE_TOKEN": "${user_config.CONFLUENCE_TOKEN}"
       }
     },
     "morai-slack": {
@@ -73,7 +82,9 @@
       "command": "uv",
       "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.morai.server"],
       "env": {
-        "MORAI_GLOBAL_PATH": "${user_config.MORAI_GLOBAL_PATH}"
+        "SLACK_BOT_TOKEN": "${user_config.SLACK_BOT_TOKEN}",
+        "SLACK_APP_TOKEN": "${user_config.SLACK_APP_TOKEN}",
+        "SLACK_CHANNEL": "${user_config.SLACK_CHANNEL}"
       }
     },
     "morai-test": {
