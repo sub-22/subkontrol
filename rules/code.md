@@ -88,3 +88,21 @@ Tên phải nói lên **intent**, không nói lên **implementation**:
 - Design cho change, không design cho perfection
 - Every architectural decision → ADR (dùng `/morai:architect`)
 - Validate assumption với prototype nhỏ trước khi commit to big design
+
+## Coding Practices
+- Test trước, code sau — Red → Green → Refactor
+- External API — luôn retry + exponential backoff
+- Không hardcode path/secret — dùng env vars
+- Không TODO trong output — TODO = chưa xong
+- Business logic vào `lib/` — không viết trong routes/handlers
+- Wrapper chỉ tạo khi ≥2 consumers — không abstraction sớm
+
+## Security Boundaries
+- Validate tại boundary — chỉ validate input từ user/external API, không validate internal
+- Error message không leak — generic ra ngoài, chi tiết vào server log
+- Auth/payment/data → tự động trigger `/morai:security` trước khi merge
+
+## Database Safety
+- `git tag backup-<date>` trước mọi migration
+- Migration bắt buộc có `down()` — không có rollback = không merge
+- Đọc schema thực tế trước, không assume structure

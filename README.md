@@ -7,7 +7,7 @@ Plugin name: `morai` → tất cả commands có dạng `/morai:<skill>`
 
 [![CI](https://github.com/sub-22/subkontrol/actions/workflows/ci.yml/badge.svg)](https://github.com/sub-22/subkontrol/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.8.0-green.svg)](.claude-plugin/plugin.json)
+[![Version](https://img.shields.io/badge/version-0.9.0-green.svg)](.claude-plugin/plugin.json)
 
 ---
 
@@ -70,27 +70,25 @@ claude plugin install .
 
 ### Config sau khi install
 
-Claude Code sẽ hỏi các fields sau. Điền đúng rồi nhấn Save:
+Claude Code chỉ hỏi 2 fields khi install:
 
 | Field | Bắt buộc | Ví dụ |
 |-------|----------|-------|
 | `MORAI_GLOBAL_PATH` | **Có** | `/home/user/.morai` |
-| `JIRA_URL` | Không | `https://yourorg.atlassian.net` |
-| `JIRA_EMAIL` | Không | `dev@company.com` |
-| `JIRA_TOKEN` | Không | Atlassian API token |
-| `CONFLUENCE_URL` | Không | `https://yourorg.atlassian.net/wiki` |
-| `CONFLUENCE_EMAIL` | Không | `dev@company.com` |
-| `CONFLUENCE_TOKEN` | Không | Atlassian API token (dùng chung với Jira) |
 | `GITHUB_TOKEN` | Không | GitHub PAT — nếu dùng GitHub |
-| `BITBUCKET_USERNAME` | Không | Username Bitbucket — nếu dùng Bitbucket |
+| `BITBUCKET_USERNAME` | Không | Username Bitbucket |
 | `BITBUCKET_TOKEN` | Không | App password (Cloud) hoặc PAT (Server) |
 | `BITBUCKET_BASE_URL` | Không | `https://git.mycompany.com` — chỉ cần cho Bitbucket Server |
-| `SLACK_BOT_TOKEN` | Không | `xoxb-...` |
-| `SLACK_CHANNEL` | Không | `#dev-pipeline` — channel nhận PR notifications |
 
-> Tất cả ngoài `MORAI_GLOBAL_PATH` đều optional — Morai vẫn hoạt động đầy đủ.
+**Jira / Confluence / Slack** — cấu hình sau khi install qua guided flow:
 
-> **Jira identity:** Morai tự resolve từ `JIRA_EMAIL` + `currentUser()` — không cần Jira Account ID hay mapping file.
+```
+/morai:init
+```
+
+Morai hỏi từng integration (dùng thì điền, không dùng thì bỏ qua) và lưu vào `~/.morai/config.json`. Chạy lại bất cứ lúc nào để thêm integration mới.
+
+> **Jira identity:** Morai tự resolve từ `git config user.email` + `currentUser()` — không cần mapping file.
 
 ### Verify
 
@@ -391,7 +389,7 @@ subkontrol/
 ├── templates/
 │   ├── ba_spec.md detail_design.md pm_tasks.md
 │   └── pr/feature.md bugfix.md refactor.md
-├── tests/                      # 144 tests
+├── tests/                      # 160 tests
 ├── .morai/tasks/backlog.md     # Task backlog (tracked)
 ├── .mcp.json
 ├── .env.example

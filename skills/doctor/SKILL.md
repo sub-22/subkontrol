@@ -51,7 +51,7 @@ Gọi `morai-rag: list_namespaces()`.
 **morai-git / morai-file / morai-test:**
 Gọi lần lượt:
 - `morai-git: git_status()`
-- `morai-file: list_files(".")`
+- `morai-file: list_files(".", "*")`
 - `morai-test: detect_test_framework()`
 - Response có data → ✅ working
 - Error → ❌ server lỗi
@@ -109,7 +109,39 @@ Với ❌ server lỗi:
 Nếu vẫn lỗi, sếp check: uv run --project <plugin-path> python -m servers.<name>.server
 ```
 
-### Bước 4 — Return trạng thái (khi được gọi từ skill khác)
+### Bước 4 — Context Budget Report
+
+Đo và hiển thị token budget của các file bootstrap, giúp track xem context cost có tăng theo thời gian không.
+
+Đọc từng file và tính char count:
+
+```python
+files = {
+    "CLAUDE.md (per-turn)":       "<project-root>/CLAUDE.md",
+    "agents/morai.md (on-demand)": "<project-root>/agents/morai.md",
+    "agents/recall.md (on-demand)": "<project-root>/agents/recall.md",
+    "agents/reflexes.md (on-demand)": "<project-root>/agents/reflexes.md",
+}
+# token estimate = chars / 4
+```
+
+In kết quả:
+
+```
+Context Budget
+──────────────────────────────────────────
+  CLAUDE.md (per-turn)        2,414 tokens  ✅ (target ≤ 2,500)
+  morai.md (on-demand)        2,420 tokens
+  recall.md (on-demand)         724 tokens
+  reflexes.md (on-demand)     2,030 tokens
+──────────────────────────────────────────
+  Simple session:   2,414 tokens (1.2% of 200k)
+  Complex session:  5,558 tokens (2.8% of 200k)
+```
+
+Cảnh báo nếu CLAUDE.md vượt 2,500 tokens: `⚠️ CLAUDE.md quá lớn — xem xét trim để giảm cost per-turn`.
+
+### Bước 5 — Return trạng thái (khi được gọi từ skill khác)
 
 Sau khi hiển thị xong, return object tóm tắt để skill gọi doctor có thể dùng:
 
@@ -119,4 +151,8 @@ DOCTOR_RESULT:
   confluence: ok | shadow | error
   slack: ok | shadow | error
   core: ok | error
+  context_budget:
+    claude_md_tokens: <số>
+    simple_session_tokens: <số>
+    complex_session_tokens: <số>
 ```

@@ -54,7 +54,7 @@ Nếu merge **conflict** → xem Conflict Resolution bên dưới.
 
 ```
 morai-git: status()   ← không còn unmerged files
-morai-file: list_files(".", "**/*.py")   ← spot check
+morai-rag: search("changed files structure", namespace)   ← RAG đã index, dùng search thay list
 ```
 
 Nếu project có test runner:

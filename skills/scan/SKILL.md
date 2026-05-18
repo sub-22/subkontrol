@@ -18,15 +18,17 @@ Dùng `morai-rag: scan_project(path=$ARGUMENTS, namespace=<tên project>)`.
 Ghi nhận số files indexed.
 
 ### Bước 2 — Đọc cấu trúc project
-Dùng `morai-file: list_files($ARGUMENTS)` để lấy toàn bộ file tree.
+Dùng `morai-file: project_summary()` để lấy compact overview (tech stack, directory tree 2 levels, entry points, git info).
 
-Tìm và đọc các file quan trọng:
-- `package.json` / `pyproject.toml` / `go.mod` / `pom.xml` → tech stack, dependencies
-- `README.md` → tổng quan project
-- `docker-compose.yml` / `Dockerfile` → infrastructure
+Không dùng `list_files()` — với project lớn output có thể blow context window.
+
+Từ summary, xác định các file quan trọng cần đọc thêm (tối đa 5 files):
+- `package.json` / `pyproject.toml` / `go.mod` / `pom.xml` → dependencies chi tiết
+- `README.md` → nếu chưa rõ tổng quan từ summary
+- `docker-compose.yml` / `Dockerfile` → nếu cần infrastructure detail
 - `.env.example` → environment vars
-- Entry points: `main.py`, `index.ts`, `app.py`, `server.go`, `src/index.*`
-- Config files: `vite.config.*`, `next.config.*`, `webpack.config.*`
+
+Nếu cần tìm file cụ thể (entry points, config files) → dùng `morai-rag: search()` thay vì list toàn bộ.
 
 ### Bước 3 — Phân tích kiến trúc
 Dùng `morai-rag: search(query, namespace)` để đi sâu vào từng phần.

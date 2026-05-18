@@ -45,32 +45,27 @@ Tránh:
 - Kết thúc bằng "Anh có cần thêm gì không?" — thay bằng gợi ý cụ thể bước tiếp
 - Bullet point mọi thứ khi 1 câu là đủ
 
-## Brain Files (đọc khi cần)
-
-| File | Đọc khi |
-|------|---------|
-| `agents/morai.md` | Cần nhớ lại identity + rules đầy đủ |
-| `agents/memory.md` | Cần hiểu memory system |
-| `agents/reflexes.md` | Cần biết fast paths đang active |
-| `agents/orchestrator.md` | Routing intent → skill |
-| `agents/judge.md` | Pipeline tự động, detect stuck |
-| `agents/recall.md` | Session recovery |
-| `rules/rules_gateway.md` | Load đúng rule theo task |
-
 ## Session Start
 
-Khi bắt đầu session mới — **không tự load memory**. Greeting bình thường, chờ user request.
+Greeting bình thường, chờ user request. Load theo mode:
 
-Load memory **chỉ khi**:
+**Lightweight mode** — CLAUDE.md đủ, không load thêm:
+- `/morai:init` · `/morai:scan` · `/morai:onboard` · `/morai:doctor`
+- Query đơn giản, đọc file, git status, Jira/Confluence lookup
 
-| Trigger | Action |
-|---------|--------|
-| User hỏi về ticket / task cụ thể | `morai-memory: get_pipeline_state(ticket_id)` |
-| User nói "làm tiếp", "còn gì dở không" | `morai-memory: list_active_pipelines()` |
-| User hỏi "em nhớ gì", "preference của anh" | `morai-memory: get_episodes()` / `get_preferences()` |
-| Bắt đầu pipeline mới | `morai-memory: get_reflexes()` — load fast paths một lần |
+**Pipeline mode** — load `agents/morai.md` + `agents/recall.md` trước khi bắt đầu:
+- `/morai:ba` · `/morai:architect` · `/morai:pm` · `/morai:dev` · `/morai:pr`
+- `/morai:reviewer` · `/morai:security` · `/morai:qa`
+- `/morai:sparring` · `/morai:incident` · `/morai:reflect` · `/morai:evolve`
+- "làm ticket X" · "làm tiếp" · "còn gì dở không"
 
-Không proactive load — tránh tốn token khi user chỉ hỏi câu đơn giản.
+**On-demand thêm:**
+
+| Trigger | Load |
+|---------|------|
+| Ticket cụ thể / "làm tiếp" | `morai-memory: get_pipeline_state()` / `list_active_pipelines()` |
+| "em nhớ gì", "preference" | `morai-memory: get_episodes()` / `get_preferences()` |
+| Cần full reflex detail | `agents/reflexes.md` |
 
 ## GATE System
 
@@ -226,34 +221,3 @@ Events này trigger: auto-review, incident, reflect, notify_dev theo subscriptio
 - **Tiếng Việt** — khi nói chuyện với user
 - **English** — code, comments, commit messages, log output
 
-## Lessons Learned
-
-### Security
-1. Validate tại boundary — chỉ validate input từ user/external API, không validate internal
-2. Error message không leak — generic ra ngoài, chi tiết vào server log
-3. Auth/payment/data → tự động trigger `/morai:security` trước khi merge
-
-### Database
-1. `git tag backup-<date>` trước mọi migration
-2. Migration bắt buộc có `down()` — không có rollback = không merge
-3. Đọc schema thực tế trước, không assume structure
-
-### Code
-1. Test trước, code sau — Red → Green → Refactor
-2. External API — luôn retry + exponential backoff
-3. Không hardcode path/secret — dùng env vars
-4. Không TODO trong output — TODO = chưa xong
-5. Business logic vào `lib/` — không viết trong routes/handlers
-6. Wrapper chỉ tạo khi ≥2 consumers — không abstraction sớm
-
-### CI / Push
-1. Luôn chạy CI (lint → format → typecheck → test) trước khi push
-2. CI fail → không push, báo lỗi rõ ràng, hỏi confirm
-3. `/morai:pr` đã tích hợp CI gate — không bypass
-
-## North Star
-
-1. Không gây mất dữ liệu
-2. Human luôn là gate cuối
-3. Hỏi khi UNKNOWN, không đoán
-4. Minh bạch — gắn signal vào output quan trọng

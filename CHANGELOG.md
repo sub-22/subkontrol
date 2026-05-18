@@ -7,6 +7,52 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [0.9.0] — 2026-05-18
+
+### Phase 7 — Credential UX + Multi-provider Git + Context Optimization
+
+#### Added
+
+- `servers/git/_provider.py` — Git provider abstraction: auto-detect GitHub, Bitbucket Cloud, Bitbucket Server từ remote URL. Tools: `list_open_prs`, `get_pr_detail`, `post_pr_comment` cho cả 3 provider
+- `skills/pr-review/` — `/morai:pr-review` skill: list open PRs (GitHub + Bitbucket) → chọn → review chi tiết → post comment
+- `servers/_env.py` — 3-level credential resolution: env var → `.env` → `~/.morai/config.json`
+- `skills/init/skill.md` — guided integration setup: hỏi từng integration (Jira / Confluence / Slack), ghi vào `~/.morai/config.json`
+- `tests/test_env_resolver.py` — 16 tests cho 3-level fallback, isolation với real credentials trên máy dev
+- `rules/code.md` — 3 sections mới: Coding Practices, Security Boundaries, Database Safety (nội dung từ Lessons Learned cũ, nay load on-demand thay vì per-turn)
+- `skills/doctor/SKILL.md` — Context Budget Report: đo token cost của bootstrap files, cảnh báo nếu CLAUDE.md vượt ngưỡng
+
+#### Changed
+
+- **Credential setup UX** — Jira / Confluence / Slack credentials không còn yêu cầu khi `claude plugin install`. Chỉ cần `MORAI_GLOBAL_PATH`. Integrations cấu hình sau qua `/morai:init`
+- **`plugin.json` userConfig** — gọn từ 13 fields → 5 fields (MORAI_GLOBAL_PATH + GitHub/Bitbucket)
+- **`.mcp.json`** — morai-jira, morai-confluence, morai-slack nhận `MORAI_GLOBAL_PATH` thay vì credentials trực tiếp; credentials đọc từ `~/.morai/config.json` qua `_env.py`
+- **Session Start — mode-based loading** — CLAUDE.md định nghĩa 2 modes:
+  - *Lightweight* (init/scan/onboard/doctor/query): chỉ CLAUDE.md (~2,400 tokens)
+  - *Pipeline* (ba/dev/review/security/...): load thêm `agents/morai.md` + `agents/recall.md`
+- **`agents/reflexes.md`** — không còn auto-load khi session start; Active Reflexes đã inline trong CLAUDE.md; load full detail on-demand
+- **CLAUDE.md** — slim −15% (cắt Brain Files table, Lessons Learned, North Star); nội dung đã có trong `agents/morai.md` và `rules/code.md`
+- **`skills/scan/SKILL.md`** — Bước 2: `list_files()` → `project_summary()` để tránh blow context với project lớn (10k files = 62k tokens → 700 tokens)
+- **`skills/doctor/SKILL.md`** — `list_files(".")` → `list_files(".", "*")` (root-level only, bounded)
+- **`agents/merge.md`** — `list_files(".", "**/*.py")` → `morai-rag: search()` (RAG đã index)
+- **`servers/confluence/server.py`** — auto-detect Cloud vs Server/DC: `atlassian.net` → Basic auth (email + token); else → Bearer PAT
+- **`servers/pipeline/server.py`** — atomic writes qua `tempfile + os.replace()` thay vì `write_text()` trực tiếp — tránh corrupt JSON nếu crash giữa chừng
+- **`servers/rag/server.py`** — dùng `resolve()` thay vì `os.getenv()` để consistent với các servers khác
+
+#### Fixed
+
+- `servers/_env.py` — thêm `BITBUCKET_BASE_URL` vào `_CONFIG_KEY_MAP` (thiếu → Bitbucket Server detection luôn fail khi dùng config.json)
+- `servers/git/_provider.py` — thêm logging cho `_http()`: HTTP errors log với status code + URL; unexpected errors log với full stack trace
+- `servers/jira/server.py` — cast fixes cho mypy strict mode
+
+#### Token Budget (sau optimization)
+
+| Session type | Trước | Sau |
+|---|---|---|
+| Lightweight (init/scan/query) | ~7,967 tokens | ~2,400 tokens (−70%) |
+| Pipeline (ba/dev/review) | ~7,967 tokens | ~5,600 tokens (−30%) |
+
+---
+
 ## [0.8.0] — 2026-05-16
 
 ### Phase 6 — Morai Identity Distribution
