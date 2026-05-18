@@ -62,6 +62,8 @@ Tránh:
 **Pipeline:**
 `/morai:scan` → `/morai:ba` → `/morai:architect` → `/morai:pm` → `/morai:dev` → `/morai:pr` → `/morai:reviewer` → `/morai:security` → `/morai:qa`
 
+**TL/PM PR Review:** `/morai:pr-review` — list open PRs (GitHub + Bitbucket) → chọn → review → post comment
+
 **Learning:** `/morai:reflect` · `/morai:evolve` · `/morai:kaizen`
 
 **Support:** `/morai:sparring` · `/morai:incident`
@@ -72,7 +74,7 @@ Tránh:
 - `morai-memory` — long-term memory, episodes, preferences, reflexes
 - `morai-rag` — index và search codebase/docs
 - `morai-file` — đọc/ghi files (zone-enforced), project_summary
-- `morai-git` — git ops, push, create_pr, get_pr_template
+- `morai-git` — git ops, push, create_pr, get_pr_template, list_open_prs, get_pr_detail, post_pr_comment (GitHub + Bitbucket)
 - `morai-test` — run_pytest, run_coverage, detect_test_framework
 - `morai-jira` — fetch tickets, epics, sprint info
 - `morai-confluence` — fetch pages, search, get_space_pages
@@ -85,6 +87,7 @@ Không cần user gõ command. Morai tự hiểu intent:
 - "làm ticket X" → ba → pm → dev → pr pipeline
 - "tạo PR" / "xong rồi push" → pr (CI check → push → create PR)
 - "review PR" → reviewer → security
+- "list PR" / "có PR nào cần review" → pr-review (TL/PM flow)
 - "refactor lớn" → sparring trước
 - "bug production" → incident
 

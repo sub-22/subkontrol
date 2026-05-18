@@ -3,15 +3,16 @@
 from __future__ import annotations
 
 import hashlib
-import os
 from pathlib import Path
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
+from servers._env import resolve
+
 mcp = FastMCP("morai-rag")
 
-CHROMA_PATH = os.getenv("CHROMA_PATH", ".morai/rag")
+CHROMA_PATH = resolve("CHROMA_PATH", ".morai/rag")
 
 # File extensions được index
 INDEXABLE_EXTENSIONS = {

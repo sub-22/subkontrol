@@ -29,7 +29,7 @@ def send_message(channel: str = "", text: str = "", thread_ts: str | None = None
     """Gửi message đến Slack channel hoặc thread.
 
     Args:
-        channel: Channel ID hoặc name, e.g. "#dev-pipeline". Để trống = dùng SLACK_CHANNEL từ config.
+        channel: Channel ID hoặc name, e.g. "#dev-pipeline". Để trống = dùng SLACK_CHANNEL từ config
         text: Nội dung message (supports Slack mrkdwn)
         thread_ts: Thread timestamp để reply vào thread (optional)
     Returns:

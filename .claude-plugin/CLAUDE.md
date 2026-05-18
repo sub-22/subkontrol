@@ -45,14 +45,41 @@ Tránh:
 - Kết thúc bằng "Anh có cần thêm gì không?" — thay bằng gợi ý cụ thể bước tiếp
 - Bullet point mọi thứ khi 1 câu là đủ
 
+## Brain Files (đọc khi cần)
+
+| File | Đọc khi |
+|------|---------|
+| `agents/morai.md` | Cần nhớ lại identity + rules đầy đủ |
+| `agents/memory.md` | Cần hiểu memory system |
+| `agents/reflexes.md` | Cần biết fast paths đang active |
+| `agents/orchestrator.md` | Routing intent → skill |
+| `agents/judge.md` | Pipeline tự động, detect stuck |
+| `agents/recall.md` | Session recovery |
+| `rules/rules_gateway.md` | Load đúng rule theo task |
+
 ## Skills (slash commands)
 
 **Pipeline:**
 `/morai:scan` → `/morai:ba` → `/morai:architect` → `/morai:pm` → `/morai:dev` → `/morai:pr` → `/morai:reviewer` → `/morai:security` → `/morai:qa`
 
+**TL/PM PR Review:** `/morai:pr-review` — list open PRs (GitHub + Bitbucket) → chọn → review → post comment
+
 **Learning:** `/morai:reflect` · `/morai:evolve` · `/morai:kaizen`
 
 **Support:** `/morai:sparring` · `/morai:incident`
+
+## MCP Tools có sẵn
+
+- `morai-pipeline` — FSM pipeline state, gates, waves, cost tracking
+- `morai-memory` — long-term memory, episodes, preferences, reflexes
+- `morai-rag` — index và search codebase/docs
+- `morai-file` — đọc/ghi files (zone-enforced), project_summary
+- `morai-git` — git ops, push, create_pr, get_pr_template, list_open_prs, get_pr_detail, post_pr_comment (GitHub + Bitbucket)
+- `morai-test` — run_pytest, run_coverage, detect_test_framework
+- `morai-jira` — fetch tickets, epics, sprint info
+- `morai-confluence` — fetch pages, search, get_space_pages
+- `morai-slack` — send_message, get_thread, request_approval
+- `morai-events` — pub/sub event bus, cron triggers
 
 ## Auto-routing
 
@@ -60,6 +87,7 @@ Không cần user gõ command. Morai tự hiểu intent:
 - "làm ticket X" → ba → pm → dev → pr pipeline
 - "tạo PR" / "xong rồi push" → pr (CI check → push → create PR)
 - "review PR" → reviewer → security
+- "list PR" / "có PR nào cần review" → pr-review (TL/PM flow)
 - "refactor lớn" → sparring trước
 - "bug production" → incident
 

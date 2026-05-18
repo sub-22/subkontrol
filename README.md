@@ -74,25 +74,23 @@ Claude Code sẽ hỏi các fields sau. Điền đúng rồi nhấn Save:
 
 | Field | Bắt buộc | Ví dụ |
 |-------|----------|-------|
-| `WORKSPACE_ROOT` | **Có** | `/absolute/path/to/your/project` |
 | `MORAI_GLOBAL_PATH` | **Có** | `/home/user/.morai` |
 | `JIRA_URL` | Không | `https://yourorg.atlassian.net` |
-| `CONFLUENCE_URL` | Không | `https://yourorg.atlassian.net` |
+| `JIRA_EMAIL` | Không | `dev@company.com` |
+| `JIRA_TOKEN` | Không | Atlassian API token |
+| `CONFLUENCE_URL` | Không | `https://yourorg.atlassian.net/wiki` |
+| `CONFLUENCE_EMAIL` | Không | `dev@company.com` |
+| `CONFLUENCE_TOKEN` | Không | Atlassian API token (dùng chung với Jira) |
+| `GITHUB_TOKEN` | Không | GitHub PAT — nếu dùng GitHub |
+| `BITBUCKET_USERNAME` | Không | Username Bitbucket — nếu dùng Bitbucket |
+| `BITBUCKET_TOKEN` | Không | App password (Cloud) hoặc PAT (Server) |
+| `BITBUCKET_BASE_URL` | Không | `https://git.mycompany.com` — chỉ cần cho Bitbucket Server |
 | `SLACK_BOT_TOKEN` | Không | `xoxb-...` |
+| `SLACK_CHANNEL` | Không | `#dev-pipeline` — channel nhận PR notifications |
 
-> Jira, Confluence, Slack là optional — Morai vẫn hoạt động đầy đủ mà không cần.
+> Tất cả ngoài `MORAI_GLOBAL_PATH` đều optional — Morai vẫn hoạt động đầy đủ.
 
-### Dev identity mapping (optional)
-
-Để Morai biết bạn là ai trên Jira, copy template và điền thông tin:
-
-```bash
-# Tìm plugin directory sau khi install
-PLUGIN_DIR=$(claude plugin path morai@sub22 2>/dev/null || claude plugin path morai)
-
-cp "$PLUGIN_DIR/config/dev_mapping.example.json" "$PLUGIN_DIR/config/dev_mapping.json"
-# Điền git email, Jira account ID, project keys vào dev_mapping.json
-```
+> **Jira identity:** Morai tự resolve từ `JIRA_EMAIL` + `currentUser()` — không cần Jira Account ID hay mapping file.
 
 ### Verify
 
@@ -156,6 +154,7 @@ scan → ba → [architect] → pm → dev / dev-auto → pr → reviewer → se
 | `/morai:dev-auto` | "fix bug X" *(simple bugs only)* | Task ID | Code + commit tự động | Morai (auto) |
 | `/morai:pr` | "tạo PR", "xong rồi tạo PR" | Branch / ticket ID | CI check → push → PR → Slack notify | Dev |
 | `/morai:reviewer` | "review PR", "check code" | PR URL / branch | `reviews/<id>-review.md` + PR comment | Reviewer |
+| `/morai:pr-review` | "list PR", "review PR #42", "có PR nào cần review" | PR ID (optional) | List open PRs → review → post comment | Tech Lead / PM |
 | `/morai:security` | "security check", "bảo mật PR" | PR URL / branch | `reviews/<id>-security.md` | Security |
 | `/morai:qa` | "viết test case", "QA ticket" | Spec path hoặc ticket ID | `tests/<id>-test-plan.md` | QA |
 
@@ -227,6 +226,7 @@ reflect (sau mỗi task) → evolve (sau sprint) → kaizen (hàng tuần)
 "fix bug login crash"        → dev-auto check (7 tiêu chí) → dev hoặc dev-auto
 "tạo PR"                     → pr (CI check → push → create PR)
 "review PR #45"              → reviewer → security
+"có PR nào cần review"       → pr-review (list → pick → review → comment)
 "refactor toàn bộ auth"      → sparring → architect → dev
 "production down"            → incident
 "tuần này cải thiện gì"      → kaizen
@@ -242,7 +242,7 @@ reflect (sau mỗi task) → evolve (sau sprint) → kaizen (hàng tuần)
 | `morai-memory` | episodes, preferences, reflexes, patterns | Tất cả skills |
 | `morai-rag` | scan_project, index_documents, search, get_context | scan, ba, dev, reviewer, qa |
 | `morai-file` | read/write (zone-enforced), project_summary | Tất cả skills |
-| `morai-git` | status, diff, commit, push, create_pr, get_pr_template | dev, pr, reviewer |
+| `morai-git` | status, diff, commit, push, create_pr, get_pr_template, list_open_prs, get_pr_detail, post_pr_comment | dev, pr, reviewer, pr-review |
 | `morai-test` | run_pytest, run_coverage, detect_test_framework | pr, dev, qa |
 | `morai-jira` | get_ticket, search_tickets, get_project_epics, get_active_sprint | ba, pm, onboard |
 | `morai-confluence` | get_page, search, get_space_pages (label filter) | ba, onboard |
@@ -347,6 +347,11 @@ myapp-design/
 | `CONFLUENCE_TOKEN` | Không | Confluence API token |
 | `SLACK_BOT_TOKEN` | Không | Slack bot token (`xoxb-...`) |
 | `SLACK_APP_TOKEN` | Không | Slack app token (`xapp-...`) |
+| `SLACK_CHANNEL` | Không | Default channel nhận notifications (e.g. `#dev-pipeline`) |
+| `GITHUB_TOKEN` | Không | GitHub Personal Access Token — cho PR review |
+| `BITBUCKET_USERNAME` | Không | Bitbucket username |
+| `BITBUCKET_TOKEN` | Không | Bitbucket App password (Cloud) hoặc PAT (Server) |
+| `BITBUCKET_BASE_URL` | Không | Bitbucket Server URL (e.g. `https://git.mycompany.com`) |
 
 ---
 

@@ -1,18 +1,8 @@
 """Tests for servers/_env.py — three-level credential resolution."""
 
-import importlib
 import json
 
 import pytest
-
-
-def _reload_env():
-    import servers._env as mod
-
-    mod._DOTENV = None
-    mod._CONFIG = None
-    importlib.reload(mod)
-    return mod
 
 
 @pytest.fixture(autouse=True)

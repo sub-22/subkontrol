@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import tempfile
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import cast
@@ -114,10 +115,19 @@ def _load_state(ticket_id: str) -> dict:
     return cast(dict, json.loads(path.read_text(encoding="utf-8")))
 
 
-def _save_state(ticket_id: str, state: dict) -> None:
-    path = _pipeline_path(ticket_id)
+def _atomic_write(path: Path, data: dict) -> None:
+    """Write JSON atomically via tempfile + os.replace to prevent corruption on crash."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8")
+    with tempfile.NamedTemporaryFile(
+        "w", dir=path.parent, delete=False, suffix=".tmp", encoding="utf-8"
+    ) as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        tmp = f.name
+    os.replace(tmp, path)
+
+
+def _save_state(ticket_id: str, state: dict) -> None:
+    _atomic_write(_pipeline_path(ticket_id), state)
 
 
 def _check_precondition(
@@ -583,7 +593,7 @@ def _load_gate(ticket_id: str, gate_id: str) -> dict:
         gate["status"] = "expired"
         gate["resolved_by"] = "timeout"
         gate["resolved_at"] = _now()
-        path.write_text(json.dumps(gate, indent=2, ensure_ascii=False), encoding="utf-8")
+        _atomic_write(path, gate)
         # Update pipeline pending count
         _decrement_pending_gates(ticket_id)
     return gate
@@ -655,10 +665,7 @@ def create_gate(
         "resolved_at": None,
     }
 
-    _gates_dir(ticket_id).mkdir(parents=True, exist_ok=True)
-    _gate_path(ticket_id, gate_id).write_text(
-        json.dumps(gate, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
+    _atomic_write(_gate_path(ticket_id, gate_id), gate)
     _increment_pending_gates(ticket_id)
 
     return {"ok": True, "gate_id": gate_id, "expires_at": expires, "gate_type": gate_type}
@@ -690,9 +697,7 @@ def resolve_gate(ticket_id: str, gate_id: str, response: str, resolved_by: str =
     gate["resolved_by"] = resolved_by
     gate["resolved_at"] = _now()
 
-    _gate_path(ticket_id, gate_id).write_text(
-        json.dumps(gate, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
+    _atomic_write(_gate_path(ticket_id, gate_id), gate)
     _decrement_pending_gates(ticket_id)
 
     pipeline = _load_state(ticket_id)
@@ -800,9 +805,7 @@ def cancel_gate(ticket_id: str, gate_id: str, reason: str = "") -> dict:
     if reason:
         gate["cancel_reason"] = reason
 
-    _gate_path(ticket_id, gate_id).write_text(
-        json.dumps(gate, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
+    _atomic_write(_gate_path(ticket_id, gate_id), gate)
     _decrement_pending_gates(ticket_id)
     return {"ok": True, "gate_id": gate_id}
 

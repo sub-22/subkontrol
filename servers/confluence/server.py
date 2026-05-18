@@ -24,10 +24,22 @@ def _is_configured() -> bool:
     return bool(CONFLUENCE_URL and CONFLUENCE_TOKEN)
 
 
+def _is_cloud() -> bool:
+    """Confluence Cloud (atlassian.net) uses Basic auth; Server/DC uses Bearer PAT."""
+    return "atlassian.net" in CONFLUENCE_URL.lower()
+
+
 def _client() -> "Any":
     from atlassian import Confluence
 
-    # PAT on Confluence Server/Data Center uses Bearer token (not Basic auth)
+    if _is_cloud():
+        # Cloud: Basic auth — email as username, API token as password
+        return Confluence(  # type: ignore[no-untyped-call]
+            url=CONFLUENCE_URL,
+            username=CONFLUENCE_EMAIL,
+            password=CONFLUENCE_TOKEN,
+        )
+    # Server / Data Center: Bearer PAT (email not required)
     return Confluence(url=CONFLUENCE_URL, token=CONFLUENCE_TOKEN)  # type: ignore[no-untyped-call]
 
 

@@ -29,6 +29,7 @@ _CONFIG_KEY_MAP: dict[str, tuple[str, str]] = {
     "GITHUB_TOKEN": ("github", "token"),
     "BITBUCKET_USERNAME": ("bitbucket", "username"),
     "BITBUCKET_TOKEN": ("bitbucket", "token"),
+    "BITBUCKET_BASE_URL": ("bitbucket", "base_url"),
 }
 
 _DOTENV: dict[str, str | None] | None = None
