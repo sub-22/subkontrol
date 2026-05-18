@@ -151,6 +151,76 @@ Khi user yêu cầu ghi nhận task → tự động làm CẢ HAI (R-014):
 
 Không bao giờ chỉ tạo in-session task — sẽ mất khi session kết thúc.
 
+## Active Reflexes
+
+Các reflexes này **luôn active** — execute ngay, không cần đọc file:
+
+| Reflex | Trigger | Action |
+|--------|---------|--------|
+| **R-001** | BA ticket thiếu Acceptance Criteria | STOP → hỏi AC trước khi viết spec |
+| **R-002** | diff có `auth/jwt/token/payment/password/crypto/session` | Auto trigger `/morai:security` sau reviewer |
+| **R-003** | Spec mâu thuẫn với code hiện tại | Flag conflict → propose ADR → chờ quyết định |
+| **R-004** | CI tests đang fail | BLOCK pipeline → fix tests → không merge |
+| **R-009** | AI-generated code trong PR > 200 LOC | BLOCK auto-merge → yêu cầu human review + sign-off |
+| **R-010** | Keywords: "refactor toàn bộ / migrate / rewrite / đổi tech stack" | Activate `/morai:sparring` trước |
+| **R-011** | Request có rủi ro rõ ràng (drop table, disable auth, xóa index đang dùng) | ⚠️ Giải thích risk → đề xuất alternative → chờ confirm |
+| **R-012** | Task mơ hồ, thiếu scope | BLOCK → hỏi clarifying question trước |
+| **R-013** | Feature / implement (không phải bug) | Route sang `/morai:dev` (guided) — KHÔNG dùng dev-auto |
+| **R-015** | Tạo branch mới | STOP → đề xuất name + hỏi base branch → chờ confirm cả hai |
+
+Chi tiết đầy đủ: `agents/reflexes.md`
+
+## Autonomy Tiers
+
+| Tier | Hành động | Behavior |
+|------|-----------|----------|
+| **1 — Auto** | Đọc file, search, run tests, viết draft, gọi read-only MCP | Execute ngay |
+| **2 — Document** | Tạo file mới, cài dependency, commit, gửi Slack | Execute + báo ngắn |
+| **3 — Block** | Xóa file/branch, schema migration, security ops, task mơ hồ | STOP + confirm |
+
+**Default khi không chắc → Tier 3.**
+
+## Rules Activation
+
+Trước mỗi task quan trọng, load rule tương ứng:
+
+| Task type | Rules cần đọc |
+|-----------|---------------|
+| Viết code / implement | `rules/code.md` |
+| Debug / incident | `rules/observability.md` |
+| Review / QA | `rules/quality.md` |
+| Architecture / design | `rules/code.md` + `rules/governance.md` |
+
+**Luôn apply (không cần đọc lại):** governance tiers, 9 Laws, quality gates.
+
+Priority khi conflict: `9 Laws > governance > quality > code > observability`
+
+## Model Routing
+
+| Task | Model |
+|------|-------|
+| XS/S — typo, config, bug nhỏ | `haiku` |
+| M/L — feature, refactor, review | `sonnet` |
+| XL — architecture, migration | `opus` |
+| `/morai:sparring` (bất kỳ size) | `opus` |
+| Sub-agents chạy song song | `haiku` |
+
+Budget mặc định: **200,000 tokens/pipeline**. Tại 80% → compress context. Tại 95% → checkpoint + pause.
+
+## Event Publishing
+
+Sau các milestone quan trọng, publish event để kích hoạt downstream tự động:
+
+| Sau khi | Publish event |
+|---------|---------------|
+| PR tạo xong | `morai-events: publish("github.pr_opened", {pr_number, branch})` |
+| CI fail | `morai-events: publish("github.test_failed", {branch, error})` |
+| PR merge | `morai-events: publish("github.pr_merged", {pr_number, ticket_id})` |
+| Ticket hoàn thành | `morai-events: publish("internal.ticket_completed", {ticket_id})` |
+| Pipeline bị blocked | `morai-events: publish("internal.pipeline_blocked", {ticket_id, reason})` |
+
+Events này trigger: auto-review, incident, reflect, notify_dev theo subscriptions đã config.
+
 ## Ngôn ngữ
 - **Tiếng Việt** — khi nói chuyện với user
 - **English** — code, comments, commit messages, log output
