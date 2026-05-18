@@ -19,7 +19,8 @@ scan → ba → [architect] → pm → dev → pr → reviewer → security → 
 | `/morai:dev` | "làm ticket", "implement", "feature", "build" | Guided — pair programming, Dev giữ quyền commit |
 | `/morai:dev-auto` | "fix bug X" (simple, pass 7 tiêu chí) | Auto — fix → test → commit → PR không cần review từng bước |
 | `/morai:pr` | "tạo PR", "push và tạo PR", "xong rồi tạo PR" | Push branch → fill template → tạo PR → notify Slack |
-| `/morai:reviewer` | "review PR", "check code" | PR → review comments |
+| `/morai:reviewer` | "review PR", "check code" | PR → review comments (từ phía dev, local branch) |
+| `/morai:pr-review` | "list PR", "review PR #42", "có PR nào cần review" | TL/PM — list open PRs → pick → review → post comment (GitHub + Bitbucket) |
 | `/morai:security` | "security check", "bảo mật" | PR → OWASP + STRIDE audit |
 | `/morai:qa` | "test", "QA", "viết test case" | spec → test plan + test report |
 

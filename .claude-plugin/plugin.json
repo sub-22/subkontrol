@@ -18,50 +18,25 @@
       "title": "Design repo path",
       "description": "Local path tới {project-name}-design repo — để trống nếu chưa có"
     },
-    "JIRA_URL": {
+    "GITHUB_TOKEN": {
       "type": "string",
-      "title": "Jira URL",
-      "description": "e.g. https://yourorg.atlassian.net — để trống nếu không dùng Jira"
+      "title": "GitHub Token",
+      "description": "Personal Access Token — để trống nếu dùng Bitbucket"
     },
-    "JIRA_EMAIL": {
+    "BITBUCKET_USERNAME": {
       "type": "string",
-      "title": "Jira Email",
-      "description": "Email đăng nhập Jira"
+      "title": "Bitbucket Username",
+      "description": "Username đăng nhập Bitbucket Cloud hoặc Server"
     },
-    "JIRA_TOKEN": {
+    "BITBUCKET_TOKEN": {
       "type": "string",
-      "title": "Jira API Token",
-      "description": "Tạo tại: Atlassian Account → Security → API tokens"
+      "title": "Bitbucket Token",
+      "description": "Cloud: App password từ Bitbucket Settings. Server: Personal Access Token"
     },
-    "CONFLUENCE_URL": {
+    "BITBUCKET_BASE_URL": {
       "type": "string",
-      "title": "Confluence URL",
-      "description": "e.g. https://yourorg.atlassian.net/wiki — để trống nếu không dùng"
-    },
-    "CONFLUENCE_EMAIL": {
-      "type": "string",
-      "title": "Confluence Email",
-      "description": "Email đăng nhập Confluence"
-    },
-    "CONFLUENCE_TOKEN": {
-      "type": "string",
-      "title": "Confluence API Token",
-      "description": "Dùng chung Atlassian API token với Jira"
-    },
-    "SLACK_BOT_TOKEN": {
-      "type": "string",
-      "title": "Slack Bot Token",
-      "description": "xoxb-... từ api.slack.com/apps — để trống nếu không dùng Slack"
-    },
-    "SLACK_APP_TOKEN": {
-      "type": "string",
-      "title": "Slack App Token",
-      "description": "xapp-... cần cho Socket Mode"
-    },
-    "SLACK_CHANNEL": {
-      "type": "string",
-      "title": "Slack default channel",
-      "description": "Channel nhận notifications, e.g. #dev-pipeline"
+      "title": "Bitbucket Server URL",
+      "description": "Chỉ cần khi dùng Bitbucket Server self-hosted. e.g. https://git.mycompany.com — để trống nếu dùng Bitbucket Cloud hoặc GitHub"
     }
   }
 }

@@ -3,7 +3,7 @@
 import json
 import subprocess
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from mcp.server.fastmcp import FastMCP
 
@@ -170,7 +170,7 @@ def _resolve_dev_identity() -> dict[str, Any] | None:
         mapping: dict[str, Any] = json.loads(_DEV_MAPPING_PATH.read_text())
         dev = mapping.get("devs", {}).get(email)
         if dev:
-            return dev
+            return cast(dict[str, Any], dev)
 
     # Plugin mode fallback: use JIRA_EMAIL from env/userConfig
     if JIRA_EMAIL:
@@ -248,7 +248,7 @@ def _fetch_assigned_issues(client: "Any", dev: dict, max_results: int) -> list[d
             " ORDER BY created DESC"
         )
         results = client.jql(jql, limit=max_results)
-        return results.get("issues", [])
+        return cast(list[dict[str, Any]], results.get("issues", []))
     except Exception as primary_err:
         if "assignee" not in str(primary_err).lower():
             raise
@@ -270,12 +270,13 @@ def _fetch_assigned_issues(client: "Any", dev: dict, max_results: int) -> list[d
 
     if jira_email:
         issues = [
-            i for i in issues
+            i
+            for i in issues
             if (i.get("fields", {}).get("assignee") or {}).get("emailAddress", "").lower()
             == jira_email
         ]
 
-    return issues[:max_results]
+    return cast(list[dict[str, Any]], issues[:max_results])
 
 
 @mcp.tool()

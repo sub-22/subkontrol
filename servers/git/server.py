@@ -290,5 +290,47 @@ def update_pr(number: int, title: str = "", body: str = "") -> dict:
     return {"ok": False, "url": "", "error": result["error"]}
 
 
+@mcp.tool()
+def list_open_prs() -> list[dict]:
+    """Liệt kê tất cả PR đang OPEN — auto-detect GitHub hoặc Bitbucket từ git remote.
+
+    Returns:
+        List of {id, title, author, branch, url, created_at, provider}
+        Trả về [{"error": "..."}] nếu không có credentials hoặc không connect được.
+    """
+    from servers.git._provider import list_open_prs as _list
+
+    return _list(WORKSPACE_ROOT)
+
+
+@mcp.tool()
+def get_pr_detail(pr_id: int) -> dict:
+    """Lấy metadata + diff của một PR cụ thể.
+
+    Args:
+        pr_id: PR number (GitHub) hoặc PR ID (Bitbucket)
+    Returns:
+        {id, title, author, branch, base, url, description, diff, provider}
+    """
+    from servers.git._provider import get_pr_detail as _detail
+
+    return _detail(pr_id, WORKSPACE_ROOT)
+
+
+@mcp.tool()
+def post_pr_comment(pr_id: int, body: str) -> dict:
+    """Post comment lên PR — auto-detect GitHub hoặc Bitbucket.
+
+    Args:
+        pr_id: PR number (GitHub) hoặc PR ID (Bitbucket)
+        body: Nội dung comment (markdown)
+    Returns:
+        {"ok": bool, "error": str}
+    """
+    from servers.git._provider import post_pr_comment as _post
+
+    return _post(pr_id, body, WORKSPACE_ROOT)
+
+
 if __name__ == "__main__":
     mcp.run()

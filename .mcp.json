@@ -57,9 +57,7 @@
       "command": "uv",
       "args": ["run", "--directory", "/home/tunglt02/Workspaces/subkontrol", "python", "-m", "servers.jira.server"],
       "env": {
-        "JIRA_URL": "${user_config.JIRA_URL}",
-        "JIRA_EMAIL": "${user_config.JIRA_EMAIL}",
-        "JIRA_TOKEN": "${user_config.JIRA_TOKEN}"
+        "MORAI_GLOBAL_PATH": "${user_config.MORAI_GLOBAL_PATH}"
       }
     },
     "morai-confluence": {
@@ -67,9 +65,7 @@
       "command": "uv",
       "args": ["run", "--directory", "/home/tunglt02/Workspaces/subkontrol", "python", "-m", "servers.confluence.server"],
       "env": {
-        "CONFLUENCE_URL": "${user_config.CONFLUENCE_URL}",
-        "CONFLUENCE_EMAIL": "${user_config.CONFLUENCE_EMAIL}",
-        "CONFLUENCE_TOKEN": "${user_config.CONFLUENCE_TOKEN}"
+        "MORAI_GLOBAL_PATH": "${user_config.MORAI_GLOBAL_PATH}"
       }
     },
     "morai-slack": {
@@ -77,8 +73,7 @@
       "command": "uv",
       "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.morai.server"],
       "env": {
-        "SLACK_BOT_TOKEN": "${user_config.SLACK_BOT_TOKEN}",
-        "SLACK_APP_TOKEN": "${user_config.SLACK_APP_TOKEN}"
+        "MORAI_GLOBAL_PATH": "${user_config.MORAI_GLOBAL_PATH}"
       }
     },
     "morai-test": {

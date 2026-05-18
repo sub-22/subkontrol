@@ -3,43 +3,74 @@
 When running as an installed Claude plugin, the plugin system interpolates
 ${user_config.FIELD} before passing env vars to MCP servers.
 When running locally (dev mode), those strings arrive un-interpolated.
-This module detects the un-interpolated case and falls back to .env.
+This module detects the un-interpolated case and falls back to .env,
+then ~/.morai/config.json (written by /morai:init guided setup).
 """
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 
 from dotenv import dotenv_values, find_dotenv
 
-
-def _dotenv_cache() -> dict[str, str | None]:
-    dotenv_path = find_dotenv(usecwd=True)
-    if dotenv_path:
-        return dotenv_values(dotenv_path)
-    return {}
-
+# Maps env var name → (section, field) in ~/.morai/config.json
+_CONFIG_KEY_MAP: dict[str, tuple[str, str]] = {
+    "JIRA_URL": ("jira", "url"),
+    "JIRA_EMAIL": ("jira", "email"),
+    "JIRA_TOKEN": ("jira", "token"),
+    "CONFLUENCE_URL": ("confluence", "url"),
+    "CONFLUENCE_EMAIL": ("confluence", "email"),
+    "CONFLUENCE_TOKEN": ("confluence", "token"),
+    "SLACK_BOT_TOKEN": ("slack", "bot_token"),
+    "SLACK_APP_TOKEN": ("slack", "app_token"),
+    "SLACK_CHANNEL": ("slack", "channel"),
+    "GITHUB_TOKEN": ("github", "token"),
+    "BITBUCKET_USERNAME": ("bitbucket", "username"),
+    "BITBUCKET_TOKEN": ("bitbucket", "token"),
+}
 
 _DOTENV: dict[str, str | None] | None = None
+_CONFIG: dict | None = None
 
 
 def _get_dotenv() -> dict[str, str | None]:
     global _DOTENV
     if _DOTENV is None:
-        _DOTENV = _dotenv_cache()
+        dotenv_path = find_dotenv(usecwd=True)
+        _DOTENV = dotenv_values(dotenv_path) if dotenv_path else {}
     return _DOTENV
 
 
+def _get_config() -> dict:
+    global _CONFIG
+    if _CONFIG is None:
+        global_path = os.getenv("MORAI_GLOBAL_PATH", str(Path.home() / ".morai"))
+        config_path = Path(global_path).expanduser() / "config.json"
+        if config_path.exists():
+            try:
+                _CONFIG = json.loads(config_path.read_text())
+            except (json.JSONDecodeError, OSError):
+                _CONFIG = {}
+        else:
+            _CONFIG = {}
+    return _CONFIG
+
+
 def resolve(key: str, default: str = "") -> str:
-    """Read env var; fall back to .env if value is an unresolved plugin template."""
+    """Read env var; fall back to .env then ~/.morai/config.json."""
     val = os.getenv(key, "")
     if val and not val.startswith("${"):
         return val
-    # Unresolved or missing — try .env
     dotenv_val = _get_dotenv().get(key)
     if dotenv_val and not dotenv_val.startswith("${"):
         return dotenv_val
+    if key in _CONFIG_KEY_MAP:
+        section, field = _CONFIG_KEY_MAP[key]
+        config_val = _get_config().get(section, {}).get(field, "")
+        if config_val:
+            return str(config_val)
     return default
 
 
