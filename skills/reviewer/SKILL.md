@@ -62,7 +62,9 @@ morai-memory: save_pipeline_state($TICKET_ID, {
 - 🟢 **Praise**: code tốt, để team học hỏi
 
 ### Bước 4 — Output + Báo cáo
-- Dùng `morai-file` MCP: ghi review vào `reviews/<ticket-id>-review.md`
+- Dùng `morai-file` MCP: ghi review vào `.morai/reviews/<ticket-id>-review.md`
+Và thực hiện hỏi có cần comment lên PR không:
+Nếu có:
 - Dùng `morai-git` MCP: `add_pr_comment(body)` — comment lên PR nếu có `gh` CLI
 - Kết luận rõ ràng: **APPROVE** / **REQUEST CHANGES** / **NEEDS DISCUSSION**
 
@@ -71,7 +73,7 @@ morai-memory: save_pipeline_state($TICKET_ID, {
   "current_step": "reviewer",
   "completed_steps": [...previous, "reviewer"],
   "status": "active",
-  "review_path": "reviews/$TICKET_ID-review.md"
+  "review_path": ".morai/reviews/$TICKET_ID-review.md"
 })
 ```
 
