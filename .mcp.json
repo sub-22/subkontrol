@@ -55,7 +55,7 @@
     "morai-jira": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.jira.server"],
+      "args": ["run", "--directory", "/home/tunglt02/Workspaces/subkontrol", "python", "-m", "servers.jira.server"],
       "env": {
         "JIRA_URL": "${user_config.JIRA_URL}",
         "JIRA_EMAIL": "${user_config.JIRA_EMAIL}",
@@ -65,7 +65,7 @@
     "morai-confluence": {
       "type": "stdio",
       "command": "uv",
-      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.confluence.server"],
+      "args": ["run", "--directory", "/home/tunglt02/Workspaces/subkontrol", "python", "-m", "servers.confluence.server"],
       "env": {
         "CONFLUENCE_URL": "${user_config.CONFLUENCE_URL}",
         "CONFLUENCE_EMAIL": "${user_config.CONFLUENCE_EMAIL}",

@@ -1,14 +1,15 @@
 """Morai MCP server — Slack integration tools."""
 
-import os
 import time
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
+from servers._env import resolve
+
 mcp = FastMCP("morai-slack")
 
-SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN", "")
+SLACK_BOT_TOKEN = resolve("SLACK_BOT_TOKEN")
 _NOT_CONFIGURED = "morai-slack not configured — set SLACK_BOT_TOKEN in .env"
 
 

@@ -1,15 +1,16 @@
 """Confluence MCP server — fetch pages, search documentation."""
 
-import os
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
+from servers._env import resolve
+
 mcp = FastMCP("morai-confluence")
 
-CONFLUENCE_URL = os.getenv("CONFLUENCE_URL", "")
-CONFLUENCE_EMAIL = os.getenv("CONFLUENCE_EMAIL", "")
-CONFLUENCE_TOKEN = os.getenv("CONFLUENCE_TOKEN", "")
+CONFLUENCE_URL = resolve("CONFLUENCE_URL")
+CONFLUENCE_EMAIL = resolve("CONFLUENCE_EMAIL")
+CONFLUENCE_TOKEN = resolve("CONFLUENCE_TOKEN")
 
 _NOT_CONFIGURED = {
     "error": (
@@ -20,13 +21,14 @@ _NOT_CONFIGURED = {
 
 
 def _is_configured() -> bool:
-    return bool(CONFLUENCE_URL and CONFLUENCE_EMAIL and CONFLUENCE_TOKEN)
+    return bool(CONFLUENCE_URL and CONFLUENCE_TOKEN)
 
 
 def _client() -> "Any":
     from atlassian import Confluence
 
-    return Confluence(url=CONFLUENCE_URL, username=CONFLUENCE_EMAIL, password=CONFLUENCE_TOKEN)  # type: ignore[no-untyped-call]
+    # PAT on Confluence Server/Data Center uses Bearer token (not Basic auth)
+    return Confluence(url=CONFLUENCE_URL, token=CONFLUENCE_TOKEN)  # type: ignore[no-untyped-call]
 
 
 def _html_to_md(html: str) -> str:
@@ -84,11 +86,12 @@ def search(query: str, space: str | None = None, max_results: int = 10) -> list[
         {
             "id": r["content"]["id"],
             "title": r["content"]["title"],
-            "space_key": r["resultGlobalContainer"]["title"],
+            "space_key": r.get("resultGlobalContainer", {}).get("title", ""),
             "excerpt": r.get("excerpt", ""),
             "url": f"{CONFLUENCE_URL}/wiki{r['content']['_links']['webui']}",
         }
         for r in results
+        if r.get("content")
     ]
 
 

@@ -1,18 +1,19 @@
 """Jira MCP server — fetch tickets, search issues."""
 
 import json
-import os
 import subprocess
 from pathlib import Path
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
+from servers._env import resolve
+
 mcp = FastMCP("morai-jira")
 
-JIRA_URL = os.getenv("JIRA_URL", "")
-JIRA_EMAIL = os.getenv("JIRA_EMAIL", "")
-JIRA_TOKEN = os.getenv("JIRA_TOKEN", "")
+JIRA_URL = resolve("JIRA_URL")
+JIRA_EMAIL = resolve("JIRA_EMAIL")
+JIRA_TOKEN = resolve("JIRA_TOKEN")
 
 _REPO_ROOT = Path(__file__).parent.parent.parent
 _DEV_MAPPING_PATH = _REPO_ROOT / "config" / "dev_mapping.json"
@@ -26,13 +27,14 @@ _NOT_CONFIGURED = {
 
 
 def _is_configured() -> bool:
-    return bool(JIRA_URL and JIRA_EMAIL and JIRA_TOKEN)
+    return bool(JIRA_URL and JIRA_TOKEN)
 
 
 def _client() -> "Any":
     from atlassian import Jira
 
-    return Jira(url=JIRA_URL, username=JIRA_EMAIL, password=JIRA_TOKEN)
+    # PAT on Jira Server/Data Center uses Bearer token (not Basic auth)
+    return Jira(url=JIRA_URL, token=JIRA_TOKEN)
 
 
 def _format_ticket(issue: dict) -> dict:
@@ -158,18 +160,27 @@ def get_active_sprint(project_key: str) -> dict:
 
 
 def _resolve_dev_identity() -> dict[str, Any] | None:
-    """Resolve current dev from git config → dev_mapping.json."""
+    """Resolve current dev: dev_mapping.json (dev mode) → env vars (plugin mode)."""
     try:
         email = subprocess.check_output(["git", "config", "user.email"], text=True).strip()
     except subprocess.CalledProcessError:
-        return None
+        email = ""
 
-    if not _DEV_MAPPING_PATH.exists():
-        return None
+    if _DEV_MAPPING_PATH.exists():
+        mapping: dict[str, Any] = json.loads(_DEV_MAPPING_PATH.read_text())
+        dev = mapping.get("devs", {}).get(email)
+        if dev:
+            return dev
 
-    mapping: dict[str, Any] = json.loads(_DEV_MAPPING_PATH.read_text())
-    result: dict[str, Any] | None = mapping.get("devs", {}).get(email)
-    return result
+    # Plugin mode fallback: use JIRA_EMAIL from env/userConfig
+    if JIRA_EMAIL:
+        return {
+            "git_name": email.split("@")[0] if email else "",
+            "jira_email": JIRA_EMAIL,
+            "project_keys": [],
+        }
+
+    return None
 
 
 def _priority_rank(priority_name: str) -> int:
@@ -227,6 +238,46 @@ def _format_task_list(issues: list[dict], jira_url: str, shadow: bool) -> dict:
     }
 
 
+def _fetch_assigned_issues(client: "Any", dev: dict, max_results: int) -> list[dict]:
+    """Try assignee = currentUser(), fallback to project-based search if field is restricted."""
+    # Primary: currentUser() — works when PAT has Browse Users & Groups permission
+    try:
+        jql = (
+            "assignee = currentUser()"
+            ' AND status in ("To Do","In Progress","Open")'
+            " ORDER BY created DESC"
+        )
+        results = client.jql(jql, limit=max_results)
+        return results.get("issues", [])
+    except Exception as primary_err:
+        if "assignee" not in str(primary_err).lower():
+            raise
+
+    # Fallback: project-based search, filter by email client-side
+    project_keys = dev.get("project_keys") or []
+    jira_email = dev.get("jira_email", "").lower()
+    if not project_keys:
+        return []
+
+    projects_jql = ", ".join(f'"{k}"' for k in project_keys)
+    jql = (
+        f"project in ({projects_jql})"
+        ' AND status in ("To Do","In Progress","Open")'
+        " ORDER BY created DESC"
+    )
+    results = client.jql(jql, limit=max_results * 5)
+    issues = results.get("issues", [])
+
+    if jira_email:
+        issues = [
+            i for i in issues
+            if (i.get("fields", {}).get("assignee") or {}).get("emailAddress", "").lower()
+            == jira_email
+        ]
+
+    return issues[:max_results]
+
+
 @mcp.tool()
 def fetch_my_tasks(max_results: int = 10) -> dict:
     """Fetch và prioritize tasks được assign cho dev hiện tại.
@@ -248,8 +299,9 @@ def fetch_my_tasks(max_results: int = 10) -> dict:
             )
         }
 
-    mapping = json.loads(_DEV_MAPPING_PATH.read_text())
-    cfg = mapping.get("defaults", {})
+    cfg: dict[str, Any] = {}
+    if _DEV_MAPPING_PATH.exists():
+        cfg = json.loads(_DEV_MAPPING_PATH.read_text()).get("defaults", {})
     max_results = min(max_results, cfg.get("max_tasks", 10))
 
     shadow = not _is_configured()
@@ -257,14 +309,8 @@ def fetch_my_tasks(max_results: int = 10) -> dict:
     if shadow:
         issues = _fetch_from_stub(dev, max_results)
     else:
-        jql = (
-            f'assignee = "{dev["jira_account_id"]}"'
-            f' AND status in ("To Do","In Progress","Open")'
-            f" AND sprint in openSprints()"
-            f" ORDER BY priority ASC"
-        )
-        results = _client().jql(jql, limit=max_results)
-        issues = results.get("issues", [])
+        client = _client()
+        issues = _fetch_assigned_issues(client, dev, max_results)
 
     prioritized = _prioritize(issues)
     return _format_task_list(prioritized, JIRA_URL, shadow)
