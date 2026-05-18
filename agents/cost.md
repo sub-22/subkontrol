@@ -17,23 +17,27 @@ Default budget: **200,000 tokens per pipeline** (configurable qua `MORAI_BUDGET_
 | S — simple bug, update config | `haiku` | Đủ dùng cho changes nhỏ |
 | M — feature module, refactor | `sonnet` | Balanced: quality + cost |
 | L — complex feature, multi-service | `sonnet` | Reasoning tốt, still cost-effective |
-| XL — architecture change, migration | `opus` | Cần deep reasoning |
-| `/morai:sparring` (bất kỳ size) | `opus` | Strategic thinking, cần breadth |
-| `/morai:security` | `sonnet` | Pattern recognition đủ |
-| Sub-agents (parallel, wave) | `haiku` | Volume execution, cost efficiency |
+| XL — architecture change, migration | `opus` | Human chọn — `--model opus` hoặc `/fast` |
+| `/morai:sparring` (bất kỳ size) | `opus` | Human chọn — strategic thinking |
+| `/morai:security` | `sonnet` | False negative cost > token cost |
+| Sub-agents dev (parallel wave) | `sonnet` | Implement quality matters |
 | `/morai:architect` (design phase) | `sonnet` | Technical analysis |
 | `/morai:ba` (spec writing) | `haiku` | Structured writing task |
-| `/morai:reviewer` | `sonnet` | Nuanced code review |
+| `/morai:reviewer` ticket size S/XS | `haiku` | Checklist-based, small scope |
+| `/morai:reviewer` ticket size M/L | `sonnet` | Nuanced review, nhiều context |
+| `morai-test: run_pytest` | `haiku` | Execute + report pass/fail |
+| `morai-test: run_coverage` | `haiku` | Parse + summarize output |
 
-**Khi nào dùng Opus:**
-- Task yêu cầu multi-step reasoning với nhiều trade-offs
-- Decision có tác động lớn đến architecture
-- User explicit: "dùng model tốt nhất"
+**Opus — chỉ khi human chủ động chọn:**
+- `--model claude-opus-4-7` khi start session
+- `/fast` toggle trong session
+- Không tự động route sang Opus
 
-**Khi nào giữ Sonnet (không downgrade Haiku):**
-- Security review — false negative cost cao hơn token cost
-- Dev guided GATE 1 — approach quality quan trọng
-- Incident triage — cần reason đúng severity
+**Giữ Sonnet (không downgrade Haiku):**
+- `/morai:security` — false negative cost cao hơn token cost
+- Dev GATE 1 approach review — quality quan trọng
+- `/morai:incident` triage — cần reason đúng severity
+- Reviewer M/L ticket — context phức tạp, cần nuanced judgment
 
 ---
 

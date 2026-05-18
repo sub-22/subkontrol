@@ -43,14 +43,21 @@ Mọi context cần thiết phải nằm trong prompt.
 
 ### Phase 2 — Spawn song song
 
-Gọi `Agent` tool **N lần trong cùng 1 response** để đảm bảo parallel execution:
+Gọi `Agent` tool **N lần trong cùng 1 response** để đảm bảo parallel execution.
+
+Model selection dựa vào task size (đọc từ `task.json`):
+- `size: S` → `model="sonnet"` (implement cần quality, không downgrade haiku)
+- `size: M` → `model="sonnet"`
+- `size: L` → `model="sonnet"`
 
 ```
 [Message với N Agent tool calls đồng thời]
-  Agent(task=TASK-1, worktree="feat/PROJ-123-task-1", context=...)
-  Agent(task=TASK-3, worktree="feat/PROJ-123-task-3", context=...)
-  Agent(task=TASK-5, worktree="feat/PROJ-123-task-5", context=...)
+  Agent(task=TASK-1, worktree="feat/PROJ-123-task-1", context=..., model="sonnet")
+  Agent(task=TASK-3, worktree="feat/PROJ-123-task-3", context=..., model="sonnet")
+  Agent(task=TASK-5, worktree="feat/PROJ-123-task-5", context=..., model="sonnet")
 ```
+
+> Review/test sub-agents (nếu spawned sau merge) → `model="haiku"` cho ticket size S/XS.
 
 **Sub-agent prompt template:**
 

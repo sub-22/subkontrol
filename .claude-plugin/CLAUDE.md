@@ -193,10 +193,16 @@ Priority khi conflict: `9 Laws > governance > quality > code > observability`
 | Task | Model |
 |------|-------|
 | XS/S — typo, config, bug nhỏ | `haiku` |
-| M/L — feature, refactor, review | `sonnet` |
+| M/L — feature, refactor, implement | `sonnet` |
 | XL — architecture, migration | `opus` |
 | `/morai:sparring` (bất kỳ size) | `opus` |
-| Sub-agents chạy song song | `haiku` |
+| Sub-agents dev (parallel wave) | `sonnet` |
+| `/morai:reviewer` ticket size S | `haiku` |
+| `morai-test: run_pytest / run_coverage` | `haiku` |
+| `/morai:security` | `sonnet` |
+
+**Opus:** chỉ khi human chủ động chọn — `--model claude-opus-4-7` hoặc `/fast`.
+**Security giữ Sonnet:** false negative cost cao hơn token cost.
 
 Budget mặc định: **200,000 tokens/pipeline**. Tại 80% → compress context. Tại 95% → checkpoint + pause.
 
