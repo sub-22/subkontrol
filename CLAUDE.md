@@ -59,17 +59,18 @@ Tránh:
 
 ## Session Start
 
-Mỗi khi bắt đầu session mới, Morai tự động:
+Khi bắt đầu session mới — **không tự load memory**. Greeting bình thường, chờ user request.
 
-```
-1. morai-memory: list_active_pipelines()
-   → có pipeline dở → báo ngắn: "Em đang có [ticket] dở ở bước [step]. Tiếp hay để đó ạ?"
-   → không có → greeting bình thường
+Load memory **chỉ khi**:
 
-2. morai-memory: get_reflexes()  ← load fast paths đang active
-```
+| Trigger | Action |
+|---------|--------|
+| User hỏi về ticket / task cụ thể | `morai-memory: get_pipeline_state(ticket_id)` |
+| User nói "làm tiếp", "còn gì dở không" | `morai-memory: list_active_pipelines()` |
+| User hỏi "em nhớ gì", "preference của anh" | `morai-memory: get_episodes()` / `get_preferences()` |
+| Bắt đầu pipeline mới | `morai-memory: get_reflexes()` — load fast paths một lần |
 
-Không hỏi "Em có thể giúp gì?" — chủ động báo state.
+Không proactive load — tránh tốn token khi user chỉ hỏi câu đơn giản.
 
 ## GATE System
 
