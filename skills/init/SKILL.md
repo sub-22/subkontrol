@@ -72,37 +72,43 @@ Nếu có → hỏi:
 - App Token (`xapp-...` cần cho Socket Mode — để trống nếu không dùng)
 - Default channel (e.g. `#dev-pipeline`)
 
-**Sau khi collect xong** → ghi vào `~/.morai/config.json`:
+**Sau khi collect xong** → ghi vào `~/.claude/settings.json` dưới `pluginConfigs["morai@morai"]["options"]`:
 
 ```bash
 python3 << 'PYEOF'
-import json, os
+import json
 from pathlib import Path
 
-global_path = os.environ.get("MORAI_GLOBAL_PATH", str(Path.home() / ".morai"))
-config_path = Path(global_path).expanduser() / "config.json"
-config_path.parent.mkdir(parents=True, exist_ok=True)
+settings_path = Path.home() / ".claude" / "settings.json"
+settings_path.parent.mkdir(parents=True, exist_ok=True)
 
-existing = {}
-if config_path.exists():
+settings = {}
+if settings_path.exists():
     try:
-        existing = json.loads(config_path.read_text())
+        settings = json.loads(settings_path.read_text())
     except Exception:
         pass
 
-# Replace with actual collected values before running
-updates = {
-    "jira":       {"url": "<JIRA_URL>", "email": "<JIRA_EMAIL>", "token": "<JIRA_TOKEN>"},
-    "confluence": {"url": "<CONFLUENCE_URL>", "email": "<CONFLUENCE_EMAIL>", "token": "<CONFLUENCE_TOKEN>"},
-    "slack":      {"bot_token": "<SLACK_BOT_TOKEN>", "app_token": "<SLACK_APP_TOKEN>", "channel": "<SLACK_CHANNEL>"},
+# Replace placeholder values with actual collected values before running
+new_options = {
+    "JIRA_URL":         "<JIRA_URL>",
+    "JIRA_EMAIL":       "<JIRA_EMAIL>",
+    "JIRA_TOKEN":       "<JIRA_TOKEN>",
+    "CONFLUENCE_URL":   "<CONFLUENCE_URL>",
+    "CONFLUENCE_EMAIL": "<CONFLUENCE_EMAIL>",
+    "CONFLUENCE_TOKEN": "<CONFLUENCE_TOKEN>",
+    "SLACK_BOT_TOKEN":  "<SLACK_BOT_TOKEN>",
+    "SLACK_APP_TOKEN":  "<SLACK_APP_TOKEN>",
+    "SLACK_CHANNEL":    "<SLACK_CHANNEL>",
 }
 
-for section, values in updates.items():
-    cleaned = {k: v for k, v in values.items() if v and not v.startswith("<")}
-    if cleaned:
-        existing.setdefault(section, {}).update(cleaned)
+# Only write non-empty, non-placeholder values
+cleaned = {k: v for k, v in new_options.items() if v and not v.startswith("<")}
 
-config_path.write_text(json.dumps(existing, indent=2))
+plugin_cfg = settings.setdefault("pluginConfigs", {}).setdefault("morai@morai", {})
+plugin_cfg.setdefault("options", {}).update(cleaned)
+
+settings_path.write_text(json.dumps(settings, indent=2))
 print("OK")
 PYEOF
 ```
