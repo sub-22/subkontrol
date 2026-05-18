@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import json
+import logging
 import re
 import subprocess
 import urllib.error
@@ -12,6 +13,8 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from servers._env import resolve
+
+_log = logging.getLogger(__name__)
 
 GITHUB_TOKEN = resolve("GITHUB_TOKEN")
 BITBUCKET_USERNAME = resolve("BITBUCKET_USERNAME")
@@ -104,8 +107,10 @@ def _http(
             body = resp.read()
             return {"ok": True, "data": json.loads(body) if body else {}}
     except urllib.error.HTTPError as e:
+        _log.warning("HTTP %s %s → %d %s", method, url, e.code, e.reason)
         return {"ok": False, "error": f"HTTP {e.code}: {e.reason}"}
     except Exception as e:
+        _log.exception("Unexpected error calling %s %s", method, url)
         return {"ok": False, "error": str(e)}
 
 
