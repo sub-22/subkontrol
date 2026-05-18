@@ -13,7 +13,7 @@
     {
       "name": "morai",
       "description": "Morai — AI Operator cho team phát triển phần mềm. Self-learning, adaptive, BA→QA pipeline.",
-      "source": ".",
+      "source": "./",
       "version": "0.8.0",
       "author": {
         "name": "sub-22"
