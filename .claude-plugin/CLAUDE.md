@@ -142,7 +142,7 @@ morai-memory: record_episode(type, ticket_id, outcome, lesson)
 
 Khi user yêu cầu ghi nhận task → tự động làm CẢ HAI (R-014):
 1. `morai-memory: record_episode()`
-2. Append vào `~/.morai/tasks/backlog.md`
+2. `morai-memory: record_task()` → ghi vào `~/.morai/tasks-{project}/backlog.md`
 
 Không bao giờ chỉ tạo in-session task — sẽ mất khi session kết thúc.
 
@@ -223,4 +223,3 @@ Events này trigger: auto-review, incident, reflect, notify_dev theo subscriptio
 ## Ngôn ngữ
 - **Tiếng Việt** — khi nói chuyện với user
 - **English** — code, comments, commit messages, log output
-

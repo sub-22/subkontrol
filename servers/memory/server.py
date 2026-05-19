@@ -11,13 +11,14 @@ from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
-from servers._env import resolve, resolve_path
+from servers._env import resolve, resolve_project_path
 
 mcp = FastMCP("morai-memory")
 
-MEMORY_ROOT = resolve_path("MORAI_MEMORY_PATH", ".morai/memory")
-TASKS_ROOT = resolve_path("MORAI_TASKS_PATH", ".morai/tasks")
-PIPELINE_ROOT = resolve_path("MORAI_PIPELINE_PATH", ".morai/pipeline")
+MEMORY_ROOT = resolve_project_path("memory")
+TASKS_ROOT = resolve_project_path("tasks")
+_pp = resolve("MORAI_PIPELINE_PATH", "")
+PIPELINE_ROOT = Path(_pp) if _pp else resolve_project_path("pipeline")
 
 
 def _ensure_dirs() -> None:
@@ -229,27 +230,35 @@ def get_reflexes() -> str:
     return content if content else "Chưa có auto-promoted reflexes."
 
 
-# ── Pipeline State ────────────────────────────────────────────────────────────
+# ── Tasks ─────────────────────────────────────────────────────────────────────
 
 
 @mcp.tool()
-def save_pipeline_state(ticket_id: str, state: dict) -> str:
-    """Lưu trạng thái pipeline cho một ticket.
+def record_task(
+    title: str,
+    description: str = "",
+    ticket_id: str = "",
+    priority: str = "medium",
+) -> str:
+    """Ghi task vào backlog persistent (còn sau khi session kết thúc).
 
     Args:
-        ticket_id: Jira ticket ID
-        state: Dict với current_step, completed_steps, paths, etc.
+        title: Tên task ngắn gọn
+        description: Mô tả chi tiết (optional)
+        ticket_id: Ticket liên quan (optional)
+        priority: "high" | "medium" | "low"
     """
-    pipeline_dir = PIPELINE_ROOT / ticket_id
-    pipeline_dir.mkdir(parents=True, exist_ok=True)
+    _ensure_dirs()
+    path = TASKS_ROOT / "backlog.md"
+    tag = f"[{ticket_id}] " if ticket_id else ""
+    desc_line = f"\n  {description}" if description else ""
+    entry = f"\n- [{_now()}] {tag}**{title}** `{priority.upper()}`{desc_line}\n"
+    with path.open("a", encoding="utf-8") as f:
+        f.write(entry)
+    return f"Task recorded: {title}"
 
-    state["last_updated"] = _now()
-    state["ticket_id"] = ticket_id
 
-    (pipeline_dir / "state.json").write_text(
-        json.dumps(state, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
-    return f"Pipeline state saved: {ticket_id} @ {state.get('current_step', 'unknown')}"
+# ── Pipeline State (read-only — writes go through morai-pipeline server) ──────
 
 
 @mcp.tool()

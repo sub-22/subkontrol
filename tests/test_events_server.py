@@ -5,7 +5,8 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def tmp_events(tmp_path, monkeypatch):
-    monkeypatch.setenv("MORAI_MEMORY_PATH", str(tmp_path / "memory"))
+    monkeypatch.setenv("MORAI_GLOBAL_PATH", str(tmp_path))
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path / "project"))
     import importlib
 
     import servers.events.server as mod

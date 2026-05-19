@@ -3,16 +3,17 @@
 from __future__ import annotations
 
 import json
-import os
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import cast
 
 from mcp.server.fastmcp import FastMCP
 
+from servers._env import resolve_project_path
+
 mcp = FastMCP("morai-events")
 
-EVENTS_ROOT = Path(os.getenv("MORAI_MEMORY_PATH", ".morai/memory")).parent / "events"
+EVENTS_ROOT = resolve_project_path("events")
 SUBSCRIPTIONS_FILE = EVENTS_ROOT / "subscriptions.json"
 EVENT_LOG_FILE = EVENTS_ROOT / "event_log.jsonl"
 

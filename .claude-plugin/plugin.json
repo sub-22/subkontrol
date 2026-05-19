@@ -10,8 +10,7 @@
     "MORAI_GLOBAL_PATH": {
       "type": "string",
       "title": "Morai global data path",
-      "description": "Absolute path nơi Morai lưu memory, tasks (default: ~/.morai)",
-      "required": true
+      "description": "Absolute path nơi Morai lưu memory, tasks (default: ~/.morai)"
     },
     "MORAI_DESIGN_REPO": {
       "type": "string",

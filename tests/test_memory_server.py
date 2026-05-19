@@ -5,14 +5,15 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def tmp_memory(tmp_path, monkeypatch):
-    monkeypatch.setenv("MORAI_MEMORY_PATH", str(tmp_path / "memory"))
-    # Re-import to pick up new env var
+    monkeypatch.setenv("MORAI_GLOBAL_PATH", str(tmp_path))
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path / "project"))
+    monkeypatch.delenv("MORAI_PIPELINE_PATH", raising=False)
     import importlib
 
     import servers.memory.server as mod
 
     importlib.reload(mod)
-    yield tmp_path / "memory"
+    yield tmp_path / "memory-project"
 
 
 def _reload():
@@ -152,12 +153,21 @@ class TestReflexCandidates:
 
 
 class TestPipelineState:
+    def _write_state(self, mod, ticket_id: str, state: str, status: str) -> None:
+        import json
+
+        d = mod.PIPELINE_ROOT / ticket_id
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "state.json").write_text(
+            json.dumps({"ticket_id": ticket_id, "state": state, "status": status, "last_updated": "2026-01-01 00:00 UTC"})
+        )
+
     def test_save_and_get(self, tmp_memory):
         mod = _reload()
-        mod.save_pipeline_state("PROJ-42", {"current_step": "ba", "status": "active"})
+        self._write_state(mod, "PROJ-42", "BA_RUNNING", "active")
         state = mod.get_pipeline_state("PROJ-42")
         assert state["ticket_id"] == "PROJ-42"
-        assert state["current_step"] == "ba"
+        assert state["state"] == "BA_RUNNING"
 
     def test_get_nonexistent(self, tmp_memory):
         mod = _reload()
@@ -166,8 +176,8 @@ class TestPipelineState:
 
     def test_list_active_pipelines(self, tmp_memory):
         mod = _reload()
-        mod.save_pipeline_state("PROJ-1", {"current_step": "dev", "status": "active"})
-        mod.save_pipeline_state("PROJ-2", {"current_step": "qa", "status": "complete"})
+        self._write_state(mod, "PROJ-1", "DEV_RUNNING", "active")
+        self._write_state(mod, "PROJ-2", "COMPLETE", "complete")
         active = mod.list_active_pipelines()
         ticket_ids = [p["ticket_id"] for p in active]
         assert "PROJ-1" in ticket_ids

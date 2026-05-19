@@ -77,3 +77,23 @@ def resolve(key: str, default: str = "") -> str:
 
 def resolve_path(key: str, default: str = ".") -> Path:
     return Path(resolve(key, default))
+
+
+def project_name() -> str:
+    """Derive project name from CLAUDE_PROJECT_DIR, fallback to cwd name."""
+    project_dir = os.getenv("CLAUDE_PROJECT_DIR", "")
+    return Path(project_dir).name if project_dir else Path.cwd().name
+
+
+def resolve_project_path(subdir: str) -> Path:
+    """Return path for subdir, with per-subdir override support.
+
+    Resolution order:
+      1. MORAI_{SUBDIR}_PATH env var or .env (direct override — used in tests)
+      2. {MORAI_GLOBAL_PATH}/{subdir}-{project_name()} (default)
+    """
+    override = resolve(f"MORAI_{subdir.upper()}_PATH", "")
+    if override:
+        return Path(override)
+    base = resolve("MORAI_GLOBAL_PATH", str(Path.home() / ".morai"))
+    return Path(base) / f"{subdir}-{project_name()}"

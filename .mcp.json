@@ -5,8 +5,9 @@
       "command": "uv",
       "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.pipeline.server"],
       "env": {
-        "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory",
+        "MORAI_GLOBAL_PATH": "${user_config.MORAI_GLOBAL_PATH}",
         "MORAI_PIPELINE_PATH": "${CLAUDE_PROJECT_DIR}/.morai/pipeline",
+        "CLAUDE_PROJECT_DIR": "${CLAUDE_PROJECT_DIR}",
         "MORAI_BUDGET_TOKENS": "200000"
       }
     },
@@ -15,7 +16,8 @@
       "command": "uv",
       "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.events.server"],
       "env": {
-        "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory"
+        "MORAI_GLOBAL_PATH": "${user_config.MORAI_GLOBAL_PATH}",
+        "CLAUDE_PROJECT_DIR": "${CLAUDE_PROJECT_DIR}"
       }
     },
     "morai-memory": {
@@ -23,9 +25,9 @@
       "command": "uv",
       "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.memory.server"],
       "env": {
-        "MORAI_MEMORY_PATH": "${user_config.MORAI_GLOBAL_PATH}/memory",
-        "MORAI_TASKS_PATH": "${user_config.MORAI_GLOBAL_PATH}/tasks",
+        "MORAI_GLOBAL_PATH": "${user_config.MORAI_GLOBAL_PATH}",
         "MORAI_PIPELINE_PATH": "${CLAUDE_PROJECT_DIR}/.morai/pipeline",
+        "CLAUDE_PROJECT_DIR": "${CLAUDE_PROJECT_DIR}",
         "MORAI_DESIGN_REPO": "${user_config.MORAI_DESIGN_REPO}"
       }
     },
