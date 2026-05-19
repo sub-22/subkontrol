@@ -96,9 +96,12 @@ fi
 
 # ── 3. Install plugin globally ────────────────────────────────────────────────
 
-echo ""
-echo "Installing plugin globally..."
-claude plugin install "$PLUGIN_DIR"
+# Register local directory as a marketplace (idempotent — CLI appends .claude-plugin/marketplace.json automatically)
+if ! claude plugin marketplace list 2>/dev/null | grep -q "^  ❯ morai"; then
+  claude plugin marketplace add "$PLUGIN_DIR" --scope user
+fi
+
+claude plugin install morai
 
 # ── 4. Done ───────────────────────────────────────────────────────────────────
 
