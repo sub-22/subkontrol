@@ -183,3 +183,5 @@ Template: <project|subkontrol> / <template name>
 ```
 
 Preview 5 dòng đầu của description.
+
+> **💡 Context:** PR tạo xong → `/compact` trước khi chạy `/morai:reviewer`.

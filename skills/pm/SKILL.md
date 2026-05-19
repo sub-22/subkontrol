@@ -85,3 +85,5 @@ Báo cáo cho user:
 - Risks chính
 
 > **Slack (optional):** Nếu `morai-slack` configured → notify team.
+
+> **💡 Context:** Bước PM xong → `/compact` trước khi chạy `/morai:dev`.

@@ -81,3 +81,5 @@ Kết luận rõ ràng cho user: **PASS** / **FAIL** / **BLOCKED**
 - Nếu FAIL: mô tả rõ bug, steps to reproduce, severity
 
 > **Slack (optional):** Nếu `morai-slack` configured → gửi test report tóm tắt.
+
+> **💡 Context:** Ticket hoàn thành → `/clear` để bắt đầu session mới sạch.

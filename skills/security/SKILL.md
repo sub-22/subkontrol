@@ -117,3 +117,5 @@ morai-pipeline: transition($TICKET_ID, "SECURITY_DONE",
 Báo cáo tóm tắt cho user: verdict (BLOCK/WARN/PASS), critical issues nếu có.
 
 > **Slack (optional):** Nếu `morai-slack` configured → notify verdict. Nếu BLOCK: tag Dev và Reviewer, mô tả rõ issue cần fix.
+
+> **💡 Context:** Bước Security xong → `/compact` trước khi chạy `/morai:qa`.
