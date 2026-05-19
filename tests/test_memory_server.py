@@ -7,6 +7,7 @@ import pytest
 def tmp_memory(tmp_path, monkeypatch):
     monkeypatch.setenv("MORAI_GLOBAL_PATH", str(tmp_path))
     monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path / "project"))
+    monkeypatch.setenv("MORAI_MEMORY_PATH", str(tmp_path / "memory-project"))
     monkeypatch.delenv("MORAI_PIPELINE_PATH", raising=False)
     import importlib
 
@@ -159,7 +160,14 @@ class TestPipelineState:
         d = mod.PIPELINE_ROOT / ticket_id
         d.mkdir(parents=True, exist_ok=True)
         (d / "state.json").write_text(
-            json.dumps({"ticket_id": ticket_id, "state": state, "status": status, "last_updated": "2026-01-01 00:00 UTC"})
+            json.dumps(
+                {
+                    "ticket_id": ticket_id,
+                    "state": state,
+                    "status": status,
+                    "last_updated": "2026-01-01 00:00 UTC",
+                }
+            )
         )
 
     def test_save_and_get(self, tmp_memory):
