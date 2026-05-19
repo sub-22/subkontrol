@@ -1,5 +1,6 @@
 ---
 description: Business Analyst — fetch Jira/Confluence ticket, analyze requirements, output spec.md
+version: 2.0.0
 ---
 
 # BA Agent

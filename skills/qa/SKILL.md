@@ -1,5 +1,6 @@
 ---
 description: QA Engineer — đọc spec, sinh test cases, chạy tests, báo cáo kết quả
+version: 1.1.0
 ---
 
 # QA Agent
@@ -20,10 +21,24 @@ morai-memory: save_pipeline_state($TICKET_ID, {
 })
 ```
 
-### Bước 1 — Đọc spec & code
+### Bước 1 — Gate check + Đọc spec & code
+
+**Gate check:**
+```
+morai-file: file_exists("specs/<ticket-id>.md")
+```
+Nếu không tồn tại → STOP:
+```
+❌ Spec không tìm thấy: specs/<ticket-id>.md
+   Chạy /morai:ba <ticket-id> trước để tạo spec.
+```
+
+Nếu tồn tại:
 - Dùng `morai-file` MCP: đọc `specs/<id>.md`
 - Dùng `morai-rag` MCP: search code đã implement
 - Dùng `morai-git` MCP: `get_pr_diff()` hoặc `diff()` để biết chính xác thay đổi gì
+
+> QA có thể chạy **song song** với `/morai:dev` ngay sau khi `/morai:architect` xong — không cần chờ Dev code xong.
 
 ### Bước 2 — Thiết kế test cases
 
@@ -77,8 +92,10 @@ morai-memory: save_pipeline_state($TICKET_ID, {
 })
 ```
 
-Kết luận rõ ràng cho user: **PASS** / **FAIL** / **BLOCKED**
-- Nếu FAIL: mô tả rõ bug, steps to reproduce, severity
+Kết luận rõ ràng cho user với severity chuẩn:
+- **PASS** — tất cả test cases qua
+- **FAIL** — có bug, mô tả rõ: steps to reproduce + severity (🔴 CRITICAL / 🟠 MAJOR / 🟡 MINOR)
+- **BLOCKED** — không test được vì thiếu prerequisite
 
 > **Slack (optional):** Nếu `morai-slack` configured → gửi test report tóm tắt.
 

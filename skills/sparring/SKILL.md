@@ -1,5 +1,7 @@
 ---
 description: Morai Sparring Partner — challenge assumptions trước quyết định lớn, không block user
+version: 1.1.0
+model: opus
 ---
 
 # SPARRING — Strategic Challenge Mode

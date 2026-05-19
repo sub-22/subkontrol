@@ -1,5 +1,6 @@
 ---
 description: Code Reviewer — review PR, kiểm tra quality, security, conventions
+version: 2.0.0
 ---
 
 # Reviewer Agent

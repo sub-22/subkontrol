@@ -1,5 +1,6 @@
 ---
 description: Developer (Guided) — pair programming mode. Morai là navigator, Dev review từng bước, commit khi Dev quyết định.
+version: 2.0.0
 ---
 
 # Dev Agent — Guided Mode (Pair Programming)
@@ -25,48 +26,19 @@ Task ID hoặc mô tả task: $ARGUMENTS
 morai-git: get_current_branch()
 ```
 
-**Protected branches** (không được commit trực tiếp):
-`master`, `main`, `develop`, `staging`, `production`, `release/*`
+**Protected branches** (không commit trực tiếp): `master`, `main`, `develop`, `staging`, `production`, `release/*`
 
-**Branch naming convention** (áp dụng mọi lúc, không chỉ khi switch):
-
-```
-{type}/{ticket_id}_{what_it_does}
-
-feat/PROJ-123_add-user-authentication
-fix/PROJ-456_resolve-null-payment
-chore/PROJ-789_update-deps
-refactor/PROJ-101_extract-auth-middleware
-```
-
-| Task type | Prefix |
-|-----------|--------|
-| Feature / story / epic | `feat/` |
-| Bug / fix / hotfix | `fix/` |
-| Chore / config / ci / docs | `chore/` |
-| Refactor | `refactor/` |
-
-Rules:
-- Separator giữa ticket_id và description: `_` (underscore)
-- Description: lowercase, dấu cách → `-`, **tối đa 35 ký tự**, tự detect ý nghĩa ngắn gọn từ task title
-- Không viết tắt khó hiểu — "add-jwt-auth" tốt hơn "ajwta"
+**Branch format:** `{type}/{ticket_id}_{slug}` — type: `feat/fix/chore/refactor`, slug: lowercase, `-` thay space, ≤35 ký tự.
 
 **Nếu đang ở protected branch:**
-1. Xác định type từ task (bảng trên)
-2. Đề xuất branch name theo format trên
-3. **Hỏi human cả 2 thứ cùng lúc — bắt buộc:**
+1. Đề xuất branch name theo format trên
+2. Hỏi human cả 2 cùng lúc — bắt buộc, không assume:
    ```
    ⚠️ Đang ở branch protected: {current_branch}
-
-   Branch name đề xuất: `{proposed_branch}`
-   Tách từ nhánh nào sếp? (ví dụ: develop, main, release/stg)
-
-   Sếp confirm hoặc chỉnh lại cả hai nhé.
+   Branch đề xuất: `{proposed_branch}`
+   Tách từ nhánh nào? (ví dụ: develop, main, release/stg)
    ```
-4. Chờ human trả lời đủ **branch name + base branch**
-5. Checkout base branch → `morai-git: create_branch({confirmed_branch})`
-
-> Không tự assume base branch. Bug trên stg có thể cần tách từ `release/stg` (hotfix) hoặc `develop` (backport) — khác nhau hoàn toàn.
+3. Chờ confirm đủ branch name + base branch → `morai-git: create_branch()`
 
 **Nếu đang ở đúng feature/fix branch** → tiếp tục Bước 0b.
 
@@ -259,39 +231,15 @@ Nếu bất kỳ bước nào fail → fix ngay, không tiếp tục đến GATE
 
 ## Commit Message — Detect Convention Trước Khi Commit
 
-Trước khi tạo commit message, detect convention của project:
-
 ```
-morai-git: get_log(max_count=20)          ← đọc pattern commit gần nhất
-morai-file: read_file("CONTRIBUTING.md")  ← nếu tồn tại
-morai-file: read_file(".commitlintrc.json") ← hoặc .commitlintrc.yml / .commitlintrc.js
+morai-git: get_log(max_count=20)            ← detect pattern từ commit gần nhất
+morai-file: read_file("CONTRIBUTING.md")    ← nếu tồn tại
+morai-file: read_file(".commitlintrc.json") ← nếu tồn tại
 ```
 
-**Case 1 — Project có convention riêng** (detect được từ git log hoặc config):
-- Follow đúng format của project
-- Ví dụ: `[PROJ-123] Add JWT authentication` hoặc `PROJ-123 | feat | add auth`
-- Không override convention của dự án
-
-**Case 2 — Không detect được convention nào** (git log không có pattern rõ ràng):
-- Dùng format chuẩn của Morai:
-  ```
-  [{ticket_id}] {ticket_type}: {commit message mô tả task}
-
-  # Ví dụ:
-  [PROJ-123] feat: add JWT authentication middleware
-  [PROJ-456] fix: resolve null pointer in payment flow
-  [PROJ-789] refactor: extract auth logic to middleware
-  [PROJ-101] chore: update dependencies to latest stable
-  ```
-- `ticket_type`: feat / fix / refactor / chore / docs / test
-- `commit message`: tiếng Anh, imperative mood, ≤72 ký tự, mô tả WHAT không phải HOW
-
-**Quan trọng — detect đúng format ticket trong prefix:**
-- Nếu git log dùng `[SK] feat:` → project không có ticket number → giữ `[SK]`
-- Nếu git log dùng `[SK-03] feat:` → project có ticket number trong prefix → dùng `[{PREFIX}-{ticket_num}]`
-- Luôn ưu tiên format có ticket number khi có ticket ID cụ thể
-
-**Hiển thị commit message đề xuất cho Dev xem trước khi commit.**
+- Project có convention → follow đúng, không override
+- Không detect được → dùng format Morai: `[{TICKET-ID}] {type}: {message}` (type: feat/fix/refactor/chore/docs/test; message: tiếng Anh, imperative, ≤72 ký tự)
+- Luôn hiển thị commit message đề xuất cho Dev confirm trước khi commit
 
 ## ⛔ GATE 2 — Commit (formal gate, chỉ khi CI pass)
 

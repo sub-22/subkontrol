@@ -109,7 +109,47 @@ Với ❌ server lỗi:
 Nếu vẫn lỗi, sếp check: uv run --project <plugin-path> python -m servers.<name>.server
 ```
 
-### Bước 4 — Context Budget Report
+### Bước 4 — Skill Health Check
+
+Scan tất cả `skills/*/SKILL.md` và báo cáo:
+
+**4a — Size check** (context bloat risk):
+```python
+for skill_file in glob("skills/*/SKILL.md"):
+    lines = len(open(skill_file).readlines())
+    status = "✅" if lines <= 200 else ("⚠️" if lines <= 300 else "🔴")
+```
+
+| Ngưỡng | Status | Hành động |
+|--------|--------|-----------|
+| ≤ 200 dòng | ✅ healthy | Không cần làm gì |
+| 201–300 dòng | ⚠️ watch | Cân nhắc tách reference tables ra file riêng |
+| > 300 dòng | 🔴 bloated | Tách ngay — context pressure thực sự |
+
+**4b — Gate check presence:**
+Kiểm tra mỗi skill có `file_exists` check hoặc gate check ở đầu không (tránh skill chạy khi prerequisite chưa có).
+
+Skills bắt buộc có gate check: `dev`, `architect`, `reviewer`, `security`.
+
+**4c — Version frontmatter:**
+Kiểm tra mỗi SKILL.md có `version:` trong frontmatter `---` block không.
+
+In bảng kết quả:
+```
+Skill Health Check
+──────────────────────────────────────────────────
+  Skill           Lines   Gate   Version
+  ba              110     ✅      ⚠️ missing
+  architect       193     ✅      ⚠️ missing
+  dev             340     🔴      ✅
+  reviewer         92     ✅      ⚠️ missing
+  security         ?      ?       ?
+──────────────────────────────────────────────────
+⚠️ 1 skill bloated (>300 lines): dev
+⚠️ 4 skills missing version frontmatter
+```
+
+### Bước 5 — Context Budget Report
 
 Đo và hiển thị token budget của các file bootstrap, giúp track xem context cost có tăng theo thời gian không.
 

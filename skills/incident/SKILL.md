@@ -1,5 +1,6 @@
 ---
 description: Morai Incident — 5-Why root cause analysis cho bugs nghiêm trọng, không chỉ fix surface
+version: 1.1.0
 ---
 
 # INCIDENT — 5-Why Root Cause Analysis
@@ -12,12 +13,12 @@ Mô tả incident hoặc ticket ID: $ARGUMENTS
 
 ## Severity Classification
 
-| Level | Định nghĩa | Response time |
-|---|---|---|
-| L1 — Critical | Data loss, security breach, production down | Ngay lập tức |
-| L2 — High | Feature broken for all users, payment fail | < 1 giờ |
-| L3 — Medium | Feature broken for some users, workaround có | < 4 giờ |
-| L4 — Low | Minor bug, cosmetic | Next sprint |
+| Level | Tương đương Review | Định nghĩa | Response time |
+|---|---|---|---|
+| L1 — Critical | 🔴 CRITICAL | Data loss, security breach, production down | Ngay lập tức |
+| L2 — High | 🟠 MAJOR | Feature broken for all users, payment fail | < 1 giờ |
+| L3 — Medium | 🟡 MINOR | Feature broken for some users, workaround có | < 4 giờ |
+| L4 — Low | 💡 SUGGESTION | Minor bug, cosmetic | Next sprint |
 
 ## Quy trình
 

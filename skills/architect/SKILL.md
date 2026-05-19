@@ -1,5 +1,6 @@
 ---
 description: Solution Architect — phân tích yêu cầu phức tạp, thiết kế hệ thống, output architecture decision
+version: 2.0.0
 ---
 
 # Architect Agent
