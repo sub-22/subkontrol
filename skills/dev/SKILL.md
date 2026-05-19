@@ -68,7 +68,50 @@ Rules:
 
 > Không tự assume base branch. Bug trên stg có thể cần tách từ `release/stg` (hotfix) hoặc `develop` (backport) — khác nhau hoàn toàn.
 
-**Nếu đang ở đúng feature/fix branch** → tiếp tục Phase 1 bình thường.
+**Nếu đang ở đúng feature/fix branch** → tiếp tục Bước 0b.
+
+---
+
+## Bước 0b — Progress File (session continuity)
+
+Sau khi branch đã xác định, trước khi bắt đầu Phase 1:
+
+```
+morai-file: file_exists("docs/progress/<ticket-id>.md")
+```
+
+**Nếu file tồn tại (resume session):**
+```
+morai-file: read_file("docs/progress/<ticket-id>.md")
+```
+- Hiển thị bảng trạng thái chunks hiện tại
+- Tìm chunk đầu tiên có status `pending` hoặc `in_progress`
+- Warn nếu có chunk `failed` mà chunk sau depend vào (cùng loại types/migration)
+- Hỏi Dev: "Em thấy còn [X chunk pending / chunk N đang dở]. Tiếp từ đó hay bắt đầu lại?"
+- Nếu tiếp → skip Phase 1 Research nếu context đã có, nhảy thẳng vào Phase 2 chunk tiếp theo
+
+**Nếu file chưa tồn tại (session mới):**
+
+Gate check — verify design doc tồn tại trước:
+```
+morai-file: file_exists("designs/<ticket-id>-detail.md")
+```
+Nếu không tồn tại → STOP, in:
+```
+❌ Design doc không tìm thấy: designs/<ticket-id>-detail.md
+   Chạy /morai:architect <ticket-id> trước để tạo design.
+```
+
+Nếu tồn tại → đọc design doc để lấy danh sách chunks:
+- Đọc design doc `designs/<ticket-id>-detail.md` để lấy danh sách chunks
+- Tạo progress file từ template `templates/progress.md`:
+  - Populate bảng chunks từ design doc (type, tên, AC-IDs)
+  - Tất cả status = `pending`, retries = 0
+- `morai-file: write_file("docs/progress/<ticket-id>.md", content)`
+- Tiếp tục Phase 1 bình thường
+
+> Progress file là source of truth cho chunk implementation. MCP pipeline FSM vẫn là
+> source of truth cho pipeline-level transitions (BA→PM→DEV→REVIEW). Hai tầng không conflict.
 
 ---
 
@@ -120,26 +163,76 @@ Hiển thị gate cho Dev theo format chuẩn trong `agents/hitl.md`.
 
 ## Phase 2 — Implement từng chunk
 
-Implement **từng module/file một**, theo thứ tự đã agree.
+Implement **từng chunk một** theo thứ tự trong progress file. Pick chunk đầu tiên có
+status `pending` hoặc `in_progress`.
 
 ### Cho mỗi chunk:
 
-**2a — Viết tests trước (TDD)**
-- Viết unit test cho behavior của chunk này
+**Trước khi bắt đầu chunk:** Update progress file → `in_progress`.
+
+**2a-pre — Impact gap cross-check (chỉ chạy cho chunk đầu tiên của session)**
+
+Đọc phần File Impact (L1–L4) trong `designs/<ticket-id>-detail.md`.
+Với mỗi file trong các bảng L1–L4: kiểm tra file đó có xuất hiện trong cột "Source files" của bất kỳ chunk nào trong progress file không.
+
+Nếu có file unassigned → STOP, hỏi user:
+```
+⚠️ File impact gap — <file> (<layer>) chưa được assign vào chunk nào.
+
+Xử lý thế nào?
+[A] Thêm vào chunk hiện tại (chunk N)
+[B] Tạo chunk riêng sau chunk này
+[C] Design doc sai — bỏ qua file này
+```
+
+Sau khi user chọn → ghi vào bảng "Impact Gaps Resolved" trong progress file:
+| File | Layer | Resolution | Chunk Assigned | Resolved At |
+
+Resolve hết gaps trước khi viết bất kỳ dòng code nào.
+
+**2a — Viết tests trước (RED phase)**
+- Viết unit/integration test cho behavior của chunk này
+- Test focus: dựa trên AC-IDs của chunk (từ progress file) + edge cases từ spec
+- Chạy verify command → confirm FAIL (assertion stage, không phải compile error)
 - Hiển thị test code cho Dev
 
-**2b — Implement**
+**2b — Implement (GREEN phase)**
 - Viết code cho chunk
+- Chạy verify command → phải GREEN
+- **Retry nếu FAIL:** tối đa 3 attempts không có progress (fail count + failing test names giống nhau)
+  - Có progress (số lỗi giảm hoặc test names thay đổi) → tiếp tục retry
+  - 3 attempts không progress → update progress: `failed`, increment retries → báo Dev, STOP chunk này
 - Hiển thị diff/code cho Dev
 - Giải thích ngắn gọn quyết định design quan trọng (nếu có)
 
-**2c — Chạy tests**
-- Báo cáo kết quả: pass/fail + output
+**2c — Chạy full regression check**
+- Chạy full test suite (không chỉ scoped)
+- Nếu có regression → fix trước khi tiếp tục
+
+**2d — REFACTOR phase**
+- Đọc `checklists/refactor-verify.md` và tự evaluate từng item
+- Nếu không có findings → báo "Refactor: clean" và tiếp tục
+- Nếu có findings → surface cho Dev qua AskUserQuestion multi-select (xem format trong checklist)
+- Sau khi apply selected items → re-run verify → confirm vẫn GREEN
+
+**2e — Verify checklist + Update progress**
+- Chạy `checklists/verify.md` — tất cả items phải pass
+- Update progress file: chunk → `done`, fill `completed_at` = today (YYYY-MM-DD)
 
 **⛔ Micro-gate sau mỗi chunk:**
 ```
-✓ Tests: [X pass / Y fail]
-✓ Code: [tóm tắt 1-2 câu những gì vừa làm]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  <ticket-id> — Chunk N ([type]) done ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✅ Chunk 1 — types
+  ...
+  ✅ Chunk N — [type]    ← vừa xong
+  ▶  Chunk N+1 — [type]  ← tiếp theo
+  ⬜ Chunk N+2 — [type]
+
+  X chunks còn lại.
+  Tests: [X pass] | Refactor: [clean / N items applied]
 
 Anh xem thử chunk này, em tiếp sang [chunk tiếp theo] nhé?
 ```
@@ -243,3 +336,5 @@ Dev respond: "push and create PR" → `resolve_gate` → `morai-git: push()` →
 /morai:reflect $TICKET_ID
 ```
 Không cần dev gọi tay — chạy ngay sau khi PR tạo xong để capture knowledge khi còn fresh.
+
+> **💡 Context:** Bước Dev xong → `/compact` trước khi chạy `/morai:pr`.

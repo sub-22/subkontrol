@@ -40,13 +40,41 @@ Phân tích theo các góc độ:
 - **Dependencies**: feature này phụ thuộc vào gì?
 - **Out of scope**: những gì KHÔNG thuộc yêu cầu này
 
-### Bước 4 — Tự đánh giá
+### Bước 4 — INVEST Validation + Readiness Assessment
+
+**4a — INVEST Check cho từng User Story:**
+
+| Criterion | Câu hỏi | Status |
+|-----------|---------|--------|
+| **I** Independent | Story có thể deliver độc lập, không block/bị block bởi story khác? | ✅/⚠️/❌ |
+| **N** Negotiable | Scope và cách implementation có thể thương lượng không? | ✅/⚠️/❌ |
+| **V** Valuable | Có business value rõ ràng cho user hoặc stakeholder? | ✅/⚠️/❌ |
+| **E** Estimable | Dev có đủ thông tin để estimate effort không? | ✅/⚠️/❌ |
+| **S** Small | Có thể complete trong ≤1 sprint không? | ✅/⚠️/❌ |
+| **T** Testable | Có AC cụ thể, đo được mà QA có thể viết test case? | ✅/⚠️/❌ |
+
+Nếu bất kỳ criterion nào ❌ → BLOCK, hỏi stakeholder clarify trước khi tiếp tục.
+Ghi nhận blocking questions với ID: Q-1, Q-2...
+
+**4b — Tự đánh giá và quyết định Readiness Status:**
+
 Trước khi viết spec, tự hỏi:
 - Spec này đã đủ để Dev implement không?
 - QA có thể viết test case từ spec này không?
 - Có ambiguity nào cần clarify không?
 
-Nếu thiếu thông tin quan trọng, hỏi người dùng trước khi tiếp tục.
+**Readiness Status Output:**
+
+| Status | Điều kiện |
+|--------|-----------|
+| `READY_FOR_DESIGN` | Không có open questions blocking, tất cả AC testable |
+| `NEED_CLARIFY` | Có questions nhưng có thể proceed với assumptions rõ ràng |
+| `BLOCKED` | Thiếu AC, INVEST có ❌, hoặc có questions không thể assume |
+
+Blocking questions (status ❌) → track riêng, không advance pipeline.
+Ghi rõ status này vào spec output để Architect và Dev đọc được.
+
+Nếu thiếu thông tin quan trọng → hỏi người dùng ngay, không tiếp tục đến Bước 5.
 
 ### Bước 5 — Viết spec.md
 Dùng `morai-file` MCP để:
@@ -78,3 +106,5 @@ morai-memory: save_pipeline_state($TICKET_ID, {
 Báo cáo tóm tắt cho user: spec đã tạo tại đâu, những điểm chính là gì.
 
 > **Slack (optional):** Nếu `morai-slack` configured → gửi thêm thông báo đến channel.
+
+> **💡 Context:** Bước BA xong → `/compact` trước khi chạy `/morai:architect`.

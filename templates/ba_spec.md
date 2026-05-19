@@ -106,11 +106,33 @@
 
 ---
 
+## INVEST Validation
+
+Per user story. Status: ✅ Pass / ⚠️ Caution / ❌ Fail (❌ bất kỳ → BLOCKED trước khi handoff Architect)
+
+| Story | I — Independent | N — Negotiable | V — Valuable | E — Estimable | S — Small | T — Testable | Notes |
+|-------|----------------|----------------|--------------|---------------|-----------|--------------|-------|
+| US-1  |                |                |              |               |           |              |       |
+
+---
+
+## Readiness Status
+
+```
+READINESS: READY_FOR_DESIGN | NEED_CLARIFY | BLOCKED
+
+Status    : [điền một trong 3 giá trị trên]
+Lý do     : [1 câu giải thích tại sao status này]
+Blocking  : [Q-1, Q-2, ... / None]
+```
+
+---
+
 ## Open Questions
 
-| # | Question | Owner | Due | Status |
-| - | -------- | ----- | --- | ------ |
-| 1 |          |       |     | Open   |
+| ID  | Question | Owner | Blocking? | Status |
+| --- | -------- | ----- | --------- | ------ |
+| Q-1 |          |       | Yes / No  | Open   |
 
 ---
 

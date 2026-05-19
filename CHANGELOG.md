@@ -7,6 +7,58 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [0.10.0] — 2026-05-19
+
+### Phase 8 — Implementation Rigor (từ workflows)
+
+Adopt các điểm mạnh về quy trình từ `ai-workflows` vào Morai — giữ nguyên infrastructure MCP, tăng độ chặt chẽ của execution flow.
+
+#### Added
+
+- `templates/progress.md` — chunk progress file template: track status (pending/in_progress/done/failed), retries, completed_at per chunk. Source of truth cho chunk implementation, độc lập với MCP pipeline FSM
+- `checklists/verify.md` — per-chunk verify checklist trước commit: 4 levels (Code / Test / Logic / Integration). Bắt buộc pass trước khi update progress → done
+- `checklists/refactor-verify.md` — refactor checklist sau GREEN phase: code quality + test quality + cleanup. Morai tự evaluate, surface findings qua AskUserQuestion multi-select — user chọn cái nào áp dụng
+- `checklists/review.md` — structured review checklist với 6 platform-specific sections: Python, Go, Node.js, Frontend, Java/Spring, PHP. Output format chuẩn với severity CRITICAL/MAJOR/MINOR/SUGGESTION
+
+#### Changed
+
+**`skills/dev/SKILL.md`**
+- `Bước 0b` — Progress file check: auto-create nếu session mới, auto-resume nếu tồn tại. Gate check: STOP nếu design doc chưa có
+- `2a-pre` — Impact gap cross-check trước chunk đầu tiên: đọc L1–L4 từ design doc, tìm file unassigned, hỏi user [thêm vào chunk hiện tại / tạo chunk mới / bỏ qua]
+- `2a` RED phase: confirm FAIL ở assertion stage (không phải compile error)
+- `2b` GREEN phase: 3-attempt no-progress detection (fail count + test names giống nhau → mark failed, báo Dev)
+- `2d` REFACTOR phase: đọc `checklists/refactor-verify.md`, surface findings với AskUserQuestion multi-select
+- `2e` Verify + progress update: chạy `checklists/verify.md`, update chunk → done
+- Micro-gate summary: hiển thị progress bảng đầy đủ sau mỗi chunk
+
+**`skills/architect/SKILL.md`**
+- `Bước 1`: gate check — STOP + error message nếu `specs/<id>.md` không tồn tại
+- `Bước 2b`: L1–L4 Impact Analysis (solution-agnostic, chạy một lần): L3 Contract (grep API spec, ORM models) + L4 System (ENV vars, external consumers)
+- `Bước 3`: multi-solution evaluation — số solutions auto-scale theo task size (S/M→2, L→3, XL→4-5); đánh giá 7 criteria mỗi solution (Impact / Tech constraints / Security / Architecture fit / Root cause / Effort & Risk / Trade-offs); single-solution exception cho trivial changes
+- `Bước 6`: Readiness Assessment 7 criteria (AC-IDs / file paths / verify commands / open questions / chunk size / risks / migration plan) → 🟢/🟡/🔴; QA parallel trigger reminder
+
+**`skills/ba/SKILL.md`**
+- `Bước 4a`: INVEST validation cho từng User Story (Independent / Negotiable / Valuable / Estimable / Small / Testable) — ❌ bất kỳ → BLOCK
+- `Bước 4b`: Readiness Status enum: READY_FOR_DESIGN / NEED_CLARIFY / BLOCKED — ghi vào spec để Architect đọc được
+
+**`skills/reviewer/SKILL.md`**
+- Flags: `--quick` (chỉ CRITICAL), `--resume N` (tiếp từ category N)
+- `Bước 0`: platform detection từ project files — load platform-specific checks từ `checklists/review.md`
+- Severity chuẩn: 🔴 CRITICAL (blocks merge) / 🟠 MAJOR / 🟡 MINOR / 💡 SUGGESTION
+
+**`templates/detail_design.md`**
+- Section `File Impact`: 4 sub-tables L1 Direct / L2 Ripple / L3 Contract / L4 System
+- Section `Chunk Plan`: table đầy đủ với AC-IDs, test files (viết trước), source files (viết sau), verify command, est., impact layer, test focus
+- Reference tables: verify command per chunk type + test focus per chunk type
+- Section `Readiness State`: 7-criteria checklist với 🟢/🟡/🔴 aggregation
+
+**`templates/ba_spec.md`**
+- Section `INVEST Validation`: table 6 criteria per user story
+- Section `Readiness Status`: READY_FOR_DESIGN / NEED_CLARIFY / BLOCKED block
+- `Open Questions`: chuẩn hóa với ID (Q-1, Q-2...) và cột Blocking?
+
+---
+
 ## [0.9.0] — 2026-05-18
 
 ### Phase 7 — Credential UX + Multi-provider Git + Context Optimization

@@ -7,7 +7,7 @@ Plugin name: `morai` → tất cả commands có dạng `/morai:<skill>`
 
 [![CI](https://github.com/sub-22/subkontrol/actions/workflows/ci.yml/badge.svg)](https://github.com/sub-22/subkontrol/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.9.0-green.svg)](.claude-plugin/plugin.json)
+[![Version](https://img.shields.io/badge/version-0.10.0-green.svg)](.claude-plugin/plugin.json)
 
 ---
 
@@ -157,6 +157,7 @@ scan → ba → [architect] → pm → dev / dev-auto → pr → reviewer → se
 | `/morai:qa` | "viết test case", "QA ticket" | Spec path hoặc ticket ID | `tests/<id>-test-plan.md` | QA |
 
 > **`/morai:architect`** — optional, chỉ cần khi feature thay đổi DB schema, API mới, hoặc multi-service.
+> Sau khi architect xong → `/morai:qa` có thể chạy **song song** với `/morai:dev` ngay, không cần chờ Dev code xong.
 
 #### `/morai:dev` vs `/morai:dev-auto`
 
@@ -191,6 +192,31 @@ PR template lookup order:
 2. `.github/PULL_REQUEST_TEMPLATE/*.md`
 3. `docs/pull_request_template.md`
 4. Fallback → `templates/pr/feature|bugfix|refactor.md` của subkontrol
+
+---
+
+### Implementation Rigor — Quality Gates trong Dev Flow
+
+`/morai:dev` enforces structured execution theo từng chunk:
+
+```
+Chunk N:
+  [2a-pre] Impact gap check  → verify L1–L4 files đều assigned
+  [2a]     RED phase         → viết tests, confirm FAIL
+  [2b]     GREEN phase       → viết code, 3-attempt no-progress detection
+  [2c]     Regression check  → full test suite
+  [2d]     REFACTOR phase    → checklists/refactor-verify.md + user multi-select
+  [2e]     Verify + done     → checklists/verify.md, update progress file
+```
+
+**Session continuity:** `docs/progress/<ticket-id>.md` track trạng thái từng chunk.
+Khi session bị ngắt → session mới đọc progress file, tiếp đúng chỗ mà không cần context lại từ đầu.
+
+**Design quality:** `/morai:architect` evaluate 2–5 solutions theo 7 criteria + L1–L4 impact model + Readiness Assessment trước khi Dev implement.
+
+**BA quality:** `/morai:ba` validate User Stories theo INVEST + output Readiness Status (READY_FOR_DESIGN / NEED_CLARIFY / BLOCKED).
+
+**Platform-aware review:** `/morai:reviewer` auto-detect tech stack → apply checklist riêng (Python / Go / Node.js / Frontend / Java / PHP) với severity CRITICAL/MAJOR/MINOR/SUGGESTION.
 
 ---
 
