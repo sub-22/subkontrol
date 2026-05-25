@@ -18,8 +18,7 @@ build/
 .claude/settings.local.json
 
 # Morai — per-project runtime (không track)
-.morai/rag/
-.morai/pipeline/
+.morai
 
 # Morai — global data nằm ở ~/.morai/, không có trong repo này
 
@@ -60,6 +59,3 @@ temp/
 
 # Personal config — contains real emails/IDs, use dev_mapping.example.json as template
 config/dev_mapping.json
-
-# Internal notes
-makeingbest.md

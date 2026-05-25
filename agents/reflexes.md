@@ -132,9 +132,9 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 
 ## Candidate Reflexes (chưa promote — đang track)
 
-| Pattern | Count | Cần thêm |
-|---------|-------|----------|
-| *Chưa có data — sẽ tích lũy qua usage* | 0 | 3 |
+| Pattern | Count | Cần thêm | Mô tả |
+|---------|-------|----------|-------|
+| `morai-skills-invocation-guard` | 1 | 2 | Morai skills (`/morai:*`) là SKILL.md files — execute thủ công, KHÔNG gọi qua Skill tool |
 
 ### R-014 — Task Recording → Persist to Memory + Backlog
 - **Trigger**: User yêu cầu ghi nhận task, tạo task, lưu việc cần làm, "tạo task", "ghi lại", "để sau", "track this"
@@ -147,7 +147,9 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 
 ## Reflex Log
 ```
-Lần cuối review: 2026-05-15
-Version: 1.0.2
+Lần cuối review: 2026-05-25
+Version: 1.0.2 → 1.0.3
 Tổng active reflexes: 16
+Candidates tracking: 1
+Notes: Evolve cycle 2026-05-25 — no new promotes (all morai-memory candidates were synthetic test data). Added morai-skills-invocation-guard as real candidate from confirmed feedback.
 ```
