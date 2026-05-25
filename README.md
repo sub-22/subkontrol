@@ -147,7 +147,7 @@ scan → ba → [architect] → pm → dev / dev-auto → pr → reviewer → se
 | `/morai:scan` | "scan project", "đọc codebase" | Path to project | `CLAUDE.md` + `.morai/knowledge/` | Tech Lead / Dev |
 | `/morai:ba` | "phân tích PROJ-123", "analyze ticket" | Ticket ID hoặc mô tả | `specs/<id>.md` | BA / PM |
 | `/morai:architect` | "design solution", "cần ADR" | Spec path hoặc ticket ID | `docs/adr/<id>.md` | Tech Lead |
-| `/morai:pm` | "plan sprint", "chia task" | Spec path hoặc ticket ID | `plans/<id>-tasks.md` + wave plan | PM |
+| `/morai:pm` | "plan sprint", "chia task", "estimate" | Spec path hoặc ticket ID | `plans/<id>-tasks.md` + wave plan + effort estimate (giờ → ngày) | PM |
 | `/morai:dev` | "làm ticket", "implement", "build feature" | Task ID | Code + GATE reviews | **Dev** |
 | `/morai:dev-auto` | "fix bug X" *(simple bugs only)* | Task ID | Code + commit tự động | Morai (auto) |
 | `/morai:pr` | "tạo PR", "xong rồi tạo PR" | Branch / ticket ID | CI check → push → PR → Slack notify | Dev |
@@ -214,9 +214,13 @@ Khi session bị ngắt → session mới đọc progress file, tiếp đúng ch
 
 **Design quality:** `/morai:architect` evaluate 2–5 solutions theo 7 criteria + L1–L4 impact model + Readiness Assessment trước khi Dev implement.
 
-**BA quality:** `/morai:ba` validate User Stories theo INVEST + output Readiness Status (READY_FOR_DESIGN / NEED_CLARIFY / BLOCKED).
+**BA quality:** `/morai:ba` có 3 modes (viết mới / refine / thêm AC), 9-gap mandatory check trước khi đóng Open Questions, INVEST self-check (❌ bất kỳ = block output), và 20-criteria quality gate (`checklists/analyze-quality-gate.md`) trước khi ghi spec file. Output Readiness Status: `READY_FOR_DESIGN` / `NEED_CLARIFY` / `BLOCKED`.
 
-**Platform-aware review:** `/morai:reviewer` auto-detect tech stack → apply checklist riêng (Python / Go / Node.js / Frontend / Java / PHP) với severity CRITICAL/MAJOR/MINOR/SUGGESTION.
+**PM estimation:** `/morai:pm` ước lượng effort theo giờ (sizing XS→XL), tính buffer tự động (5% mặc định, 10% nếu >3 task high risk), output tổng giờ + số ngày thực hiện (~hours ÷ 8).
+
+**QA flows:** `/morai:qa` lưu confirmed E2E flows vào `docs/qa-flows/<ticket-id>.md` — source of truth giữa các lần chạy. Re-run không generate lại từ đầu, chỉ hỏi edit hay dùng lại.
+
+**Platform-aware review:** `/morai:reviewer` auto-detect tech stack → apply checklist riêng (Python / Go / Node.js / Frontend / Java / PHP) với 4-verdict system: `APPROVE` / `APPROVED WITH NITS` / `REQUEST CHANGES` / `CHANGES REQUIRED`.
 
 ---
 
@@ -412,6 +416,14 @@ subkontrol/
 │                               # rag_indexer, repo_manager, generator
 ├── profiles/
 │   └── non-dev/                # .mcp.json + CLAUDE.md cho BA/PM/QA
+├── checklists/
+│   ├── analyze-quality-gate.md # 20-criteria BA output gate
+│   ├── verify.md               # Per-chunk gate trước commit
+│   ├── refactor-verify.md      # Refactor phase sau GREEN
+│   └── review.md               # PR review checklist (4-verdict)
+├── docs/
+│   ├── handoff-rules.md        # Pipeline handoff contract
+│   └── proficiency-levels.md  # 7-level AI maturity framework
 ├── templates/
 │   ├── ba_spec.md detail_design.md pm_tasks.md
 │   └── pr/feature.md bugfix.md refactor.md

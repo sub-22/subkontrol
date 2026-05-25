@@ -117,7 +117,7 @@ Dùng bởi `/morai:reviewer` (AI) và human reviewer. Gate 3 trong pipeline.
 
 ```
 [SUMMARY]
-- Overall: APPROVE | REQUEST CHANGES | NEEDS DISCUSSION
+- Overall: <verdict>
 - AC coverage: X/Y ACs implemented
 - Test coverage: adequate / insufficient / [X gaps noted]
 - Platform: [detected platform]
@@ -138,5 +138,14 @@ Dùng bởi `/morai:reviewer` (AI) và human reviewer. Gate 3 trong pipeline.
 - src/foo.py:42-89 — lý do cần xem kỹ
 ```
 
-Nếu có CRITICAL → fix trước khi merge. Pipeline bị block.
+## Verdict Mapping
+
+| Verdict | Điều kiện | Hành động |
+|---------|----------|----------|
+| **APPROVE** | Không có CRITICAL/MAJOR, test coverage đủ | Merge được |
+| **APPROVED WITH NITS** | Không có CRITICAL, có MINOR/SUGGESTION; AC coverage đủ | Merge được nhưng nên address nits trong lần tới |
+| **REQUEST CHANGES** | Có MAJOR nhưng không CRITICAL; AC partial | Fix MAJOR trước, không cần reject PR |
+| **CHANGES REQUIRED** | Có ít nhất 1 CRITICAL | Block merge — không proceed cho đến khi fix |
+
+Nếu có CRITICAL → pipeline bị block, không merge.
 MAJOR → hiển thị nhưng không block (trừ khi strict mode được config).

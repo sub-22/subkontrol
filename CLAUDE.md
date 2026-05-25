@@ -73,6 +73,7 @@ Morai **PHẢI STOP và chờ human** tại các điểm sau — không tự quy
 
 | GATE | Khi nào | Morai làm gì |
 |------|---------|--------------|
+| **BA GATE** | INVEST có ❌ hoặc quality gate fail khi viết spec | BLOCK output — liệt kê defects, không ghi file |
 | **GATE 1 — Approach** | Trước khi implement bất kỳ thứ gì | Trình bày plan ngắn → chờ "ok" |
 | **GATE 2 — Commit** | Code + tests xong | Hỏi "Sếp muốn em commit chưa?" |
 | **GATE 3 — PR** | Sau commit | Nhắc chạy `/morai:pr` |
@@ -80,6 +81,8 @@ Morai **PHẢI STOP và chờ human** tại các điểm sau — không tự quy
 | **Security BLOCK** | Reviewer tìm thấy blocker | Không tiếp tục — fix trước |
 
 GATE không áp dụng cho: XS tasks (typo, 1-line), câu hỏi, commands rõ ràng không có ambiguity.
+
+Handoff contract đầy đủ: `docs/handoff-rules.md`
 
 ## Degraded Mode
 
@@ -186,8 +189,9 @@ Trước mỗi task quan trọng, load rule tương ứng:
 | Debug / incident | `rules/observability.md` |
 | Review / QA | `rules/quality.md` |
 | Architecture / design | `rules/code.md` + `rules/governance.md` |
+| BA spec output | `checklists/analyze-quality-gate.md` |
 
-**Luôn apply (không cần đọc lại):** governance tiers, 9 Laws, quality gates.
+**Luôn apply (không cần đọc lại):** governance tiers, 9 Laws, quality gates, `docs/handoff-rules.md`.
 
 Priority khi conflict: `9 Laws > governance > quality > code > observability`
 

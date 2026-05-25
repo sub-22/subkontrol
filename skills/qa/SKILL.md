@@ -40,14 +40,48 @@ Nếu tồn tại:
 
 > QA có thể chạy **song song** với `/morai:dev` ngay sau khi `/morai:architect` xong — không cần chờ Dev code xong.
 
-### Bước 2 — Thiết kế test cases
+### Bước 2 — Load hoặc tạo E2E Flows Doc
+
+Flows doc là **source of truth** cho test coverage — lưu giữa các lần chạy để không phải generate lại từ đầu.
+
+```
+morai-file: file_exists("docs/qa-flows/<ticket-id>.md")
+```
+
+**Nếu file đã tồn tại (re-run):**
+- Đọc flows doc hiện tại
+- Hiển thị danh sách flows đã confirmed trước đó
+- Hỏi user: "Em thấy có [N] flows đã lưu. Sếp muốn edit, thêm, hoặc dùng lại nguyên?"
+- Nếu edit → cho phép add/remove/modify flows, ghi lại
+- Nếu dùng lại → tiếp tục Bước 3 với flows hiện có
+
+**Nếu chưa có file (lần đầu):**
+
+Dựa trên spec + design doc, propose danh sách E2E flows:
+
+```
+📋 Proposed E2E Flows — <ticket-id>
+
+[1] Happy path — <mô tả flow chính>
+[2] Edge case — <trường hợp biên>
+[3] Error handling — <failure scenario>
+[4] Permission boundary — <role-based scenario, nếu có>
+...
+
+→ Nhập số để bỏ flow, hoặc type [add: mô tả] để thêm.
+  Type [ok] để confirm và lưu.
+```
+
+Sau khi user confirm → ghi `docs/qa-flows/<ticket-id>.md` (source of truth cho mọi lần chạy sau).
+
+### Bước 3 — Thiết kế test cases từ confirmed flows
 
 **Happy path**: flow chính hoạt động đúng
 **Edge cases**: giá trị biên, null, empty, max length
 **Error cases**: invalid input, network failure, permission denied
 **Regression**: các feature liên quan không bị ảnh hưởng
 
-### Bước 3 — Viết test cases
+### Bước 4 — Viết test cases
 Dùng `morai-file` MCP để ghi `tests/<ticket-id>-test-plan.md`:
 
 ```markdown
@@ -76,14 +110,14 @@ Dùng `morai-file` MCP để ghi `tests/<ticket-id>-test-plan.md`:
 - ...
 ```
 
-### Bước 4 — Verify (không viết test code)
+### Bước 5 — Verify (không viết test code)
 - Dùng `morai-rag` MCP: tìm existing test files liên quan
 - Dùng `morai-git` MCP: xem test results từ CI nếu có
 - **QA KHÔNG viết source code hay test files** — chỉ ghi nhận kết quả
 - Nếu test cần thêm: ghi vào "Automation candidates" trong test plan report
   để Dev implement sau
 
-### Bước 5 — Update pipeline state + Báo cáo
+### Bước 6 — Update pipeline state + Báo cáo
 ```
 morai-memory: save_pipeline_state($TICKET_ID, {
   "current_step": "qa",
