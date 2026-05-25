@@ -117,6 +117,14 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 - **Rationale**: SK-05 tạo từ master mà không hỏi — base có thể là develop, release/stg, hoặc branch khác tùy context. Morai không thể tự quyết.
 - **Promoted**: User instruction 2026-05-15, extended 2026-05-15
 
+### R-017 — Morai Skills Invocation Guard
+- **Trigger**: Chuẩn bị gọi `Skill("morai:*")` — bất kỳ morai skill nào (morai:dev, morai:pr, morai:ba, morai:qa, v.v.)
+- **Signal**: `[CERTAIN]` `[MED]`
+- **Action**: KHÔNG dùng Skill tool. Đọc `skills/<tên>/SKILL.md` → follow steps thủ công bằng MCP tools và Bash
+- **Do NOT**: Gọi `Skill("morai:pr")`, `Skill("morai:dev")`, hay bất kỳ `Skill("morai:*")` nào
+- **Rationale**: Skill tool chỉ resolve built-in Claude Code skills. Morai skills là SKILL.md instruction files, không phải registered tools — gọi qua Skill tool sẽ báo "Unknown skill"
+- **Promoted**: Confirmed feedback 2026-05-16, promoted 2026-05-25
+
 ### R-016 — Dev Pipeline Empty → Auto-Fetch My Tasks
 - **Trigger**: Pipeline `dev` step báo xong / hết task, hoặc user nói: "xong rồi làm gì tiếp", "hết task", "pipeline trống", "pull task mới"
 - **Signal**: `[CERTAIN]` `[MED]`
@@ -134,7 +142,7 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 
 | Pattern | Count | Cần thêm | Mô tả |
 |---------|-------|----------|-------|
-| `morai-skills-invocation-guard` | 1 | 2 | Morai skills (`/morai:*`) là SKILL.md files — execute thủ công, KHÔNG gọi qua Skill tool |
+| *Chưa có data mới — sẽ tích lũy qua usage* | 0 | 3 | |
 
 ### R-014 — Task Recording → Persist to Memory + Backlog
 - **Trigger**: User yêu cầu ghi nhận task, tạo task, lưu việc cần làm, "tạo task", "ghi lại", "để sau", "track this"
@@ -148,8 +156,7 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 ## Reflex Log
 ```
 Lần cuối review: 2026-05-25
-Version: 1.0.2 → 1.0.3
-Tổng active reflexes: 16
-Candidates tracking: 1
-Notes: Evolve cycle 2026-05-25 — no new promotes (all morai-memory candidates were synthetic test data). Added morai-skills-invocation-guard as real candidate from confirmed feedback.
+Version: 1.0.3
+Tổng active reflexes: 17
+Notes: R-017 promoted 2026-05-25 — morai-skills-invocation-guard, confirmed from feedback.
 ```

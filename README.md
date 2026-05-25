@@ -222,6 +222,8 @@ Khi session bị ngắt → session mới đọc progress file, tiếp đúng ch
 
 **Platform-aware review:** `/morai:reviewer` auto-detect tech stack → apply checklist riêng (Python / Go / Node.js / Frontend / Java / PHP) với 4-verdict system: `APPROVE` / `APPROVED WITH NITS` / `REQUEST CHANGES` / `CHANGES REQUIRED`.
 
+**Proactive challenge (R-016):** Khi nhận batch request ("port tất cả", "apply hết") → Morai assess từng item trước (đã có chưa? context fit? conflict?) → present filtered list → chờ confirm. Không execute blindly.
+
 ---
 
 ### Learning — Self-Improvement Loop
