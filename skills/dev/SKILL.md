@@ -138,6 +138,35 @@ Hiển thị gate cho Dev theo format chuẩn trong `agents/hitl.md`.
 Implement **từng chunk một** theo thứ tự trong progress file. Pick chunk đầu tiên có
 status `pending` hoặc `in_progress`.
 
+```mermaid
+flowchart TD
+    Start["Pick chunk\npending / in_progress"] --> Pre["2a-pre: Impact gap cross-check\nchỉ chunk đầu tiên của session"]
+    Pre --> Red["2a: Viết tests ✗ RED phase\nfocus AC-IDs + edge cases"]
+    Red --> Green["2b: Implement ✓ GREEN phase\nviết code cho chunk"]
+    Green --> R1{Tests pass?}
+    R1 -->|fail — có progress| Green
+    R1 -->|"fail × 3\nno progress"| Stuck["⛔ Mark failed\nbáo Dev · STOP chunk này"]
+    R1 -->|pass| Reg["2c: Full regression check\ntoàn bộ test suite"]
+    Reg --> R2{Regression?}
+    R2 -->|Có| FixReg[Fix regression]
+    FixReg --> Reg
+    R2 -->|Không| Ref["2d: Refactor phase\nchecklists/refactor-verify.md"]
+    Ref --> Ver["2e: Verify checklist\nupdate progress → done"]
+    Ver --> MG["⛔ Micro-gate\nbáo Dev chunk N xong · chờ confirm"]
+    MG --> More{Còn chunk\nnữa?}
+    More -->|Có| Start
+    More -->|Không| CI["CI Check\nlint · format · typecheck · test"]
+    CI --> R3{CI pass?}
+    R3 -->|fail| FixCI[Fix CI issues]
+    FixCI --> CI
+    R3 -->|pass| G2["⛔ GATE 2 — Commit\nchờ Dev: 'commit'"]
+    G2 --> G3["⛔ GATE 3 — Push & PR\nchờ Dev: 'push and create PR'"]
+    style Stuck fill:#ef4444,color:#fff
+    style MG fill:#f59e0b,color:#fff
+    style G2 fill:#f59e0b,color:#fff
+    style G3 fill:#f59e0b,color:#fff
+```
+
 ### Cho mỗi chunk:
 
 **Trước khi bắt đầu chunk:** Update progress file → `in_progress`.

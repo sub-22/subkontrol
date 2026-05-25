@@ -113,13 +113,26 @@ Phân tích graph `depends_on` để sinh **wave plan** cho Spawner:
 4. Lặp cho đến khi tất cả tasks được assign vào wave
 ```
 
-**Ví dụ:**
-```
-TASK-1: depends_on=[]          → Wave 1
-TASK-2: depends_on=[TASK-1]    → Wave 2
-TASK-3: depends_on=[]          → Wave 1  (parallel với TASK-1)
-TASK-4: depends_on=[TASK-2, TASK-3] → Wave 3
-TASK-5: depends_on=[]          → Wave 1  (parallel với TASK-1, TASK-3)
+**Ví dụ dependency graph → wave assignment:**
+
+```mermaid
+graph LR
+    T1["TASK-1\n8h"] --> T2["TASK-2\n4h"]
+    T3["TASK-3\n4h"] --> T4["TASK-4\n12h"]
+    T2 --> T4
+    T5["TASK-5\n6h"]
+
+    subgraph W1["Wave 1 — parallel (18h critical path)"]
+        T1
+        T3
+        T5
+    end
+    subgraph W2["Wave 2 — sequential (4h)"]
+        T2
+    end
+    subgraph W3["Wave 3 — sequential (12h)"]
+        T4
+    end
 ```
 
 **Wave summary với hours:**

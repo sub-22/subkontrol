@@ -12,18 +12,17 @@ User nói chuyện tự nhiên. Morai tự phân loại → tự route → tự 
 
 Mọi task qua 3 tầng trước khi execute:
 
-```
-Task nhận vào
-  │
-  ├─[1] REFLEX CHECK (2s)
-  │     match reflex? → execute ngay, không qua tier 2-3
-  │     no match ↓
-  │
-  ├─[2] SIZE CLASSIFIER
-  │     XS / S / M / L / XL → chọn workflow
-  │     ↓
-  │
-  └─[3] EXECUTE theo workflow của size
+```mermaid
+flowchart TD
+    A[Task nhận vào] --> B{"[1] Reflex Check\n~2s"}
+    B -->|match reflex| C[Execute ngay\nkhông qua tier 2-3]
+    B -->|no match| D{"[2] Size Classifier\nXS / S / M / L / XL"}
+    D -->|XS| E["Direct — không qua Wave\n1-3 phút"]
+    D -->|S| F["Wave 2+4\n10-20 phút"]
+    D -->|M| G["4 Waves đầy đủ\n1-3h"]
+    D -->|L| H["4 Waves + ADR\n0.5-2 ngày"]
+    D -->|XL| I["4 Waves + ADR + User duyệt\n≥3 ngày"]
+    E & F & G & H & I --> J["[3] Execute theo workflow"]
 ```
 
 ## Size Classifier
@@ -45,15 +44,15 @@ security · prod bug · DB migration · payment · third-party API · breaking c
 
 Khi task liên quan đến **viết code**, Morai phải chọn đúng mode:
 
-```
-Task có code?
-    │
-    ├─ Là bug? ──→ Bug Complexity Check
-    │                   │
-    │                   ├─ PASS tất cả 7 tiêu chí → /morai:dev-auto
-    │                   └─ FAIL bất kỳ tiêu chí nào → /morai:dev (guided)
-    │
-    └─ Là feature/refactor/implement → /morai:dev (guided) LUÔN LUÔN
+```mermaid
+flowchart TD
+    A[Task có code?] --> B{Là bug?}
+    B -->|Có| C{"Bug Complexity Check\n7 tiêu chí — tất cả phải pass"}
+    C -->|PASS tất cả| D[/morai:dev-auto]
+    C -->|FAIL bất kỳ tiêu chí| E["/morai:dev (guided)"]
+    B -->|Không\nfeature / refactor / implement| E
+    style D fill:#22c55e,color:#fff
+    style E fill:#3b82f6,color:#fff
 ```
 
 ### Bug Complexity Check (7 tiêu chí — tất cả phải pass)
@@ -111,20 +110,19 @@ Task có code?
 
 ## Decision Tree
 
-```
-User message
-    │
-    ├─ Có ticket ID (PROJ-XXX)? ──→ ba làm entry point
-    │
-    ├─ Là bug + rõ ràng? ─────→ Bug Check → dev-auto hoặc dev
-    │
-    ├─ Có path/file? ──────────→ scan hoặc dev (guided)
-    │
-    ├─ Có PR/branch? ──────────→ reviewer → security
-    │
-    ├─ "xong hết", "ship", "deploy"? ──→ full pipeline
-    │
-    └─ Không rõ? ──────────────→ Sparring: hỏi clarifying questions
+```mermaid
+flowchart TD
+    A[User message] --> B{Có ticket ID\nPROJ-XXX?}
+    B -->|Có| C[ba làm entry point]
+    B -->|Không| D{Là bug\nrõ ràng?}
+    D -->|Có| E[Bug Check\n→ dev-auto hoặc dev]
+    D -->|Không| F{Có path/file?}
+    F -->|Có| G["scan hoặc dev (guided)"]
+    F -->|Không| H{Có PR/branch?}
+    H -->|Có| I[reviewer → security]
+    H -->|Không| J{"xong hết /\nship / deploy?"}
+    J -->|Có| K[full pipeline]
+    J -->|Không| L[Sparring\nhỏi clarifying questions]
 ```
 
 ## Skill Chaining Protocol
@@ -177,23 +175,18 @@ Xem `agents/events.md` cho danh sách events và subscriptions.
 
 Khi pipeline transition từ `PM_DONE` → `DEV_*`, Orchestrator quyết định mode:
 
-```
-morai-pipeline: get_wave_plan(ticket_id)
-    │
-    ├─ Không có wave plan → DEV_RUNNING (sequential, /morai:dev)
-    │
-    └─ Có wave plan
-           │
-           ├─ current wave có 1 task → DEV_RUNNING (sequential, /morai:dev)
-           │
-           └─ current wave có ≥ 2 tasks → DEV_PARALLEL_RUNNING
-                  → Load agents/spawner.md → execute spawner protocol
-```
-
-**Khi spawner kết thúc (all_done):**
-```
-→ Load agents/merge.md → execute merge protocol
-→ Sau merge: DEV_ALL_COMMITTED → REVIEW_RUNNING → /morai:reviewer
+```mermaid
+flowchart TD
+    A["PM_DONE → DEV_*\nget_wave_plan(ticket_id)"] --> B{Wave plan\ntồn tại?}
+    B -->|Không| C[DEV_RUNNING\nsequential /morai:dev]
+    B -->|Có| D{Current wave\nsố tasks?}
+    D -->|1 task| C
+    D -->|≥ 2 tasks| E[DEV_PARALLEL_RUNNING\nLoad agents/spawner.md]
+    E --> F[Spawner Protocol]
+    F --> G{all_done?}
+    G -->|Có| H[Load agents/merge.md\nexecute merge]
+    H --> I[DEV_ALL_COMMITTED\n→ REVIEW_RUNNING\n→ /morai:reviewer]
+    G -->|next_wave| F
 ```
 
 **Nếu Dev muốn sequential dù có wave plan:**

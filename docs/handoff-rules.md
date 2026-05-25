@@ -62,33 +62,33 @@ không cần chờ Dev code xong. QA gen test cases từ design doc, không từ
 
 ## End-to-end example
 
-```
-1. BA nhận yêu cầu
-   → /morai:ba SK-42
-   → output: specs/SK-42.md
+```mermaid
+sequenceDiagram
+    participant BA as /morai:ba
+    participant AR as /morai:architect
+    participant PM as /morai:pm
+    participant QA as /morai:qa
+    participant Dev as /morai:dev
+    participant RV as /morai:reviewer
+    participant SC as /morai:security
 
-2. Architect thiết kế giải pháp
-   → /morai:architect SK-42
-   → output: designs/SK-42-detail.md + docs/adr/SK-42.md
+    BA->>BA: Fetch ticket + analyze
+    BA-->>AR: specs/SK-42.md
+    AR->>AR: Design solution
+    AR-->>PM: designs/SK-42-detail.md\ndocs/adr/SK-42.md
+    PM->>PM: Task breakdown + wave plan
+    PM-->>Dev: plans/SK-42-tasks.md
 
-3. PM tạo task breakdown
-   → /morai:pm SK-42
-   → output: plans/SK-42-tasks.md + tasks/SK-42/
+    par Song song ngay sau PM
+        PM-->>QA: designs/SK-42-detail.md
+        QA->>QA: Gen test cases
+        QA-->>QA: tests/SK-42-test-plan.md
+    end
 
-4. (Song song) QA gen test cases
-   → /morai:qa SK-42
-   → output: tests/SK-42-test-plan.md
-
-5. Dev implement từng chunk
-   → /morai:dev SK-42
-   → output: commits + docs/progress/SK-42.md
-
-6. Reviewer review
-   → /morai:reviewer SK-42
-   → output: .morai/reviews/SK-42-review.md
-
-7. Security scan (nếu có auth/payment/crypto)
-   → /morai:security SK-42
-
-8. PR created, human review, merge
+    Dev->>Dev: Implement chunks (GATE 1/2/3)
+    Dev-->>RV: commits + docs/progress/SK-42.md
+    RV->>RV: Code review
+    RV-->>SC: .morai/reviews/SK-42-review.md
+    SC->>SC: Security scan
+    SC-->>SC: PR created → human review → merge
 ```

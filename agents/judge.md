@@ -14,6 +14,19 @@ Khi Morai chạy pipeline tự động, Judge monitor liên tục để phát hi
 
 ## Detection Rules
 
+```mermaid
+flowchart TD
+    A[Judge Monitor\nmỗi pipeline step] --> B{Same tool fail\n× 2 lần?}
+    B -->|Có| C[STOP → đổi approach\nthử tool khác / decompose]
+    B -->|Không| D{Output drift\nkhỏi objective?}
+    D -->|Có| E[RESET → quay về objective\nre-plan từ bước bị drift]
+    D -->|Không| F{Cùng sequence\nlặp ≥ 3 lần?}
+    F -->|Có| G[ESCALATE human\nnotify Slack ngay]
+    F -->|Không| H{No output\n> 5 phút?}
+    H -->|Có| I[Checkpoint\nhỏi user có tiếp không]
+    H -->|Không| J[✅ Continue]
+```
+
 ### Stuck Pattern 1 — Same Tool Fail × 2
 ```
 Nếu: cùng 1 tool call fail 2 lần liên tiếp với cùng input
@@ -61,17 +74,14 @@ Nếu bất kỳ gate nào fail → BLOCK bước tiếp theo → fix trước.
 Technical bugs (syntax, types, compile errors, unit tests fail) phải được
 Dev và Reviewer catch trước. QA chỉ test business logic và acceptance criteria.
 
-```
-Dev complete
-    ↓
-Judge: chạy linting + unit tests
-    ↓ nếu fail → back to Dev (không pass QA)
-    ↓ nếu pass
-Reviewer: logic + conventions
-    ↓
-Security: vulnerabilities
-    ↓ 
-QA: business logic ONLY (technical đã clean)
+```mermaid
+flowchart TD
+    Dev[Dev complete] --> Judge["Judge\nlinting + unit tests"]
+    Judge -->|fail| Dev
+    Judge -->|pass| RV["Reviewer\nlogic + conventions"]
+    RV --> SC["Security\nvulnerabilities"]
+    SC --> QA["QA\nbusiness logic ONLY\ntechnical đã clean"]
+    style QA fill:#22c55e,color:#fff
 ```
 
 ## Conflict Resolution Hierarchy

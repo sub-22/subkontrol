@@ -22,6 +22,16 @@ Inspect những gì user cung cấp trong conversation:
 - Input match rõ một mode → nêu mode đã detect và tiến hành
 - Mơ hồ (chỉ có ticket ID, không có body) → hỏi user chọn mode trước khi làm bất cứ điều gì
 
+```mermaid
+flowchart TD
+    A[Inspect user input] --> B{Input rõ ràng?}
+    B -->|Không rõ\nchỉ có ticket ID| C[Hỏi user chọn mode\ntrước khi làm bất cứ gì]
+    B -->|Rõ| D{Detect mode}
+    D -->|feature description\nraw requirement / ticket text| E["Mode A — Viết mới\nUS → INVEST → AC ≥3"]
+    D -->|US có sẵn\nmuốn review| F["Mode B — Refine\nRewrite US → INVEST → extend AC"]
+    D -->|US có sẵn\nchỉ thêm AC| G["Mode C — Thêm AC\nSkip US · Append AC · không duplicate"]
+```
+
 | Mode | Bước 3 (viết US) | Bước 4 (INVEST) | Bước 5 (viết AC) |
 |------|-----------------|-----------------|-----------------|
 | A — mới | Bắt buộc | Bắt buộc | Bắt buộc ≥ 3 AC |
@@ -105,6 +115,23 @@ Evaluate từng criterion với 3 trạng thái:
   - S ❌: tách thành smaller stories
   - T ❌: thêm AC cụ thể có thể đo được
 - ⚠️ được phép → ghi vào Notes section với 1 dòng rationale, không block output
+
+```mermaid
+flowchart TD
+    A[INVEST Check] --> B{Có ❌ nào?}
+    B -->|Có ❌| C[BLOCK output\nkhông ghi spec file]
+    C --> D{Fix theo loại}
+    D -->|I ❌| E[Tách dependency\nhoặc merge story]
+    D -->|N ❌| F[Xóa technical\ndetail cứng]
+    D -->|V ❌| G[Rewrite 'So that'\nrõ business value]
+    D -->|E ❌| H[Bổ sung\ncontext/constraints]
+    D -->|S ❌| I[Tách thành\nsmaller stories]
+    D -->|T ❌| J[Thêm AC cụ thể\nđo được]
+    E & F & G & H & I & J --> K[Re-evaluate INVEST]
+    K --> A
+    B -->|Chỉ có ⚠️| L[Ghi vào Notes\n1 dòng rationale · tiếp tục]
+    B -->|Tất cả ✅| M[Proceed → Bước 4b\nReadiness Assessment]
+```
 
 **4b — Tự đánh giá và quyết định Readiness Status:**
 

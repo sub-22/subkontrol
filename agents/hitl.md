@@ -22,6 +22,29 @@ Khác với text "DỪNG — Chờ Dev" (instruction dễ bị LLM bỏ qua), ga
 
 ---
 
+## Gate Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> pending: create_gate()
+    pending --> resolved: Dev respond\n(approve / request_changes / abort)
+    pending --> expired: timeout vượt quá\ntimeout_minutes
+    resolved --> [*]: pipeline continues
+    expired --> blocked: block_pipeline()
+    blocked --> pending: Dev tạo lại gate\nđể tiếp tục
+
+    state resolved {
+        [*] --> approve_path: "approve" / "yes" / "confirm"
+        [*] --> change_path: "request_changes: ..."
+        [*] --> abort_path: "abort" / "no"
+        approve_path --> [*]: tiếp tục pipeline
+        change_path --> [*]: điều chỉnh → gate mới
+        abort_path --> [*]: block_pipeline
+    }
+```
+
+---
+
 ## Cách sử dụng trong Skills
 
 ### 1 — Tạo gate (pipeline pauses)

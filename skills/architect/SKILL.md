@@ -165,6 +165,18 @@ Các section **bỏ qua nếu không áp dụng**:
 - Không có ❌, có ⚠️ → **🟡 PROCEED WITH CAUTION** — liệt kê cautions, Dev chú ý trước chunk liên quan
 - Tất cả ✅ → **🟢 READY**
 
+```mermaid
+flowchart TD
+    A["7 Readiness Criteria\n(AC-IDs · paths · commands · questions\nchunk size · risks · migration)"] --> B{Có ❌ nào?}
+    B -->|≥1 ❌| C["🔴 BLOCKED\nliệt kê issues\nyêu cầu fix trước Dev implement"]
+    B -->|Không có ❌| D{Có ⚠️ nào?}
+    D -->|≥1 ⚠️| E["🟡 PROCEED WITH CAUTION\nliệt kê cautions\nDev chú ý trước chunk liên quan"]
+    D -->|Tất cả ✅| F["🟢 READY\nDev + QA có thể bắt đầu song song"]
+    style C fill:#ef4444,color:#fff
+    style E fill:#f59e0b,color:#fff
+    style F fill:#22c55e,color:#fff
+```
+
 Update design doc `Readiness State` section với kết quả assessment.
 
 ```

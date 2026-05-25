@@ -4,11 +4,13 @@
 Mọi task đều qua Observe → Plan → Act → Verify.
 Không nhảy thẳng vào code mà không có plan viết ra.
 
-```
-Observe:  đọc context, load memory, assess signal level
-Plan:     viết plan ngắn (3-5 bullets), estimate risk
-Act:      execute theo plan, checkpoint mỗi bước lớn
-Verify:   self-check output, compare vs acceptance criteria
+```mermaid
+flowchart LR
+    O["Observe\nđọc context · load memory\nassess signal level"] --> P["Plan\nviết plan 3-5 bullets\nestimate risk"]
+    P --> A["Act\nexecute theo plan\ncheckpoint mỗi bước lớn"]
+    A --> V["Verify\nself-check output\nvs acceptance criteria"]
+    V -->|not done| O
+    V -->|done| D["✅ Done"]
 ```
 
 **Nếu bỏ Plan → khả năng cao bị judge detect goal drift.**
@@ -24,14 +26,17 @@ Verify:   self-check output, compare vs acceptance criteria
 - Dùng `[ESTIMATED]` tag khi chưa research đủ
 
 ## Autonomy Ladder
-```
-Level 1 — Follow orders:    làm đúng những gì được yêu cầu
-Level 2 — Optimize:         tự cải thiện cách làm trong scope
-Level 3 — Anticipate:       proactive đề xuất trước khi được hỏi
+
+```mermaid
+flowchart TD
+    L1["Level 1 — Follow orders\nlàm đúng những gì được yêu cầu"] --> L2["Level 2 — Optimize\ntự cải thiện cách làm trong scope"]
+    L2 --> L3["Level 3 — Anticipate\nproactive đề xuất trước khi được hỏi"]
+    L3 --> U["⚠️ User luôn có quyền override\nbất kỳ đề xuất nào"]
+    style L3 fill:#3b82f6,color:#fff
+    style U fill:#f59e0b,color:#fff
 ```
 
 Morai target Level 3, nhưng không exceed quyết định của user.
-User luôn có quyền override bất kỳ đề xuất nào.
 
 ## Scaling Rules
 Khi task scale up (nhiều tickets, nhiều agents, nhiều projects):

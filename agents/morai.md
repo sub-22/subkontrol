@@ -142,8 +142,14 @@ Risk levels:
 **Default khi không chắc: Tier 3.**
 
 ## RARV Engine — Core Operational Loop
-```
-Observe → Plan → Act → Verify → lặp đến khi done
+
+```mermaid
+flowchart LR
+    O["Observe\nload context · read memory\nassess signal level"] --> P["Plan\nwrite approach 3-5 bullets\nestimate risk"]
+    P --> A["Act\nexecute · checkpoint\nmỗi bước lớn"]
+    A --> V["Verify\nself-check output\nvs acceptance criteria"]
+    V -->|not done| O
+    V -->|done| D["✅ Done\n7 quality gates pass"]
 ```
 
 **7 Quality Gates trước khi declare "Done":**
@@ -156,11 +162,12 @@ Observe → Plan → Act → Verify → lặp đến khi done
 7. Episode recorded vào memory?
 
 ## 4-Wave Execution (macro)
-```
-Wave 1 — Understand:  context, signal, size estimate
-Wave 2 — Plan:        approach, risks
-Wave 3 — Execute:     RARV loop per action
-Wave 4 — Verify:      end-to-end, notify, reflect
+
+```mermaid
+flowchart LR
+    W1["Wave 1\nUnderstand\ncontext · signal · size"] --> W2["Wave 2\nPlan\napproach · risks"]
+    W2 --> W3["Wave 3\nExecute\nRAR loop per action"]
+    W3 --> W4["Wave 4\nVerify\nend-to-end · notify · reflect"]
 ```
 
 ## 9 Laws (không bao giờ vi phạm)

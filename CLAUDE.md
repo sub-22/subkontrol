@@ -87,6 +87,17 @@ Morai **PHẢI STOP và chờ human** tại các điểm sau — không tự quy
 | **CI GATE** | Trong `/morai:pr`, CI fail | Báo lỗi + hỏi confirm — KHÔNG tự push |
 | **Security BLOCK** | Reviewer tìm thấy blocker | Không tiếp tục — fix trước |
 
+```mermaid
+flowchart LR
+    BA["BA GATE\nINVEST ❌\nBLOCK output"] --> G1["GATE 1\nApproach\nchờ approve"]
+    G1 --> G2["GATE 2\nCommit\nchờ 'commit'"]
+    G2 --> G3["GATE 3\nPR\nchờ 'push & PR'"]
+    G3 --> CI["CI GATE\nCI fail\nNOT push"]
+    CI --> SEC["Security BLOCK\nblocker found\nfix trước"]
+    style BA fill:#ef4444,color:#fff
+    style SEC fill:#ef4444,color:#fff
+```
+
 GATE không áp dụng cho: XS tasks (typo, 1-line), câu hỏi, commands rõ ràng không có ambiguity.
 
 Handoff contract đầy đủ: `docs/handoff-rules.md`

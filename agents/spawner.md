@@ -23,6 +23,38 @@ Single-task wave → dùng `/morai:dev` trực tiếp (không qua Spawner).
 
 ---
 
+## Tổng quan luồng Spawner
+
+```mermaid
+sequenceDiagram
+    participant O as Orchestrator
+    participant A1 as Sub-agent 1
+    participant AN as Sub-agent N
+    participant Dev as Developer
+    participant P as Pipeline FSM
+
+    O->>O: Phase 1: Collect context cho mỗi task
+    O-->>A1: Spawn(TASK-1, worktree, context, model=sonnet)
+    O-->>AN: Spawn(TASK-N, worktree, context, model=sonnet)
+    Note over A1,AN: Chạy song song trong isolated worktrees
+    A1-->>O: APPROACH_READY::TASK-1::summary::files
+    AN-->>O: APPROACH_READY::TASK-N::summary::files
+    O->>P: create_gate(wave approach review — 1 gate duy nhất)
+    O->>Dev: ⏸ GATE 1 — Wave Approach Review
+    Dev-->>O: approve all / approve except X / reject all
+    O->>P: resolve_gate + update_task_in_wave(running)
+    A1-->>O: COMMITTED::TASK-1::sha::files
+    AN-->>O: COMMITTED::TASK-N::sha::files
+    O->>P: commit_wave(ticket_id, wave_num)
+    alt next_wave exists
+        O->>O: Phase 1-4 cho wave tiếp theo
+    else all_done
+        O->>O: Load agents/merge.md → merge protocol
+    end
+```
+
+---
+
 ## Spawner Protocol
 
 ### Phase 1 — Chuẩn bị context cho sub-agents
