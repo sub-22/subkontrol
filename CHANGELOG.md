@@ -7,6 +7,34 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [0.11.0] — 2026-06-08
+
+### Phase 9 — Telegram Integration
+
+### Added
+
+- `servers/telegram/server.py` (`morai-telegram`) — Telegram integration: `send_message`, `get_pending_messages` (getUpdates long-poll), `request_approval` (inline keyboard ✅/❌ + `callback_query` polling, mirror `morai-slack: request_approval`)
+- `tests/test_env_resolver.py` — `test_reads_telegram_from_config` cho 3-level credential fallback (env → .env → `~/.morai/config.json`)
+
+### Changed
+
+- **`.mcp.json`** — đăng ký `morai-telegram` server (env: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`)
+- **`.claude-plugin/plugin.json`** — thêm userConfig fields `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
+- **`.env.example`** — thêm Telegram credentials block
+- **`pyproject.toml`** — thêm `httpx>=0.27.0` (import trực tiếp cho Telegram Bot API; trước đây chỉ là transitive dep qua `mcp`)
+- **`servers/_env.py`** — thêm `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` vào `_CONFIG_KEY_MAP` — đảm bảo Telegram đọc credential qua đúng 3-level fallback (env → .env → `~/.morai/config.json`) giống Slack/Jira/Confluence, không bị silent-fail ở tầng config.json
+- **`skills/init/SKILL.md`** — guided setup hỏi Telegram (Bot Token qua @BotFather, Chat ID qua @userinfobot), ghi vào `pluginConfigs`
+- **`CLAUDE.md`** — `morai-telegram` vào "MCP Tools có sẵn" và "Degraded Mode" fallback table
+- **`skills/doctor/SKILL.md`** — thêm `morai-telegram` vào health check (test block, status table `Integrations: 0/4`, hướng dẫn fix khi chưa configure, `$ARGUMENTS` filter, `DOCTOR_RESULT` summary)
+- **`skills/{ba,pm,architect,reviewer,security,qa,pr,incident}/SKILL.md`** — thêm hook `> **Telegram (optional):** ...` song song với Slack ở bước notify cuối mỗi pipeline phase (`pr` thêm hẳn `morai-telegram: send_message(...)` trong Bước 8)
+- **`README.md`** — env vars table + cấu trúc project
+
+### Fixed
+
+- **Version mismatch** — `pyproject.toml` (kẹt ở 0.8.0 từ commit `08830be`) và `marketplace.json` (kẹt ở 0.9.0 từ commit `4846a22`) bị bỏ rơi mỗi khi `plugin.json` bump tiếp lên 0.10.0 → 0.10.1 một mình. Đồng bộ cả 3 file + README badge về **0.10.1**. Khi bump version sau này — nhớ touch cả 4 chỗ: `pyproject.toml`, `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` (cả `metadata.version` lẫn `plugins[0].version`), README badge
+
+---
+
 ## [0.10.0] — 2026-05-19
 
 ### Phase 8 — Implementation Rigor (từ workflows)

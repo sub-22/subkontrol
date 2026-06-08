@@ -88,6 +88,14 @@ Nếu có → hỏi:
 - App Token (`xapp-...` — để trống nếu không dùng Socket Mode)
 - Default channel (e.g. `#dev-pipeline`)
 
+**Telegram:**
+```
+Sếp có dùng Telegram không ạ? (có / không)
+```
+Nếu có → hỏi:
+- Bot Token (tạo bot qua [@BotFather](https://t.me/BotFather): `/newbot` → nhận token dạng `123456:ABC-DEF...`)
+- Default Chat ID (nhắn thử cho bot rồi lấy `chat.id` qua [@userinfobot](https://t.me/userinfobot), hoặc gọi `getUpdates`)
+
 **Sau khi collect xong** — detect plugin key từ `settings.json` rồi ghi vào đúng chỗ:
 
 ```bash
@@ -125,6 +133,8 @@ new_options = {
     "SLACK_BOT_TOKEN":    "<SLACK_BOT_TOKEN>",
     "SLACK_APP_TOKEN":    "<SLACK_APP_TOKEN>",
     "SLACK_CHANNEL":      "<SLACK_CHANNEL>",
+    "TELEGRAM_BOT_TOKEN": "<TELEGRAM_BOT_TOKEN>",
+    "TELEGRAM_CHAT_ID":   "<TELEGRAM_CHAT_ID>",
 }
 
 # Only write non-empty, non-placeholder values

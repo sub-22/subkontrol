@@ -181,5 +181,6 @@ morai-memory: save_pipeline_state($TICKET_ID, {
 Báo cáo tóm tắt cho user: spec đã tạo tại đâu, những điểm chính là gì.
 
 > **Slack (optional):** Nếu `morai-slack` configured → gửi thêm thông báo đến channel.
+> **Telegram (optional):** Nếu `morai-telegram` configured → gửi thêm thông báo qua `send_message`.
 
 > **💡 Context:** Bước BA xong → `/compact` trước khi chạy `/morai:architect`.

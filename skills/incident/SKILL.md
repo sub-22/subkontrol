@@ -102,3 +102,4 @@ Dùng `morai-file: append_file("agents/context_gateway.md", ...)` → remove inc
 Tóm tắt: severity, root cause, fix applied, bước tiếp theo.
 
 > **Slack (optional):** Nếu `morai-slack` configured → gửi summary + resolution.
+> **Telegram (optional):** Nếu `morai-telegram` configured → gửi summary + resolution qua `send_message`.

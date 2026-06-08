@@ -132,5 +132,6 @@ Kết luận rõ ràng cho user với severity chuẩn:
 - **BLOCKED** — không test được vì thiếu prerequisite
 
 > **Slack (optional):** Nếu `morai-slack` configured → gửi test report tóm tắt.
+> **Telegram (optional):** Nếu `morai-telegram` configured → gửi test report tóm tắt qua `send_message`.
 
 > **💡 Context:** Ticket hoàn thành → `/clear` để bắt đầu session mới sạch.

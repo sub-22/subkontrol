@@ -89,6 +89,15 @@
         "SLACK_CHANNEL": "${user_config.SLACK_CHANNEL}"
       }
     },
+    "morai-telegram": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--project", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "servers.telegram.server"],
+      "env": {
+        "TELEGRAM_BOT_TOKEN": "${user_config.TELEGRAM_BOT_TOKEN}",
+        "TELEGRAM_CHAT_ID": "${user_config.TELEGRAM_CHAT_ID}"
+      }
+    },
     "morai-test": {
       "type": "stdio",
       "command": "uv",

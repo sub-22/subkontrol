@@ -7,7 +7,7 @@ Plugin name: `morai` → tất cả commands có dạng `/morai:<skill>`
 
 [![CI](https://github.com/sub-22/subkontrol/actions/workflows/ci.yml/badge.svg)](https://github.com/sub-22/subkontrol/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.10.1-green.svg)](.claude-plugin/plugin.json)
+[![Version](https://img.shields.io/badge/version-0.11.0-green.svg)](.claude-plugin/plugin.json)
 
 ---
 
@@ -378,6 +378,8 @@ myapp-design/
 | `SLACK_BOT_TOKEN` | Không | Slack bot token (`xoxb-...`) |
 | `SLACK_APP_TOKEN` | Không | Slack app token (`xapp-...`) |
 | `SLACK_CHANNEL` | Không | Default channel nhận notifications (e.g. `#dev-pipeline`) |
+| `TELEGRAM_BOT_TOKEN` | Không | Telegram bot token (tạo qua [@BotFather](https://t.me/BotFather)) |
+| `TELEGRAM_CHAT_ID` | Không | Default chat ID nhận notifications |
 | `GITHUB_TOKEN` | Không | GitHub Personal Access Token — cho PR review |
 | `BITBUCKET_USERNAME` | Không | Bitbucket username |
 | `BITBUCKET_TOKEN` | Không | Bitbucket App password (Cloud) hoặc PAT (Server) |
@@ -411,6 +413,7 @@ subkontrol/
 │   ├── file/ git/ events/
 │   ├── jira/ confluence/       # Implemented
 │   ├── morai/                  # Slack (implemented)
+│   ├── telegram/               # Telegram (implemented)
 │   └── test_runner/            # pytest + coverage
 ├── scripts/
 │   ├── onboard.py              # CLI entry point

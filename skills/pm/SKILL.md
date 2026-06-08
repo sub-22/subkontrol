@@ -170,5 +170,6 @@ Wave 1 (parallel, Xh) → Wave 2 (Xh) → Wave 3 (Xh)
 ```
 
 > **Slack (optional):** Nếu `morai-slack` configured → notify team.
+> **Telegram (optional):** Nếu `morai-telegram` configured → notify team qua `send_message`.
 
 > **💡 Context:** Bước PM xong → `/compact` trước khi chạy `/morai:dev`.

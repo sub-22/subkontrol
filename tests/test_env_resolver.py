@@ -27,6 +27,8 @@ def clean_env(monkeypatch, tmp_path):
         "SLACK_BOT_TOKEN",
         "SLACK_APP_TOKEN",
         "SLACK_CHANNEL",
+        "TELEGRAM_BOT_TOKEN",
+        "TELEGRAM_CHAT_ID",
         "GITHUB_TOKEN",
         "BITBUCKET_USERNAME",
         "BITBUCKET_TOKEN",
@@ -126,6 +128,18 @@ class TestConfigJsonFallback:
         assert mod.resolve("SLACK_BOT_TOKEN") == "xoxb-abc"
         assert mod.resolve("SLACK_APP_TOKEN") == "xapp-xyz"
         assert mod.resolve("SLACK_CHANNEL") == "#dev"
+
+    def test_reads_telegram_from_config(self, monkeypatch, tmp_path):
+        config = {"telegram": {"bot_token": "123456:ABC-DEF", "chat_id": "-100123456"}}
+        (tmp_path / "config.json").write_text(json.dumps(config))
+        monkeypatch.setenv("MORAI_GLOBAL_PATH", str(tmp_path))
+
+        import servers._env as mod
+
+        mod._CONFIG = None
+
+        assert mod.resolve("TELEGRAM_BOT_TOKEN") == "123456:ABC-DEF"
+        assert mod.resolve("TELEGRAM_CHAT_ID") == "-100123456"
 
     def test_missing_config_file_returns_default(self, monkeypatch, tmp_path):
         empty = tmp_path / "no-config"

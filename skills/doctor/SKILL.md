@@ -7,7 +7,7 @@ description: Morai Doctor — kiểm tra kết nối tất cả MCP servers, bá
 Preflight health check cho tất cả MCP servers. Dùng trước khi onboard hoặc khi debug kết nối.
 
 ## Input
-$ARGUMENTS — optional filter: `jira`, `confluence`, `slack`, `all` (default: all)
+$ARGUMENTS — optional filter: `jira`, `confluence`, `slack`, `telegram`, `all` (default: all)
 
 ## Quy trình
 
@@ -29,6 +29,12 @@ Gọi `morai-confluence: search(query="", limit=1)`.
 
 **morai-slack:**
 Gọi `morai-slack: get_pending_messages()`.
+- Response có `"not configured"` → ⚠️ chưa configure credentials
+- Response có data → ✅ connected
+- Tool không respond / error → ❌ server lỗi
+
+**morai-telegram:**
+Gọi `morai-telegram: get_pending_messages()`.
 - Response có `"not configured"` → ⚠️ chưa configure credentials
 - Response có data → ✅ connected
 - Tool không respond / error → ❌ server lỗi
@@ -72,8 +78,9 @@ Morai Doctor — Health Check
   morai-jira       ⚠️  shadow mode — chưa configure credentials
   morai-confluence ⚠️  shadow mode — chưa configure credentials
   morai-slack      ⚠️  shadow mode — chưa configure credentials
+  morai-telegram   ⚠️  shadow mode — chưa configure credentials
 ──────────────────────────────────────────
-Core: 6/6 ✅   Integrations: 0/3 ⚠️
+Core: 6/6 ✅   Integrations: 0/4 ⚠️
 ```
 
 ### Bước 3 — Hướng dẫn fix cho ⚠️ và ❌
@@ -101,6 +108,13 @@ Confluence chưa configure. Plugin Settings → morai:
 Slack chưa configure. Plugin Settings → morai:
   • SLACK_BOT_TOKEN : xoxb-... từ api.slack.com/apps
   • SLACK_APP_TOKEN : xapp-... cần cho Socket Mode
+```
+
+**morai-telegram ⚠️:**
+```
+Telegram chưa configure. Plugin Settings → morai:
+  • TELEGRAM_BOT_TOKEN : tạo bot qua @BotFather → /newbot → token dạng 123456:ABC-DEF...
+  • TELEGRAM_CHAT_ID   : nhắn thử cho bot rồi lấy chat.id qua @userinfobot
 ```
 
 Với ❌ server lỗi:
@@ -190,6 +204,7 @@ DOCTOR_RESULT:
   jira: ok | shadow | error
   confluence: ok | shadow | error
   slack: ok | shadow | error
+  telegram: ok | shadow | error
   core: ok | error
   context_budget:
     claude_md_tokens: <số>

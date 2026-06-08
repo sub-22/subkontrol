@@ -26,6 +26,8 @@ _CONFIG_KEY_MAP: dict[str, tuple[str, str]] = {
     "SLACK_BOT_TOKEN": ("slack", "bot_token"),
     "SLACK_APP_TOKEN": ("slack", "app_token"),
     "SLACK_CHANNEL": ("slack", "channel"),
+    "TELEGRAM_BOT_TOKEN": ("telegram", "bot_token"),
+    "TELEGRAM_CHAT_ID": ("telegram", "chat_id"),
     "GITHUB_TOKEN": ("github", "token"),
     "BITBUCKET_USERNAME": ("bitbucket", "username"),
     "BITBUCKET_TOKEN": ("bitbucket", "token"),

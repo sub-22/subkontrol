@@ -154,7 +154,7 @@ morai-git: update_pr(
 ```
 Thông báo: "PR #`{number}` đã được cập nhật description."
 
-### Bước 8 — Notify Slack (nếu configured)
+### Bước 8 — Notify Slack / Telegram (nếu configured)
 
 ```
 morai-slack: send_message(
@@ -163,7 +163,13 @@ morai-slack: send_message(
 )
 ```
 
-Nếu Slack chưa configured → bỏ qua, không báo lỗi.
+```
+morai-telegram: send_message(
+  text="🔔 PR ready for review: <PR URL>\n<title>"
+)
+```
+
+Nếu Slack/Telegram chưa configured → bỏ qua, không báo lỗi.
 
 ### Bước 9 — Báo cáo
 

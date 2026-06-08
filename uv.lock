@@ -2189,7 +2189,7 @@ wheels = [
 
 [[package]]
 name = "subkontrol"
-version = "0.8.0"
+version = "0.11.0"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },
@@ -2197,6 +2197,7 @@ dependencies = [
     { name = "chromadb" },
     { name = "gitpython" },
     { name = "html2text" },
+    { name = "httpx" },
     { name = "mcp" },
     { name = "python-dotenv" },
     { name = "slack-sdk" },
@@ -2217,6 +2218,7 @@ requires-dist = [
     { name = "chromadb", specifier = ">=0.5.0" },
     { name = "gitpython", specifier = ">=3.1.40" },
     { name = "html2text", specifier = ">=2020.1.16" },
+    { name = "httpx", specifier = ">=0.27.0" },
     { name = "mcp", specifier = ">=1.0.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.9.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },

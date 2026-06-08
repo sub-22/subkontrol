@@ -202,5 +202,6 @@ Bước tiếp:
 ```
 
 > **Slack (optional):** Nếu `morai-slack` configured → notify PM/Dev.
+> **Telegram (optional):** Nếu `morai-telegram` configured → notify PM/Dev qua `send_message`.
 
 > **💡 Context:** Bước Architect xong → `/compact` trước khi chạy `/morai:pm` hoặc `/morai:dev`.

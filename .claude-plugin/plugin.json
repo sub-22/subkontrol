@@ -1,7 +1,7 @@
 {
   "name": "morai",
   "description": "Morai — AI Operator cho team phát triển phần mềm. Self-learning, adaptive, BA→QA pipeline.",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "author": {
     "name": "morai"
   },
@@ -81,6 +81,16 @@
       "type": "string",
       "title": "Slack default channel",
       "description": "Channel nhận notifications, e.g. #dev-pipeline"
+    },
+    "TELEGRAM_BOT_TOKEN": {
+      "type": "string",
+      "title": "Telegram Bot Token",
+      "description": "Token từ @BotFather, e.g. 123456:ABC-DEF... — để trống nếu không dùng Telegram"
+    },
+    "TELEGRAM_CHAT_ID": {
+      "type": "string",
+      "title": "Telegram default chat ID",
+      "description": "Chat ID nhận notifications — lấy từ @userinfobot hoặc getUpdates"
     }
   }
 }
