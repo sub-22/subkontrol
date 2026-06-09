@@ -149,3 +149,7 @@ def request_approval(
             _call("answerCallbackQuery", callback_query_id=cq["id"])
             return "approved" if answer == "approve" else "rejected"
     return "timeout"
+
+
+if __name__ == "__main__":
+    mcp.run()
