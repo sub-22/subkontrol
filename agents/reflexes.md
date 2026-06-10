@@ -152,7 +152,7 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 - **Signal**: `[CERTAIN]` `[LOW]`
 - **Action**: Tự động thực hiện CẢ HAI, không cần hỏi:
   1. `morai-memory: record_episode(event="task_recorded: {subject}", outcome="pending", lesson="{description}")` 
-  2. Append vào `~/.morai/tasks/backlog.md` theo format chuẩn (tạo file nếu chưa có)
+  2. `morai-memory: record_task()` → append vào `.morai/tasks/backlog.md` (in-project, format chuẩn `templates/backlog.md` — tạo file nếu chưa có)
 - **Do NOT**: Chỉ tạo in-session task mà không persist — task sẽ mất khi session kết thúc
 - **Promoted**: User instruction 2026-05-15
 

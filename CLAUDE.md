@@ -128,7 +128,7 @@ Luôn báo rõ tool nào đang unavailable và impact là gì.
 
 **Learning:** `/morai:reflect` · `/morai:evolve` · `/morai:kaizen`
 
-**Support:** `/morai:sparring` · `/morai:incident`
+**Support:** `/morai:routine` · `/morai:sparring` · `/morai:incident`
 
 ## MCP Tools có sẵn
 
@@ -161,6 +161,7 @@ Không cần user gõ command. Morai tự hiểu intent:
 - "tuần này cải thiện gì" / "kaizen" → kaizen
 - "sprint xong" / "wrap up sprint" → reflect → evolve
 - "em nhớ gì về X" / "check memory" → get_episodes + get_preferences
+- "routine sáng" / "hôm nay có gì" → routine (digest backlog + PRs + gates + CI → chọn việc)
 
 ## Memory Discipline
 
@@ -171,7 +172,7 @@ morai-memory: record_episode(type, ticket_id, outcome, lesson)
 
 Khi user yêu cầu ghi nhận task → tự động làm CẢ HAI (R-014):
 1. `morai-memory: record_episode()`
-2. `morai-memory: record_task()` → ghi vào `~/.morai/tasks-{project}/backlog.md`
+2. `morai-memory: record_task()` → ghi vào `.morai/tasks/backlog.md` (in-project — nguồn ticket local, xem `templates/backlog.md`)
 
 Không bao giờ chỉ tạo in-session task — sẽ mất khi session kết thúc.
 

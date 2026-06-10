@@ -240,3 +240,34 @@ class TestResolvePath:
         result = resolve_path("WORKSPACE_ROOT", ".")
         assert isinstance(result, Path)
         assert str(result) == "/tmp/myproject"
+
+
+class TestUnexpandedTemplateGuard:
+    """Hosts without env interpolation pass literal ${...} strings through .mcp.json."""
+
+    def test_project_name_falls_back_to_cwd_on_unexpanded_var(self, monkeypatch):
+        monkeypatch.setenv("CLAUDE_PROJECT_DIR", "${CLAUDE_PROJECT_DIR}")
+        from pathlib import Path
+
+        from servers._env import project_name
+
+        assert project_name() == Path.cwd().name
+
+    def test_resolve_project_path_ignores_unexpanded_override(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("MORAI_TASKS_PATH", "${CLAUDE_PROJECT_DIR}/.morai/tasks")
+        monkeypatch.setenv("MORAI_GLOBAL_PATH", str(tmp_path))
+        monkeypatch.delenv("CLAUDE_PROJECT_DIR", raising=False)
+        from pathlib import Path
+
+        from servers._env import resolve_project_path
+
+        result = resolve_project_path("tasks")
+        assert result == tmp_path / f"tasks-{Path.cwd().name}"
+        assert "${" not in str(result)
+
+    def test_resolve_project_path_uses_expanded_override(self, monkeypatch, tmp_path):
+        monkeypatch.setenv("MORAI_TASKS_PATH", str(tmp_path / "project" / ".morai" / "tasks"))
+
+        from servers._env import resolve_project_path
+
+        assert resolve_project_path("tasks") == tmp_path / "project" / ".morai" / "tasks"

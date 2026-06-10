@@ -242,17 +242,27 @@ def record_task(
 ) -> str:
     """Ghi task vào backlog persistent (còn sau khi session kết thúc).
 
+    Backlog format (parsed by task_fetcher local mode):
+        ## {ticket_id} · [{Priority}] {title}
+        - status: todo
+        - created: ...
+        - ac: ...
+
     Args:
         title: Tên task ngắn gọn
-        description: Mô tả chi tiết (optional)
+        description: Mô tả chi tiết / acceptance criteria (optional)
         ticket_id: Ticket liên quan (optional)
         priority: "high" | "medium" | "low"
     """
     _ensure_dirs()
     path = TASKS_ROOT / "backlog.md"
-    tag = f"[{ticket_id}] " if ticket_id else ""
-    desc_line = f"\n  {description}" if description else ""
-    entry = f"\n- [{_now()}] {tag}**{title}** `{priority.upper()}`{desc_line}\n"
+    tag = ticket_id if ticket_id else "TASK"
+    ac_line = f"\n- ac: {description}" if description else ""
+    entry = (
+        f"\n## {tag} · [{priority.capitalize()}] {title}\n"
+        f"- status: todo\n"
+        f"- created: {_now()}{ac_line}\n"
+    )
     with path.open("a", encoding="utf-8") as f:
         f.write(entry)
     return f"Task recorded: {title}"

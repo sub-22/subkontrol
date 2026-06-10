@@ -46,6 +46,7 @@ reflect (sau task) → evolve (sau sprint) → kaizen (weekly)
 
 | Command | Khi nào | Mô tả |
 |---------|---------|-------|
+| `/morai:routine` | Đầu ngày / đầu session | Digest sáng: backlog + PRs + gates + CI → Telegram + chọn việc |
 | `/morai:sparring` | Trước quyết định lớn | 4-layer challenge: clarify → alternatives → assumptions → stress test |
 | `/morai:incident` | Bug production, lỗi nghiêm trọng | 5-Why root cause → L1-L4 severity → fix + prevent |
 
@@ -71,6 +72,7 @@ Orchestrator tự route khi user nói tự nhiên:
 "refactor toàn bộ auth"    → sparring trước → architect → dev
 "có bug production"        → incident
 "tuần này cải thiện gì"    → kaizen
+"routine sáng" / "hôm nay có gì" → routine
 ```
 
 ---

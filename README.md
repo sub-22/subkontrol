@@ -7,7 +7,7 @@ Plugin name: `morai` → tất cả commands có dạng `/morai:<skill>`
 
 [![CI](https://github.com/sub-22/subkontrol/actions/workflows/ci.yml/badge.svg)](https://github.com/sub-22/subkontrol/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.12.0-green.svg)](.claude-plugin/plugin.json)
+[![Version](https://img.shields.io/badge/version-0.13.0-green.svg)](.claude-plugin/plugin.json)
 
 ---
 
@@ -430,10 +430,10 @@ subkontrol/
 │   ├── handoff-rules.md        # Pipeline handoff contract
 │   └── proficiency-levels.md  # 7-level AI maturity framework
 ├── templates/
-│   ├── ba_spec.md detail_design.md pm_tasks.md
+│   ├── ba_spec.md detail_design.md pm_tasks.md backlog.md
 │   └── pr/feature.md bugfix.md refactor.md
-├── tests/                      # 160 tests
-├── .morai/tasks/backlog.md     # Task backlog (tracked)
+├── tests/                      # 164 tests
+├── .morai/tasks/backlog.md     # Task backlog local — nguồn ticket khi không dùng Jira (gitignored, per-project)
 ├── .mcp.json
 ├── .env.example
 └── pyproject.toml

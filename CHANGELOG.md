@@ -7,6 +7,27 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [0.13.0] — 2026-06-10
+
+### Phase 11 — Morning Routine + Local Backlog (vertical slice vận hành)
+
+### Added
+
+- **`skills/routine/SKILL.md`** (`/morai:routine`) — morning digest: gom 4 nguồn degraded-tolerant (backlog qua task_fetcher · `list_open_prs` · `list_all_pending_gates` · CI/pytest) → compose digest ≤20 dòng → gửi Telegram → present in-session → chờ user chọn việc → `record_episode`. Read-only, in-session only (always-on cố ý chưa làm — chờ Layer 3/4 enforce)
+- **`templates/backlog.md`** — template nguồn ticket local cho project không dùng Jira: `## {ID} · [{Priority}] {title}` + `status: todo|doing|done` + `ac:`
+- **`agents/task_fetcher.md`** — **LOCAL mode 📁**: source resolution 3 bậc (Jira REAL → `.morai/tasks/backlog.md` LOCAL → stub SHADOW); LOCAL không cần dev_mapping, task done sửa status tại chỗ giữ history
+- **`tests/test_env_resolver.py`** — `TestUnexpandedTemplateGuard` (3 tests) cho guard `${...}` literal
+
+### Changed
+
+- **`servers/_env.py`** — `_is_unexpanded()` guard: host không expand `${CLAUDE_PROJECT_DIR}` trong `.mcp.json` → `project_name()` fallback cwd, `resolve_project_path()` bỏ qua override chứa `${` (trước đây tạo junk dir `~/.morai/tasks-${CLAUDE_PROJECT_DIR}`)
+- **`servers/memory/server.py`** — `record_task()` ghi đúng backlog format mới (`## ID · [Priority] Title` + status/created/ac) thay vì list-item — thống nhất 1 format cho cả ghi lẫn đọc
+- **`.mcp.json`** — `MORAI_TASKS_PATH=${CLAUDE_PROJECT_DIR}/.morai/tasks` cho `morai-memory` → backlog per-project in-project (giống pattern `MORAI_PIPELINE_PATH`), thay vì `~/.morai/tasks-{project}/`
+- **`CLAUDE.md`** ×3 (project, `~/.claude/`, `.claude-plugin/`) — `/morai:routine` vào Skills/Support, auto-routing "routine sáng / hôm nay có gì", R-014 path mới `.morai/tasks/backlog.md`
+- **`skills/_index.md`** — thêm `/morai:routine` (SUPPORT + auto-routing)
+
+---
+
 ## [0.12.0] — 2026-06-10
 
 ### Phase 10 — Intent Layer (Orchestrator upgrade)

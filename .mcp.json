@@ -27,6 +27,7 @@
       "env": {
         "MORAI_GLOBAL_PATH": "${user_config.MORAI_GLOBAL_PATH}",
         "MORAI_PIPELINE_PATH": "${CLAUDE_PROJECT_DIR}/.morai/pipeline",
+        "MORAI_TASKS_PATH": "${CLAUDE_PROJECT_DIR}/.morai/tasks",
         "CLAUDE_PROJECT_DIR": "${CLAUDE_PROJECT_DIR}",
         "MORAI_DESIGN_REPO": "${user_config.MORAI_DESIGN_REPO}"
       }

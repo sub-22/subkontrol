@@ -81,9 +81,20 @@ def resolve_path(key: str, default: str = ".") -> Path:
     return Path(resolve(key, default))
 
 
+def _is_unexpanded(value: str) -> bool:
+    """True if value still contains an unexpanded ${...} template from .mcp.json.
+
+    Hosts that don't support env interpolation pass the literal string through,
+    which would otherwise create junk paths like ~/.morai/tasks-${CLAUDE_PROJECT_DIR}.
+    """
+    return "${" in value
+
+
 def project_name() -> str:
     """Derive project name from CLAUDE_PROJECT_DIR, fallback to cwd name."""
     project_dir = os.getenv("CLAUDE_PROJECT_DIR", "")
+    if _is_unexpanded(project_dir):
+        project_dir = ""
     return Path(project_dir).name if project_dir else Path.cwd().name
 
 
@@ -95,7 +106,7 @@ def resolve_project_path(subdir: str) -> Path:
       2. {MORAI_GLOBAL_PATH}/{subdir}-{project_name()} (default)
     """
     override = resolve(f"MORAI_{subdir.upper()}_PATH", "")
-    if override:
+    if override and not _is_unexpanded(override):
         return Path(override)
     base = resolve("MORAI_GLOBAL_PATH", str(Path.home() / ".morai"))
     return Path(base) / f"{subdir}-{project_name()}"
