@@ -25,7 +25,7 @@ Chạy script:
 bash <path-script>
 ```
 
-Nếu kết quả `ALREADY_SETUP` → thông báo identity đã có và tiếp tục sang Bước 2.
+Nếu kết quả `ALREADY_SETUP` → thông báo identity đã up-to-date và tiếp tục sang Bước 2.
 
 Nếu kết quả `OK` → thông báo:
 ```
@@ -33,7 +33,13 @@ Morai identity đã được lưu vào ~/.claude/CLAUDE.md.
 Restart Claude Code để apply identity — sau đó Morai sẽ hoạt động đúng ở mọi project.
 ```
 
-Nếu `ERROR` → in lỗi và dừng.
+Nếu kết quả `UPDATED:vOLD->vNEW` hoặc `MIGRATED:vNEW` → thông báo:
+```
+Morai identity trong ~/.claude/CLAUDE.md đã được re-sync lên vNEW.
+Restart Claude Code để apply.
+```
+
+Nếu `ERROR: ...` → in lỗi và dừng.
 
 ### Bước 2 — Setup integrations (optional)
 

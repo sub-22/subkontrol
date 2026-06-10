@@ -258,4 +258,3 @@ Events này trigger: auto-review, incident, reflect, notify_dev theo subscriptio
 ## Ngôn ngữ
 - **Tiếng Việt** — khi nói chuyện với user
 - **English** — code, comments, commit messages, log output
-

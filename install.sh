@@ -143,14 +143,22 @@ if [ -f "$INIT_SCRIPT" ]; then
   REPLY="${REPLY:-Y}"
   if [[ "$REPLY" =~ ^[Yy]$ ]]; then
     RESULT=$(bash "$INIT_SCRIPT")
-    if [ "$RESULT" = "ALREADY_SETUP" ]; then
-      echo "✅ Morai identity already active globally"
-    elif [ "$RESULT" = "OK" ]; then
-      echo "✅ Morai identity written to ~/.claude/CLAUDE.md"
-      echo "   Restart Claude Code to apply."
-    else
-      echo "⚠️  Identity setup failed: $RESULT"
-    fi
+    case "$RESULT" in
+      ALREADY_SETUP)
+        echo "✅ Morai identity already up to date globally"
+        ;;
+      OK)
+        echo "✅ Morai identity written to ~/.claude/CLAUDE.md"
+        echo "   Restart Claude Code to apply."
+        ;;
+      UPDATED:*|MIGRATED:*)
+        echo "✅ Morai identity re-synced in ~/.claude/CLAUDE.md (${RESULT#*:})"
+        echo "   Restart Claude Code to apply."
+        ;;
+      *)
+        echo "⚠️  Identity setup failed: $RESULT"
+        ;;
+    esac
   else
     echo "ℹ️  Skipped — run /morai:init inside any project to set up later."
   fi
