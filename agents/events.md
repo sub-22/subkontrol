@@ -1,5 +1,8 @@
 ---
+name: events
 description: Morai Events — event-driven triggers, subscriptions, và scheduled automation
+model: haiku
+color: green
 ---
 
 # EVENTS — Event-Driven Automation

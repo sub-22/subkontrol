@@ -7,6 +7,27 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [0.12.0] — 2026-06-10
+
+### Phase 10 — Intent Layer (Orchestrator upgrade)
+
+### Added
+
+- **`agents/orchestrator.md`** — section **Intent Layer: Understand → Compose → Confirm → Orchestrate**. Trước khi route, Morai phải hiểu intent thay vì chỉ match keyword:
+  - Tiered depth: SKIP (reflex/XS/command tường minh) · QUICK (size S, intent rõ) · FULL (size ≥ M, mơ hồ, `[NOVEL]`)
+  - **Understand** — 4 câu hỏi evidence-based: stated goal, underlying goal, success criteria, constraint ngầm (consult `get_episodes()`/`get_preferences()`/pipeline state); underlying goal `[UNKNOWN]` → hỏi đúng 1 câu về mục tiêu
+  - **Compose** — ghép plan từ inventory skills/subagents (parallel vs sequential, model per step, gate placement) thay vì tra chain table cứng
+  - **Confirm** — GATE 1 enriched: confirm cả cách hiểu, không chỉ plan
+  - **Orchestrate + Record** — sau mỗi Confirm ghi `record_episode(type="intent_calibration", outcome="confirmed"|"corrected")` → nguồn real data cho Learning Loop; ≥3 lần `corrected` cùng pattern → candidate cho `update_preference()`/reflex mới
+
+### Changed
+
+- **`agents/orchestrator.md`** — Skill Chaining Protocol bước 1–2 và "Skill Không Tìm Được" trỏ về Intent Layer thay vì classify/sparring độc lập
+- **`CLAUDE.md`** + **`.claude-plugin/CLAUDE.md`** — thêm đoạn "Intent Layer trước routing" vào đầu section Auto-routing
+- **`.claude-plugin/CLAUDE.md`** — sync drift cũ từ 0.11.0: bổ sung `morai-telegram` vào Degraded Mode table và "MCP Tools có sẵn" (bị sót khi release Telegram)
+
+---
+
 ## [0.11.0] — 2026-06-08
 
 ### Phase 9 — Telegram Integration

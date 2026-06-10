@@ -1,5 +1,8 @@
 ---
+name: task-fetcher
 description: Task Fetcher — auto-pull Jira tasks when dev pipeline is empty
+model: haiku
+color: green
 ---
 
 # TASK FETCHER — Auto Backlog Pull

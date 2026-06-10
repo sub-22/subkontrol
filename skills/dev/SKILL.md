@@ -258,6 +258,38 @@ lint → format_check → typecheck → test
 
 Nếu bất kỳ bước nào fail → fix ngay, không tiếp tục đến GATE 2.
 
+## Judge Check — Goal Drift Review (trước GATE 2)
+
+Sau khi CI pass, spawn `morai:judge` (independent — tránh self-judge) để check toàn bộ
+implementation so với AC ban đầu, áp dụng Stuck Pattern 2 (Goal Drift) trong `agents/judge.md`:
+
+```python
+Agent(
+    subagent_type="morai:judge",
+    description="Goal drift check trước commit",
+    prompt=f"""
+    Objective/AC (specs/{TICKET_ID}.md): {ac_summary}
+
+    Chunks completed:
+    {for each chunk in progress file: "- {chunk.name}: files={chunk.files}, tests={chunk.test_result}"}
+
+    Áp dụng Stuck Pattern 2 (Goal Drift): so sánh kết quả thực tế với objective ban đầu.
+    Verdict: "pass" hoặc "drift_detected: <giải thích>".
+    """
+)
+```
+
+- `pass` → tiếp tục Commit Message + GATE 2
+- `drift_detected: ...` → hiển thị cho Dev:
+  ```markdown
+  ⚠️ Judge phát hiện goal drift trước commit:
+  {giải thích}
+
+  Tiếp tục commit, hay điều chỉnh trước?
+  ```
+  → "commit anyway" → tiếp tục GATE 2 / "điều chỉnh" → quay lại chunk liên quan
+- `morai:judge` lỗi/unavailable → log `[degraded] morai:judge unavailable, skip drift check` → tiếp tục GATE 2 (không block pipeline)
+
 ## Commit Message — Detect Convention Trước Khi Commit
 
 ```

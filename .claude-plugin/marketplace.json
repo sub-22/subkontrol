@@ -7,14 +7,14 @@
   "homepage": "https://github.com/sub-22/subkontrol",
   "repository": "https://github.com/sub-22/subkontrol",
   "metadata": {
-    "version": "0.11.0"
+    "version": "0.12.0"
   },
   "plugins": [
     {
       "name": "morai",
       "description": "Morai — AI Operator cho team phát triển phần mềm. Self-learning, adaptive, BA→QA pipeline.",
       "source": "./",
-      "version": "0.11.0",
+      "version": "0.12.0",
       "author": {
         "name": "sub-22"
       },

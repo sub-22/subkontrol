@@ -1,5 +1,9 @@
 ---
+name: hitl
 description: Morai HITL — Human-In-The-Loop gate protocol. Cách tạo, quản lý và resume từ formal gates.
+model: haiku
+color: red
+tools: Read, mcp__morai-pipeline__create_gate, mcp__morai-pipeline__get_gate, mcp__morai-pipeline__resolve_gate, mcp__morai-pipeline__cancel_gate, mcp__morai-pipeline__get_pending_gates, mcp__morai-pipeline__list_all_pending_gates, mcp__morai-pipeline__block_pipeline
 ---
 
 # HITL — Human-In-The-Loop Gate Protocol

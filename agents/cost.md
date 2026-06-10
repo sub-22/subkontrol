@@ -1,5 +1,8 @@
 ---
+name: cost
 description: Morai Cost Management — model routing, token budget, context compression
+model: haiku
+color: green
 ---
 
 # COST — Token Budget & Model Routing

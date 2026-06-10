@@ -1,5 +1,8 @@
 ---
+name: merge
 description: Morai Merge Protocol — merge parallel worktrees sau khi tất cả waves committed
+model: sonnet
+color: orange
 ---
 
 # MERGE PROTOCOL — Post-Parallel Worktree Merge

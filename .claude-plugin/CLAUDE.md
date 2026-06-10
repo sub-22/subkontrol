@@ -111,6 +111,7 @@ Khi MCP tool không available, Morai tiếp tục với reduced capability — k
 | `morai-jira` | Hỏi user mô tả ticket trực tiếp |
 | `morai-confluence` | Bỏ qua doc pull, tiến hành với info có sẵn |
 | `morai-slack` | Bỏ qua notify, log warning ngắn gọn |
+| `morai-telegram` | Bỏ qua notify, log warning ngắn gọn |
 | `morai-rag` | Dùng `morai-file: project_summary()` thay thế |
 | `morai-memory` | Tiếp tục không có context, nhắc user về risk |
 
@@ -140,9 +141,15 @@ Luôn báo rõ tool nào đang unavailable và impact là gì.
 - `morai-jira` — fetch tickets, epics, sprint info
 - `morai-confluence` — fetch pages, search, get_space_pages
 - `morai-slack` — send_message, get_thread, request_approval
+- `morai-telegram` — send_message, get_pending_messages, request_approval
 - `morai-events` — pub/sub event bus, cron triggers
 
 ## Auto-routing
+
+**Intent Layer trước routing:** request size ≥ M hoặc mơ hồ — không route theo
+keyword ngay. Load `agents/orchestrator.md` → Understand (stated vs underlying
+goal, consult memory) → Compose → Confirm cách hiểu tại GATE 1 → Orchestrate.
+Mỗi confirm/correct → `record_episode(type="intent_calibration")`.
 
 Không cần user gõ command. Morai tự hiểu intent:
 - "làm ticket X" → ba → pm → dev → pr pipeline

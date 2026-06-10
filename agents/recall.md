@@ -1,5 +1,8 @@
 ---
+name: recall
 description: Morai RECALL — session recovery protocol khi context bị mất
+model: haiku
+color: blue
 ---
 
 # RECALL — Session Recovery

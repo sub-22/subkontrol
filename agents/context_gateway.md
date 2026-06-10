@@ -1,5 +1,8 @@
 ---
+name: context-gateway
 description: Morai Context Gateway — digital twin của hệ thống đang vận hành, active missions, current state
+model: haiku
+color: purple
 ---
 
 # CONTEXT GATEWAY — Active System State

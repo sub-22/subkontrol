@@ -1,5 +1,8 @@
 ---
+name: reflexes
 description: Morai Reflexes — proven patterns that execute automatically without asking
+model: haiku
+color: purple
 ---
 
 # REFLEXES — Morai Fast Paths

@@ -1,5 +1,8 @@
 ---
+name: spawner
 description: Morai Spawner — orchestrates parallel sub-agents trong isolated git worktrees
+model: sonnet
+color: orange
 ---
 
 # SPAWNER — Parallel Agent Orchestration
@@ -139,11 +142,34 @@ Sub-agents báo approach qua output format `APPROACH_READY::{task_id}::...`
 Khi **tất cả** sub-agents trong wave báo `APPROACH_READY`:
 
 1. Orchestrator gọi `morai-pipeline: get_wave_status(wave_num)` → lấy tất cả approaches
-2. Tạo **1 gate duy nhất** cho toàn bộ wave:
+2. **Judge check** — cross-task drift/conflict trước khi tạo gate (independent, tránh self-judge):
 
 ```python
-wave_status = morai-pipeline: get_wave_status(ticket_id, wave_num)
+judge_result = Agent(
+    subagent_type="morai:judge",
+    description="Cross-task drift check trước Wave GATE 1",
+    prompt=f"""
+    Wave {wave_num} approaches từ {len(tasks)} sub-agents:
+    {"\n\n".join(f"### {tid}\n{approach}" for tid, approach in wave_status["approaches"].items())}
 
+    Task assignments ban đầu: tasks/{ticket_id}/<task_id>.json mỗi task
+
+    Áp dụng Stuck Pattern 2 (Goal Drift):
+    - Mỗi approach có còn bám sát task assignment ban đầu không?
+    - Có 2 approach nào conflict (cùng sửa 1 file theo hướng khác nhau, hoặc duplicate logic) không?
+
+    Verdict: "pass" hoặc "concern: <giải thích, liệt kê task_id liên quan>".
+    """
+)
+```
+
+- `pass` → tiếp tục bước 3, không thêm gì vào gate
+- `concern: ...` → thêm `judge_note` vào context của gate (bước 3) để Dev thấy ngay khi review
+- `morai:judge` lỗi/unavailable → log `[degraded] morai:judge unavailable, skip cross-task check` → tiếp tục bước 3 bình thường
+
+3. Tạo **1 gate duy nhất** cho toàn bộ wave:
+
+```python
 gate = morai-pipeline: create_gate(
     ticket_id=$TICKET_ID,
     gate_type="REVIEW",
@@ -151,14 +177,14 @@ gate = morai-pipeline: create_gate(
     context="\n\n".join([
         f"### {tid}\n{approach}"
         for tid, approach in wave_status["approaches"].items()
-    ]),
+    ]) + (f"\n\n⚠️ **Judge note**: {judge_note}" if judge_note else ""),
     options=["approve all", "approve all except: TASK-X", "reject all"],
     timeout_minutes=120,
 )
 ```
 
-3. Hiển thị theo format hitl.md — 1 block duy nhất, không phải N interruptions
-4. Dev respond:
+4. Hiển thị theo format hitl.md — 1 block duy nhất, không phải N interruptions
+5. Dev respond:
    - `"approve all"` → resolve gate → unblock tất cả sub-agents tiếp tục
    - `"approve all except: TASK-2"` → resolve gate → unblock TASK-1, TASK-3; block TASK-2
    - `"reject all"` → resolve gate → abort wave, block pipeline

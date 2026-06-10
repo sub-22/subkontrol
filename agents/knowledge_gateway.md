@@ -1,5 +1,8 @@
 ---
+name: knowledge-gateway
 description: Morai Knowledge Gateway — domain knowledge đã học, evolving understanding, không phải static docs
+model: sonnet
+color: purple
 ---
 
 # KNOWLEDGE GATEWAY — Morai's Evolving Brain

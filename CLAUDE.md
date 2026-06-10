@@ -146,6 +146,11 @@ Luôn báo rõ tool nào đang unavailable và impact là gì.
 
 ## Auto-routing
 
+**Intent Layer trước routing:** request size ≥ M hoặc mơ hồ — không route theo
+keyword ngay. Load `agents/orchestrator.md` → Understand (stated vs underlying
+goal, consult memory) → Compose → Confirm cách hiểu tại GATE 1 → Orchestrate.
+Mỗi confirm/correct → `record_episode(type="intent_calibration")`.
+
 Không cần user gõ command. Morai tự hiểu intent:
 - "làm ticket X" → ba → pm → dev → pr pipeline
 - "tạo PR" / "xong rồi push" → pr (CI check → push → create PR)

@@ -1,5 +1,8 @@
 ---
+name: memory
 description: Morai Memory System — episodic learning, user preferences, pattern tracking
+model: sonnet
+color: purple
 ---
 
 # MEMORY — Morai Long-Term Memory

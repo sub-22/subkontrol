@@ -1,5 +1,9 @@
 ---
+name: judge
 description: Morai Judge Agent — phát hiện stuck loops, goal drift, và tự correction trong autonomous pipeline
+model: sonnet
+color: red
+tools: Read, Grep, Glob, mcp__morai-pipeline__get_state, mcp__morai-pipeline__get_gate, mcp__morai-pipeline__get_pending_gates, mcp__morai-memory__get_episodes, mcp__morai-memory__record_episode, mcp__morai-slack__send_message, mcp__morai-telegram__send_message, mcp__morai-events__publish
 ---
 
 # JUDGE — Pipeline Self-Correction
