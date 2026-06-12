@@ -67,40 +67,81 @@ Nếu root cause vẫn `[UNKNOWN]` sau research → **STOP, fall back guided.**
 
 ---
 
-## Phase 3 — CI Check + Commit & PR (tự động)
+## Phase 3 — CI Check + Commit & PR (mỗi step confirm với user)
+
+Mỗi step dưới đây **phải hỏi user trước khi chạy**. Nếu user chọn "không" → **bỏ qua step đó, chuyển sang step tiếp theo** (không stop pipeline). Riêng lỗi thực sự (CI fail, test fail...) thì vẫn STOP như quy định ở từng step.
 
 ### Bước 6 — CI Check (bắt buộc trước commit)
 
-Đọc CI commands của project:
 ```
-morai-file: read_file(".morai/knowledge/ci.json")
+⛔ Fix + test xong. Sếp cho em chạy CI check (lint → format → typecheck → test) không?
 ```
 
-Chạy theo thứ tự `lint → format_check → typecheck → test`.
+- **Có** → đọc `morai-file: read_file(".morai/knowledge/ci.json")`, chạy theo thứ tự `lint → format_check → typecheck → test`.
+  - Bất kỳ bước nào fail → **STOP, fix, không tiếp tục.**
+  - Nếu `ci.json` chưa tồn tại → STOP, yêu cầu chạy `/morai:scan` trước.
+- **Không** → bỏ qua CI check, sang Bước 7.
 
-Nếu bất kỳ bước nào fail → **STOP, fix, không tiếp tục.**
-Nếu `ci.json` chưa tồn tại → STOP, yêu cầu chạy `/morai:scan` trước.
+### Bước 7 — Commit & Push
 
-### Bước 7 — Commit
-- Dùng `morai-git: commit(message)` — format: `fix(<scope>): <mô tả ngắn>`
-- Dùng `morai-git: push()`
+```
+⛔ Sếp cho em commit + push không?
+```
+
+- **Có** → `morai-git: commit(message)` — format `fix(<scope>): <mô tả ngắn>`, sau đó `morai-git: push()`.
+- **Không** → bỏ qua commit/push, sang Bước 8.
 
 ### Bước 8 — Tạo PR
-- Dùng template `templates/pr/bugfix.md`
-- Dùng `morai-git: create_pr(title, body, base)`
-- Cập nhật task: `status → "done"`, `pr_url → <url>`
-
-### Bước 9 — Update pipeline state + Báo cáo
 
 ```
-morai-memory: save_pipeline_state($TICKET_ID, {
-  "current_step": "dev",
-  "completed_steps": [...previous, "dev"],
-  "status": "active",
-  "pr_url": <pr_url>
-})
+⛔ Sếp cho em tạo PR không?
 ```
 
-Báo cáo cho user: root cause, fix mô tả, PR link, regression test đã thêm.
+- **Có** → dùng template `templates/pr/bugfix.md`, `morai-git: create_pr(title, body, base)`, cập nhật task `status → "done"`, `pr_url → <url>`.
+  - Nếu Bước 7 đã bỏ qua (chưa commit/push) → không có gì để tạo PR, báo user và tự skip step này.
+- **Không** → bỏ qua tạo PR, sang Bước 9.
 
-> **Slack (optional):** Nếu configured → notify reviewer.
+### Bước 9 — Update pipeline state + Notify
+
+```
+⛔ Sếp cho em update pipeline state không?
+```
+
+- **Có**:
+  ```
+  morai-memory: save_pipeline_state($TICKET_ID, {
+    "current_step": "dev",
+    "completed_steps": [...previous, "dev"],
+    "status": "active",
+    "pr_url": <pr_url>
+  })
+  ```
+- **Không** → bỏ qua, sang phần notify.
+
+```
+⛔ Notify kênh nào: Slack / Telegram / Cả hai / Không gửi?
+```
+
+- **Slack** →
+  ```
+  morai-slack: send_message(
+    channel="#dev-review",
+    text="🤖 Auto-fix done: <PR URL>\n<title>\nRoot cause: <root cause ngắn>"
+  )
+  ```
+- **Telegram** →
+  ```
+  morai-telegram: send_message(
+    text="🤖 Auto-fix done: <PR URL>\n<title>\nRoot cause: <root cause ngắn>"
+  )
+  ```
+- **Cả hai** → gửi cả 2 message trên.
+- **Không gửi** → bỏ qua.
+
+Nếu kênh được chọn chưa configured → bỏ qua, không báo lỗi.
+
+Xong → sang Bước 10.
+
+### Bước 10 — Báo cáo
+
+Báo cáo cho user: root cause, fix mô tả, các step đã thực hiện/bỏ qua, PR link (nếu có), regression test đã thêm.

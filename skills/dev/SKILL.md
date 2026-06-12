@@ -338,7 +338,18 @@ Dev respond: "push and create PR" → `resolve_gate` → `morai-git: push()` →
 - Cập nhật task: `status → "done"`, `pr_url → <url>`
 - Update pipeline state
 
-> **Slack (optional):** Nếu configured → notify reviewer.
+### Notify reviewer
+
+```
+⛔ Notify kênh nào: Slack / Telegram / Cả hai / Không gửi?
+```
+
+- **Slack** → `morai-slack: send_message(channel="#dev-review", text="🔔 PR ready for review: <PR URL>\n<title>")`
+- **Telegram** → `morai-telegram: send_message(text="🔔 PR ready for review: <PR URL>\n<title>")`
+- **Cả hai** → gửi cả 2 message trên.
+- **Không gửi** → bỏ qua.
+
+Nếu kênh được chọn chưa configured → bỏ qua, không báo lỗi.
 
 **Auto-trigger reflect sau khi PR created:**
 ```
