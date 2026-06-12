@@ -107,6 +107,6 @@ def resolve_project_path(subdir: str) -> Path:
     """
     override = resolve(f"MORAI_{subdir.upper()}_PATH", "")
     if override and not _is_unexpanded(override):
-        return Path(override)
+        return Path(override).expanduser()
     base = resolve("MORAI_GLOBAL_PATH", str(Path.home() / ".morai"))
-    return Path(base) / f"{subdir}-{project_name()}"
+    return Path(base).expanduser() / f"{subdir}-{project_name()}"
