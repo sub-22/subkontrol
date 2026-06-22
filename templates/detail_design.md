@@ -19,10 +19,49 @@
 
 ## Data Model
 
-### New / Modified Tables
+### Related Tables
+
+> List TẤT CẢ bảng liên quan đến feature — kể cả bảng không thay đổi.
+> Mục đích: Dev có full picture về data landscape của feature.
+
+| Table | Status | Mô tả vai trò trong feature |
+| ----- | ------ | ---------------------------- |
+|       | existing — no change |  |
+|       | existing — modified  |  |
+|       | new                  |  |
+
+### Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    TABLE_A ||--o{ TABLE_B : "has many"
+    TABLE_B }o--|| TABLE_C : "belongs to"
+```
+
+### Table Details
+
+#### Existing Tables (no change)
+
+> Schema hiện tại của các bảng liên quan nhưng không thay đổi.
 
 ```sql
--- Table: table_name
+-- Table: existing_table_name (no change)
+-- Liệt kê schema hiện tại để reference
+```
+
+#### New / Modified Tables
+
+**Before (nếu modified):**
+
+```sql
+-- Table: table_name (before)
+-- Schema hiện tại trước khi thay đổi
+```
+
+**After:**
+
+```sql
+-- Table: table_name (after)
 CREATE TABLE table_name (
     id         BIGSERIAL PRIMARY KEY,
     -- columns...
@@ -101,7 +140,11 @@ ClassName
 
 ---
 
-## Sequence Diagram
+## Diagrams
+
+> TẤT CẢ diagrams dùng Mermaid syntax. Thêm diagram nếu cần (flowchart, state, class...).
+
+### Sequence Diagram — Main Flow
 
 ```mermaid
 sequenceDiagram
@@ -117,6 +160,10 @@ sequenceDiagram
     Service-->>API: result
     API-->>User: 201 Created {response}
 ```
+
+### Additional Diagrams
+
+> Thêm flowchart, state diagram, hoặc class diagram nếu feature yêu cầu.
 
 ---
 

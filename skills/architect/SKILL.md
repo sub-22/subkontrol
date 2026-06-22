@@ -137,9 +137,9 @@ Dùng `morai-file` MCP để:
 
 Các section **bắt buộc** điền:
 - **Metadata** — link spec, ADR, status
-- **Data Model** — nếu có thay đổi schema: DDL đầy đủ, migration up/down
+- **Data Model** — list TẤT CẢ bảng liên quan đến feature (không chỉ bảng thay đổi). Với mỗi bảng: ghi rõ trạng thái (existing — no change / existing — modified / new). Bảng có thay đổi → DDL đầy đủ before/after + migration up/down. Bảng không đổi → list schema hiện tại để Dev có full picture
 - **API Design** — endpoint mới hoặc thay đổi: request/response schema, error table
-- **Sequence Diagram** — flow chính của feature
+- **Diagrams** — TẤT CẢ diagrams phải dùng Mermaid syntax (sequence, flowchart, ERD, class, state...). Bắt buộc có ít nhất: Sequence Diagram (flow chính) + ERD (quan hệ giữa các bảng liên quan)
 - **Error Handling Matrix** — các scenario lỗi và cách xử lý
 
 Các section **bỏ qua nếu không áp dụng**:
