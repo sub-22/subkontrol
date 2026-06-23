@@ -9,7 +9,7 @@
 | ADR    | `docs/adr/PROJ-XXX.md` (nếu có)   |
 | Author |                                    |
 | Date   |                                    |
-| Status | Draft \| Review \| Approved \| Implemented |
+| Status | Draft \| Review \| Approved \| Implemented \| Partially Implemented |
 
 ## Overview
 

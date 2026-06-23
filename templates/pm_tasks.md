@@ -27,7 +27,7 @@
 
 | Field       | Value                                                      |
 | ----------- | ---------------------------------------------------------- |
-| Status      | `todo` \| `in-progress` \| `done` \| `blocked` \| `skip`  |
+| Status      | `todo` \| `in-progress` \| `done` \| `blocked` \| `skip` \| `deferred`  |
 | Type        | backend \| frontend \| infra \| test                       |
 | Size        | S \| M \| L                                               |
 | Priority    | P0 \| P1 \| P2                                            |
@@ -49,7 +49,7 @@
 
 | Field       | Value                                                      |
 | ----------- | ---------------------------------------------------------- |
-| Status      | `todo` \| `in-progress` \| `done` \| `blocked` \| `skip`  |
+| Status      | `todo` \| `in-progress` \| `done` \| `blocked` \| `skip` \| `deferred`  |
 | Type        | backend \| frontend \| infra \| test                       |
 | Size        | S \| M \| L                                               |
 | Priority    | P0 \| P1 \| P2                                            |

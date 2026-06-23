@@ -246,16 +246,26 @@ Resolve hết gaps trước khi viết bất kỳ dòng code nào.
   X chunks còn lại.
   Tests: [X pass] | Refactor: [clean / N items applied]
 
-Anh xem thử chunk này, em tiếp sang [chunk tiếp theo] nhé?
+Tiếp theo:
+[A] Tiếp sang chunk N+1
+[B] Defer chunk N+1 — hoãn lại (cần ghi reason)
 ```
 
 **DỪNG — Chờ Dev confirm hoặc feedback trước khi sang chunk tiếp theo.**
 
+**Nếu Dev chọn defer:**
+1. Hỏi reason: "Lý do defer chunk này?"
+2. Update progress file: chunk → `⏸️ deferred`, ghi reason vào cột `Deferred Reason`
+3. Skip chunk này, pick chunk tiếp theo có status `pending`
+4. Nếu không còn chunk `pending` nào → coi như hoàn tất phần implement, tiến sang Update Upstream Documents
+
+> Deferred chunks không block pipeline — chúng được ghi nhận và có thể pick up ở session sau hoặc ticket riêng.
+
 ---
 
-## Update Upstream Documents — Sau khi tất cả chunks done
+## Update Upstream Documents — Sau khi implement hoàn tất
 
-Khi tất cả chunks trong progress file có status `done`, spawn **haiku** subagent để cập nhật documents:
+Khi tất cả chunks có status `done` hoặc `deferred` (không còn `pending`/`in_progress`), spawn **haiku** subagent để cập nhật documents:
 
 ```python
 Agent(
@@ -264,19 +274,23 @@ Agent(
     prompt=f"""
     Ticket: {TICKET_ID}
     Ngày hôm nay: {today}  # YYYY-MM-DD
+    Deferred chunks: {deferred_chunks}  # list of (chunk_name, reason) hoặc empty
 
     Cập nhật các file sau bằng morai-file MCP:
 
     1. plans/{TICKET_ID}-tasks.md (nếu tồn tại — check file_exists trước):
-       - Tất cả task status → `done`
+       - Task tương ứng chunk done → status = `done`
+       - Task tương ứng chunk deferred → status = `deferred`, ghi reason
        - Cột Updated → {today}
-       - Bảng Progress summary: cập nhật số liệu (Done = Total, Todo/In Progress/Blocked = 0)
+       - Bảng Progress summary: cập nhật số liệu đúng theo thực tế
 
     2. specs/{TICKET_ID}.md:
-       - Metadata table → Status = `Implemented`
+       - Nếu không có deferred chunks → Metadata Status = `Implemented`
+       - Nếu có deferred chunks → Metadata Status = `Partially Implemented`
 
     3. designs/{TICKET_ID}-detail.md:
-       - Metadata table → Status = `Implemented`
+       - Nếu không có deferred chunks → Metadata Status = `Implemented`
+       - Nếu có deferred chunks → Metadata Status = `Partially Implemented`
 
     Chỉ thay đổi đúng các field trên, không sửa nội dung khác.
     Báo kết quả: file nào đã update, file nào không tồn tại (skip).

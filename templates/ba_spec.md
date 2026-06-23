@@ -11,7 +11,7 @@
 | Reporter    |                                         |
 | Assignee    |                                         |
 | Stakeholder |                                         |
-| Status      | Draft \| Review \| Approved \| Implemented |
+| Status      | Draft \| Review \| Approved \| Implemented \| Partially Implemented |
 | Date        |                                         |
 
 ---
