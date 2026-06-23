@@ -1,5 +1,6 @@
 ---
 description: Morai Onboard — bootstrap knowledge repo từ Confluence + Jira + codebase cho project mới
+version: 1.0.0
 ---
 
 # Morai Onboard

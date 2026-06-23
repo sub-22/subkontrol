@@ -1,5 +1,6 @@
 ---
 description: Morai Init — thiết lập Morai identity và hướng dẫn setup knowledge cho project
+version: 1.0.0
 ---
 
 # Morai Init

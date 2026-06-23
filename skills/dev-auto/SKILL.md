@@ -1,5 +1,6 @@
 ---
 description: Developer (Auto) — full automation cho simple bugs đủ điều kiện. Tự fix, test, commit, PR không cần review từng bước.
+version: 1.0.0
 ---
 
 # Dev Agent — Auto Mode (Simple Bug Only)

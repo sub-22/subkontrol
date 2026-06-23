@@ -1,5 +1,6 @@
 ---
 description: Morai Self-Evolution — học từ episodes, promote reflexes, nâng cấp chính mình
+version: 1.0.0
 ---
 
 # EVOLVE — Morai Self-Evolution

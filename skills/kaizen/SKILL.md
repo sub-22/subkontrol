@@ -1,5 +1,6 @@
 ---
 description: Morai Kaizen — weekly improvement cadence, chọn 1 pain point, measure, promote nếu đủ evidence
+version: 1.0.0
 ---
 
 # KAIZEN — Weekly Improvement Loop

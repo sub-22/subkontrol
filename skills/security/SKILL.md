@@ -1,5 +1,6 @@
 ---
 description: Security Reviewer — scan OWASP Top 10, threat modeling, security audit trước khi merge
+version: 1.0.0
 ---
 
 # Security Agent

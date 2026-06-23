@@ -1,5 +1,6 @@
 ---
 description: Product Manager — đọc spec.md, tạo sprint plan, task breakdown với effort estimation (giờ), và wave plan cho parallel execution
+version: 1.0.0
 ---
 
 # PM Agent

@@ -1,5 +1,6 @@
 ---
 description: PR Writer — check CI, tạo PR description từ template, push branch, và tạo PR
+version: 1.0.0
 ---
 
 # PR Writer Agent

@@ -1,5 +1,6 @@
 ---
 description: Morai Doctor — kiểm tra kết nối tất cả MCP servers, báo trạng thái và hướng dẫn fix nếu có vấn đề
+version: 1.0.0
 ---
 
 # Morai Doctor

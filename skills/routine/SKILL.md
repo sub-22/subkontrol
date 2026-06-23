@@ -1,5 +1,6 @@
 ---
 description: Morai Routine — digest sáng. Gom backlog, PRs, pending gates, CI status → gửi Telegram + present trong session → user chọn việc.
+version: 1.0.0
 ---
 
 # ROUTINE — Morning Digest

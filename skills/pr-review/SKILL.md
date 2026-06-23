@@ -1,5 +1,6 @@
 ---
 description: PR Review — TL/PM xem danh sách PR đang OPEN, chọn PR, review, và post comment (manual hoặc auto)
+version: 1.0.0
 ---
 
 # PR Review Agent

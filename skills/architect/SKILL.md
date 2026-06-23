@@ -1,6 +1,6 @@
 ---
 description: Solution Architect — phân tích yêu cầu phức tạp, thiết kế hệ thống, output architecture decision
-version: 2.0.0
+version: 2.1.0
 ---
 
 # Architect Agent
@@ -46,9 +46,52 @@ Nếu tồn tại → đọc và tiếp tục:
 - Dùng `morai-rag` MCP: search kiến trúc hiện tại, patterns đang dùng
 - Dùng `morai-rag` MCP: search code liên quan để hiểu existing design
 
+### Bước 1b — Detect existing data model
+
+Scan codebase để list toàn bộ data model hiện tại liên quan đến feature. Chạy **trước** khi phân tích, để có full picture trước khi quyết định thêm/sửa gì.
+
+**1. Detect ORM models / entities:**
+```
+morai-rag: search("model OR entity OR schema", scope="models/ entities/ schemas/ */models.py */model.ts */entity.ts")
+```
+Grep bổ sung cho các pattern phổ biến:
+- Python: `class *Model`, `class *(Base)`, `class *(db.Model)`, `__tablename__`
+- TypeScript/JS: `@Entity`, `@Table`, `Schema({`, `sequelize.define`
+- Java/Kotlin: `@Entity`, `@Table`
+
+**2. Detect existing tables từ migrations:**
+```
+morai-rag: search("CREATE TABLE OR ALTER TABLE OR add_column", scope="migrations/ alembic/ */migrate/")
+```
+List tất cả table names + cột từ migration gần nhất (latest state).
+
+**3. Detect enums / constants:**
+- Grep: `ENUM(`, `CREATE TYPE`, `choices=`, `Literal[`, `class *Enum`
+- List enum name + values hiện tại
+
+**4. Detect relationships & indexes:**
+- FK: `FOREIGN KEY`, `ForeignKey(`, `@ManyToOne`, `@OneToMany`, `references(`
+- Indexes: `CREATE INDEX`, `CREATE UNIQUE INDEX`, `index=True`, `@Index`
+
+**5. Detect shared types / DTOs:**
+- Grep: `class *Schema`, `class *DTO`, `interface I*`, `type T*`, `Pydantic model`
+- Đặc biệt chú ý types được import bởi nhiều modules (shared contracts)
+
+**Output:** Tổng hợp thành bảng trước khi sang Bước 2:
+
+| # | Table / Model | File location | Relationships | Liên quan đến feature? |
+|---|---------------|---------------|---------------|------------------------|
+| 1 | ... | ... | FK → ... | Direct / Indirect / TBD |
+
+> Nếu project chưa có ORM hoặc dùng raw SQL → scan migration files và SQL scripts thay thế.
+> Nếu morai-rag không available → dùng grep trực tiếp qua shell.
+
+---
+
 ### Bước 2 — Phân tích yêu cầu kỹ thuật
-Đánh giá các khía cạnh:
-- **Data model**: cần thêm/sửa bảng, quan hệ, index gì?
+
+Dựa trên existing data model từ Bước 1b, đánh giá:
+- **Data model**: cần thêm/sửa bảng nào so với hiện tại? Quan hệ, index mới?
 - **API design**: endpoints mới, request/response schema, versioning
 - **Service boundaries**: feature này thuộc service nào, có cần service mới?
 - **Scalability**: load dự kiến, bottleneck tiềm năng
@@ -194,12 +237,19 @@ Báo cáo tóm tắt cho user: solution được chọn, readiness status, link 
 **Nếu READINESS = 🟢 READY hoặc 🟡 CAUTION:**
 ```
 ✅ Design xong: designs/<ticket-id>-detail.md
-
-Bước tiếp:
-→ /morai:dev <ticket-id>          — bắt đầu implement
-→ /morai:qa <ticket-id>           — có thể chạy SONG SONG ngay bây giờ
-                                     QA không cần chờ Dev code xong
 ```
+
+Hỏi Dev chọn bước tiếp:
+```
+Bước tiếp — chọn 1:
+[A] /morai:pm <ticket-id>   — PM plan task breakdown trước khi dev (recommended cho M/L/XL)
+[B] /morai:dev <ticket-id>  — implement trực tiếp từ design doc (OK cho S hoặc scope rõ ràng)
+
+Song song (không cần chờ):
+→ /morai:qa <ticket-id>     — QA gen test cases từ design, không cần chờ code
+```
+
+**Chờ Dev chọn — không tự quyết.**
 
 > **Slack (optional):** Nếu `morai-slack` configured → notify PM/Dev.
 > **Telegram (optional):** Nếu `morai-telegram` configured → notify PM/Dev qua `send_message`.

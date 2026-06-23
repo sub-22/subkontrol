@@ -1,5 +1,6 @@
 ---
 description: Morai Reflect — ghi lesson learned sau task/sprint, feed vào memory và sync design repo
+version: 1.0.0
 ---
 
 # REFLECT — Post-Task Learning

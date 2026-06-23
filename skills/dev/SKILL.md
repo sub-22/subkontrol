@@ -1,6 +1,6 @@
 ---
 description: Developer (Guided) — pair programming mode. Morai là navigator, Dev review từng bước, commit khi Dev quyết định.
-version: 2.0.0
+version: 2.1.0
 ---
 
 # Dev Agent — Guided Mode (Pair Programming)
@@ -28,17 +28,27 @@ morai-git: get_current_branch()
 
 **Protected branches** (không commit trực tiếp): `master`, `main`, `develop`, `staging`, `production`, `release/*`
 
-**Branch format:** `{type}/{ticket_id}_{slug}` — type: `feat/fix/chore/refactor`, slug: lowercase, `-` thay space, ≤35 ký tự.
+**Nếu đang ở protected branch — detect branch convention trước khi đề xuất:**
 
-**Nếu đang ở protected branch:**
-1. Đề xuất branch name theo format trên
-2. Hỏi human cả 2 cùng lúc — bắt buộc, không assume:
+1. Scan existing branches để detect naming convention:
+   ```
+   morai-git: get_log(max_count=30)   ← xem branch names từ recent merges
+   ```
+   Kết hợp shell: `git branch -a --sort=-committerdate | head -20`
+
+2. Phân tích pattern:
+   - Nếu repo dùng custom convention (ví dụ: `project_sprint1_15`, `project_sprint1_16`) → follow pattern đó, thay ticket number tương ứng
+   - Nếu repo dùng `feat/`, `fix/` prefix → follow: `{type}/{ticket_id}_{slug}`
+   - Nếu không detect được pattern rõ → fallback: `{type}/{ticket_id}_{slug}` (type: `feat/fix/chore/refactor`, slug: lowercase, `-` thay space, ≤35 ký tự)
+
+3. Đề xuất branch name theo convention đã detect + hỏi base branch:
    ```
    ⚠️ Đang ở branch protected: {current_branch}
+   Convention phát hiện: {pattern_description}
    Branch đề xuất: `{proposed_branch}`
    Tách từ nhánh nào? (ví dụ: develop, main, release/stg)
    ```
-3. Chờ confirm đủ branch name + base branch → `morai-git: create_branch()`
+4. Chờ confirm đủ branch name + base branch → `morai-git: create_branch()`
 
 **Nếu đang ở đúng feature/fix branch** → tiếp tục Bước 0b.
 
@@ -155,7 +165,8 @@ flowchart TD
     Ver --> MG["⛔ Micro-gate\nbáo Dev chunk N xong · chờ confirm"]
     MG --> More{Còn chunk\nnữa?}
     More -->|Có| Start
-    More -->|Không| CI["CI Check\nlint · format · typecheck · test"]
+    More -->|Không| UpDoc["Update Upstream Docs\nplan tasks → done\nspec/design status"]
+    UpDoc --> CI["CI Check\nlint · format · typecheck · test"]
     CI --> R3{CI pass?}
     R3 -->|fail| FixCI[Fix CI issues]
     FixCI --> CI
@@ -239,6 +250,42 @@ Anh xem thử chunk này, em tiếp sang [chunk tiếp theo] nhé?
 ```
 
 **DỪNG — Chờ Dev confirm hoặc feedback trước khi sang chunk tiếp theo.**
+
+---
+
+## Update Upstream Documents — Sau khi tất cả chunks done
+
+Khi tất cả chunks trong progress file có status `done`, spawn **haiku** subagent để cập nhật documents:
+
+```python
+Agent(
+    model="haiku",
+    description=f"Update upstream docs for {TICKET_ID}",
+    prompt=f"""
+    Ticket: {TICKET_ID}
+    Ngày hôm nay: {today}  # YYYY-MM-DD
+
+    Cập nhật các file sau bằng morai-file MCP:
+
+    1. plans/{TICKET_ID}-tasks.md (nếu tồn tại — check file_exists trước):
+       - Tất cả task status → `done`
+       - Cột Updated → {today}
+       - Bảng Progress summary: cập nhật số liệu (Done = Total, Todo/In Progress/Blocked = 0)
+
+    2. specs/{TICKET_ID}.md:
+       - Metadata table → Status = `Implemented`
+
+    3. designs/{TICKET_ID}-detail.md:
+       - Metadata table → Status = `Implemented`
+
+    Chỉ thay đổi đúng các field trên, không sửa nội dung khác.
+    Báo kết quả: file nào đã update, file nào không tồn tại (skip).
+    """
+)
+```
+
+> Bước này tự động, không cần Dev confirm — Tier 2 (execute + báo ngắn).
+> Dùng haiku vì chỉ là structured update, không cần reasoning.
 
 ---
 

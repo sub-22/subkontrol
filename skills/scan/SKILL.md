@@ -1,5 +1,6 @@
 ---
 description: Project Scanner — scan bất kỳ project nào, sinh CLAUDE.md và bộ knowledge docs, index vào RAG
+version: 1.0.0
 ---
 
 # Scan Agent
