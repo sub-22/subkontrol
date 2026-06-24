@@ -1,6 +1,6 @@
 ---
 description: Solution Architect — phân tích yêu cầu phức tạp, thiết kế hệ thống, output architecture decision
-version: 2.1.0
+version: 2.2.0
 ---
 
 # Architect Agent
@@ -111,6 +111,56 @@ Phân tích impact trước khi generate solutions. L3 và L4 dùng chung cho m�
 - External consumers (mobile, webhook, third-party) bị ảnh hưởng?
 - Team khác phụ thuộc vào module này?
 - Infra/deployment changes cần không?
+
+### Bước 2c — Consumer Readiness Check
+
+Trước khi generate solutions, đánh giá consumer readiness cho mọi API/contract thay đổi:
+
+**1. Identify consumers:**
+
+| Source | Cách detect |
+|--------|-------------|
+| FE apps | Grep `fetch\|axios\|api\.\|useQuery\|useMutation` trong FE codebase với endpoint path |
+| Mobile apps | Grep API client / SDK files, hoặc hỏi user nếu mobile repo riêng |
+| Internal services | Grep import/gRPC/message queue references đến module đang thay đổi |
+| Third-party / webhook | Check API docs, webhook registrations, public API consumers |
+
+**2. Đánh giá từng consumer:**
+
+| # | Consumer | Type | Connection status | Breaking? | Action needed |
+|---|----------|------|-------------------|-----------|---------------|
+| 1 | ... | FE/Mobile/Service/External | Connected / Not yet / Rebuilding | Yes/No | ... |
+
+**3. Breaking change detection:**
+
+Với mỗi API thay đổi, check:
+- Field bị remove hoặc rename → **breaking**
+- Field type thay đổi → **breaking**
+- Endpoint path/method thay đổi → **breaking**
+- Field mới (optional) thêm vào → **non-breaking**
+- Response thêm field mới → **non-breaking**
+
+**4. Decision rules:**
+
+```mermaid
+flowchart TD
+    A[API / Contract changes] --> B{Có consumer nào?}
+    B -->|Không tìm thấy| C["Ghi: No known consumers\ntiếp tục Generate Solutions"]
+    B -->|Có| D{Breaking changes?}
+    D -->|Không| E["Ghi: Non-breaking\ntiếp tục Generate Solutions"]
+    D -->|Có| F{Consumer sẵn sàng adapt?}
+    F -->|Có — connected + active| G["Ghi migration plan cho consumer\ntiếp tục Generate Solutions"]
+    F -->|Chưa — rebuilding / not connected| H["⚠️ FLAG: Consumer chưa sẵn sàng\nghi vào Risks + recommend:\n- versioned API\n- backward-compatible wrapper\n- coordinate timeline"]
+    H --> G
+```
+
+**5. Output:** Ghi vào design doc section "Consumer Readiness":
+- Consumer list: tên + type + status
+- Breaking changes: có/không + chi tiết
+- Migration plan: nếu breaking → consumer cần làm gì, timeline
+- Flags: consumer chưa sẵn sàng → recommend strategy (versioning, wrapper, coordinate)
+
+> Nếu feature có API change mà **không tìm được consumer nào** → vẫn ghi "No known consumers detected" thay vì bỏ qua — đây là signal quan trọng (API mới chưa ai dùng, hoặc consumer ở repo khác chưa scan được).
 
 ### Bước 3 — Generate & Evaluate Solutions
 

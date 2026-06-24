@@ -1,6 +1,6 @@
 ---
 description: Business Analyst — fetch Jira/Confluence ticket, analyze requirements, output spec.md
-version: 3.0.0
+version: 3.1.0
 ---
 
 # BA Agent
@@ -90,6 +90,104 @@ Trước khi finalize danh sách open questions, bắt buộc check 9 gaps sau. 
 2. **Self-contained**: câu hỏi phải hiểu được mà không cần đọc toàn doc.
 3. **Single concern**: mỗi câu hỏi một quyết định, không gộp hai quyết định vào một.
 4. **Impact trong Reason**: cột Reason phải giải thích quyết định design nào phụ thuộc vào câu trả lời.
+
+### Bước 3c — Delivery Scope Check
+
+Xác định scope delivery — **chỉ trigger khi cần**, không hỏi thừa.
+
+**Trigger condition:**
+
+| Request type | Delivery Scope Check? | Lý do |
+|-------------|----------------------|-------|
+| Bug / issue | **Skip** — type thường đã rõ từ mô tả | UI bug → FE, API error → BE, đã implicit |
+| Feature mới | **Bắt buộc** | Scope chưa rõ, cần xác định ai deliver gì |
+| Redesign / nâng cấp feature có sẵn | **Bắt buộc** | Feature cũ có thể đang chạy trên FE khác, cần check động chạm song song |
+| Config / infra / CI change | **Skip** | Không liên quan FE/BE delivery |
+
+---
+
+**Khi trigger — delegate sang Haiku subagent:**
+
+Spawn subagent (`model: haiku`) để detect delivery scope. Main BA flow chờ kết quả rồi tiếp tục.
+
+**Subagent prompt:**
+```
+Analyze delivery scope for this requirement. Return structured JSON only.
+
+Input:
+- Ticket: {ticket_id}
+- Description: {ticket description / requirement text}
+- Jira type: {bug/story/task/epic — nếu có}
+
+Tasks:
+1. Classify request type:
+   - Jira type `bug` OR keywords "lỗi/fix/broken/sai/không hoạt động" → { "request_type": "bug", "skip": true }
+   - Jira type `story/task/epic` OR keywords "thêm/tạo mới/redesign/nâng cấp/chuyển đổi/rebuild" → { "request_type": "feature", "skip": false }
+   - Cannot determine → { "request_type": "unknown", "skip": false }
+
+2. If not skip — detect delivery type:
+   - Scan ticket description for FE signals: "UI/form/button/hiển thị/trang/component/screen/page"
+   - Scan ticket description for BE signals: "API/endpoint/DB/migration/service/queue/cron"
+   - Grep FE codebase for existing consumers of related APIs:
+     `grep -r "fetch\|axios\|api\.\|useQuery\|useMutation" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.vue" -l`
+     then check if any results reference the API endpoints in this feature
+   - Grep for existing FE routes/pages related to the feature domain
+
+3. Return:
+{
+  "request_type": "bug|feature|redesign|unknown",
+  "skip": true|false,
+  "delivery_type": "BE-only|FE-only|E2E|ambiguous",
+  "confidence": "high|medium|low",
+  "signals": {
+    "fe_keywords": ["list of FE keywords found in description"],
+    "be_keywords": ["list of BE keywords found in description"],
+    "fe_consumers_found": ["list of FE files that call related APIs"],
+    "fe_routes_found": ["list of FE routes/pages related to feature domain"]
+  },
+  "reasoning": "1-2 sentences explaining classification"
+}
+```
+
+**Main flow xử lý kết quả subagent:**
+
+```mermaid
+flowchart TD
+    R[Requirement vào Bước 3c] --> S["Spawn Haiku subagent\n(detect delivery scope)"]
+    S --> RS{skip = true?}
+    RS -->|true — bug/config| SKIP["Skip Delivery Scope\nghi: type đã rõ từ mô tả"]
+    RS -->|false| DT{delivery_type?}
+    DT -->|BE-only\nconfidence high/medium| BE["Ghi scope = BE-only\ntiếp tục INVEST"]
+    DT -->|FE-only hoặc E2E\nconfidence high/medium| FE[Check FE readiness]
+    DT -->|ambiguous\nhoặc confidence low| ASK["Hỏi user 1 câu:\n'Feature này cần BE/FE/cả hai ạ?'"]
+    ASK --> FE_OR_BE{User trả lời}
+    FE_OR_BE -->|BE-only| BE
+    FE_OR_BE -->|FE-only / E2E| FE
+    FE --> RDY{FE sẵn sàng?}
+    RDY -->|Có| OK[Ghi scope + FE owner\ntiếp tục INVEST]
+    RDY -->|Chưa / đang rebuild| FLAG["⚠️ Flag: FE chưa sẵn sàng\nghi dependency + timeline risk"]
+    FLAG --> OK
+```
+
+**FE readiness — đánh giá khi delivery_type = E2E hoặc FE-only:**
+
+| Câu hỏi | Tại sao quan trọng |
+|----------|-------------------|
+| FE nào consume feature này? (Web, Mobile, cả hai?) | Xác định số lượng FE tasks cần tạo |
+| FE hiện tại ở trạng thái nào? (đang dùng / đang rebuild / chưa có) | Ảnh hưởng timeline và dependency |
+| FE team/người nào own? | Cần coordinate với ai |
+| FE tasks chạy parallel hay sequential với BE? | Ảnh hưởng sprint planning |
+
+> Subagent `signals.fe_consumers_found` giúp trả lời câu 1 và 2 tự động.
+> Câu 3 và 4 cần hỏi user nếu chưa có context.
+
+**Output (khi trigger):** Ghi vào spec section "Delivery Scope":
+- Delivery type: `BE-only` / `FE-only` / `E2E`
+- Detection method: `auto-detect (haiku)` / `user-confirmed`
+- Confidence: `high` / `medium` / `low`
+- FE consumers (nếu có): tên app/platform + trạng thái + owner
+- Coordination: parallel / sequential / blocked
+- Risks (nếu có): FE chưa sẵn sàng, timeline mismatch, v.v.
 
 ### Bước 4 — INVEST Validation + Readiness Assessment
 
