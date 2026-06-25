@@ -223,7 +223,7 @@ Task/Skill              → Model
 XS, S                   → haiku
 M, L (feature/review)   → sonnet
 XL, /morai:sparring     → opus
-Sub-agents (parallel)   → haiku   ← luôn luôn, không dùng sonnet cho volume
+Sub-agents dev (parallel) → haiku (XS/S) | sonnet (M/L)  ← size-based, xem agents/spawner.md
 /morai:security         → sonnet  ← đừng downgrade, false negative cost cao
 ```
 

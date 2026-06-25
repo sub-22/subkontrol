@@ -88,15 +88,19 @@ Mọi context cần thiết phải nằm trong prompt.
 Gọi `Agent` tool **N lần trong cùng 1 response** để đảm bảo parallel execution.
 
 Model selection dựa vào task size (đọc từ `task.json`):
-- `size: S` → `model="sonnet"` (implement cần quality, không downgrade haiku)
-- `size: M` → `model="sonnet"`
-- `size: L` → `model="sonnet"`
+- `size: XS` → `model="haiku"` — chunk nhỏ, pattern rõ, template code
+- `size: S`  → `model="haiku"` — scope hẹp, conventions đã inject đầy đủ
+- `size: M`  → `model="sonnet"` — business logic trung bình, test case phức tạp hơn
+- `size: L`  → `model="sonnet"` — multi-file coordination, edge cases nhiều
+
+> Không dùng Opus cho sub-agent dev — context đã được pre-digested bởi Architect và PM,
+> không cần deep reasoning thêm. Opus chỉ dành cho Orchestrator khi task XL hoặc /morai:sparring.
 
 ```
 [Message với N Agent tool calls đồng thời]
-  Agent(task=TASK-1, worktree="feat/PROJ-123-task-1", context=..., model="sonnet")
-  Agent(task=TASK-3, worktree="feat/PROJ-123-task-3", context=..., model="sonnet")
-  Agent(task=TASK-5, worktree="feat/PROJ-123-task-5", context=..., model="sonnet")
+  Agent(task=TASK-1, worktree="feat/PROJ-123-task-1", context=..., model="haiku")   ← size S
+  Agent(task=TASK-3, worktree="feat/PROJ-123-task-3", context=..., model="sonnet")  ← size M
+  Agent(task=TASK-5, worktree="feat/PROJ-123-task-5", context=..., model="haiku")   ← size XS
 ```
 
 > Review/test sub-agents (nếu spawned sau merge) → `model="haiku"` cho ticket size S/XS.
