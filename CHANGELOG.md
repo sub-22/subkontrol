@@ -7,6 +7,30 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [0.13.1] — 2026-06-26
+
+### Skill Improvements — Sizing, Parallel Routing, Knowledge Sync
+
+#### Added
+
+- **`skills/ba/SKILL.md` Bước 3d — Spec Sizing** — score 3 dimensions (US count · dependencies · ambiguity) → XS/S/M/L/XL. XL → BLOCK, bắt buộc `/morai:sparring` trước. Size ghi vào Metadata, route model (haiku XS/S, sonnet M/L)
+- **`templates/detail_design.md` — Task Complexity Summary** — section sau Chunk Plan: total effort, recommended task size, parallel hints. PM inherit thay vì re-estimate từ spec
+- **`skills/dev/SKILL.md` Bước 0c — Wave Plan Check** — check `get_wave_plan()` trước Phase 1. ≥2 pending tasks → offer Parallel/Sequential. Parallel → load spawner. Override `sequential_by_user` ghi pipeline state
+- **`templates/task.json` field `chunks`** — array chunk IDs từ Chunk Plan. Bridge PM task ↔ Design chunk, Spawner scope sub-agents chính xác
+
+#### Changed
+
+- **`skills/pm/SKILL.md` v1.1.0** — Bước 1 đọc design doc trước; Bước 4 bắt buộc điền `chunks` per task khi có design doc
+- **`skills/architect/SKILL.md` v2.3.0** — Task Complexity Summary thêm vào section bắt buộc sau Chunk Plan
+- **`agents/spawner.md`** — Phase 1 extract chunks per task; sub-agent prompt thêm "YOUR CHUNK SCOPE"; model routing size-based: XS/S → haiku, M/L → sonnet (thay vì sonnet cho mọi size)
+- **`agents/orchestrator.md`** — model routing line sync với spawner: `haiku (XS/S) | sonnet (M/L)`
+- **`skills/reflect/SKILL.md` v1.2.0** — Bước 5b: update `.morai/knowledge/` + re-index RAG nếu có pattern mới
+- **`skills/kaizen/SKILL.md` v1.1.0** — Bước 4b: sync knowledge vào RAG sau improvement
+- **`agents/recall.md`** — Bootstrap Order thêm `.morai/knowledge/architecture.md` + `conventions.md`
+- **`templates/ba_spec.md`** — thêm field `Spec Size` vào Metadata
+
+---
+
 ## [0.13.0] — 2026-06-10
 
 ### Phase 11 — Morning Routine + Local Backlog (vertical slice vận hành)
