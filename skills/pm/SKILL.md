@@ -1,6 +1,6 @@
 ---
 description: Product Manager — đọc spec.md, tạo sprint plan, task breakdown với effort estimation (giờ), và wave plan cho parallel execution
-version: 1.0.0
+version: 1.1.0
 ---
 
 # PM Agent
@@ -18,12 +18,27 @@ morai-pipeline: get_state($TICKET_ID)
 morai-pipeline: transition($TICKET_ID, "PM_RUNNING")
 ```
 
-### Bước 1 — Đọc spec
-- Dùng `morai-file` MCP: đọc file spec tương ứng (`specs/<id>.md`)
-- Dùng `morai-rag` MCP: search context liên quan (tech stack, conventions, existing features)
-- Dùng `morai-jira` MCP: xem thêm comments, priority nếu configured (bỏ qua nếu stub)
+### Bước 1 — Đọc spec + design doc
+
+**Đọc theo thứ tự ưu tiên:**
+
+1. `morai-file`: đọc spec `specs/<id>.md` — lấy Spec Size, User Stories, AC, business context
+2. `morai-file`: kiểm tra `designs/<id>-detail.md` có tồn tại không
+   - **Nếu có** → đọc ngay, đặc biệt 2 section:
+     - **Task Complexity Summary** — inherit recommended task size, total effort, parallel hints
+     - **Chunk Plan** — dùng làm base trực tiếp cho task breakdown (1 chunk = 1 task, hoặc gộp XS chunks lại)
+   - **Nếu không có** → ghi chú "No design doc — sizing from spec only", tiếp tục với spec
+3. `morai-rag`: search context liên quan (tech stack, conventions, existing features)
+4. `morai-jira`: xem thêm comments, priority nếu configured (bỏ qua nếu stub)
+
+> **Khi có design doc:** PM không re-estimate từ đầu — inherit effort từ Chunk Plan, chỉ thêm PM-layer fields (priority, assignee, risk, confidence, depends_on). Điều này tránh double-estimation và đảm bảo PM align với technical scope Architect đã xác định.
 
 ### Bước 2 — Task breakdown + Sizing
+
+**Nguồn sizing theo thứ tự ưu tiên:**
+1. Design doc có **Task Complexity Summary** → dùng `Recommended overall task size` + `Estimated total effort`
+2. Design doc có **Chunk Plan** → map 1 chunk = 1 task (gộp XS chunks nếu total < 2h)
+3. Không có design doc → tự estimate từ spec (dùng bảng sizing bên dưới)
 
 Chia nhỏ requirements thành tasks Dev có thể implement trong 1 session. Mỗi task phải có đủ các trường sau:
 
@@ -101,6 +116,25 @@ Dùng `morai-file: write_file` để tạo `tasks/<ticket-id>/index.json` và `t
 Thêm field `hours` và `risk` vào mỗi TASK-N.json.
 
 `depends_on` phải là array task IDs trong cùng ticket, không để trống nếu thực sự có dependency.
+
+**Bắt buộc: điền field `chunks` cho mỗi task** — đây là bridge giữa PM tasks và Design chunks, cho phép sub-agents trong parallel mode biết scope của mình:
+
+- Nếu design doc có Chunk Plan → map chunk IDs (từ cột `#`) vào task tương ứng theo logic:
+  - Chunk type `types` / `schema` / `migration` → task BE/infra
+  - Chunk type `logic` / `service` / `api` → task BE
+  - Chunk type `frontend` / `ui` / `component` → task FE
+  - Chunk type `test` → task test hoặc chia đều vào các tasks liên quan
+- Nếu không có design doc → để `chunks: []` (PM không thể map nếu chưa design)
+- Mỗi chunk chỉ thuộc 1 task (không duplicate)
+- Chunk chưa map được → tạo task mới hoặc gán vào task gần nhất và ghi note
+
+```json
+{
+  "id": "TASK-1",
+  "chunks": ["1", "2", "3"],
+  "..."
+}
+```
 
 ### Bước 5 — Dependency Analysis và Wave Plan
 

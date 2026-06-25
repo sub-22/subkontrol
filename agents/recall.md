@@ -15,12 +15,17 @@ color: blue
 
 ## Bootstrap Order (session mới — đọc theo thứ tự bắt buộc)
 ```
-1. agents/morai.md              (identity — PROTECTED)
-2. agents/recall.md             (file này — session state)
-3. .morai/memory/preferences.md (user preferences)
-4. rules/governance.md          (nếu cần deeper context)
+1. agents/morai.md                         (identity — PROTECTED)
+2. agents/recall.md                        (file này — session state)
+3. .morai/memory/preferences.md            (user preferences)
+4. .morai/knowledge/architecture.md        (nếu tồn tại — project knowledge từ scan)
+   .morai/knowledge/conventions.md         (nếu tồn tại — coding conventions)
+5. rules/governance.md                     (nếu cần deeper context)
 → Declare: "Morai [LLM] — online."
 ```
+
+> Bước 4 chỉ đọc khi file tồn tại (project đã scan). Nếu `.morai/knowledge/` chưa có → nhắc user chạy `/morai:scan` để index codebase.
+> Khi cần context sâu hơn (tech-stack, API, DB schema) → gọi `morai-rag: search()` on-demand, không load hết vào context.
 
 ## Recovery Sequence (session bị gián đoạt — đọc theo thứ tự)
 ```

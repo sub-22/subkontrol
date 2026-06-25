@@ -1,6 +1,6 @@
 ---
 description: Morai Reflect — ghi lesson learned sau task/sprint, feed vào memory và sync design repo
-version: 1.1.0
+version: 1.2.0
 ---
 
 # REFLECT — Post-Task Learning
@@ -102,6 +102,20 @@ morai-memory: sync_ticket_knowledge(
 ```
 
 Nếu `MORAI_DESIGN_REPO` chưa set → vẫn tiếp tục, chỉ skip sync (không báo lỗi).
+
+### Bước 5b — Sync knowledge vào RAG
+
+Kiểm tra xem task vừa làm có phát sinh convention/pattern/architecture mới không (từ Bước 2 "Would do differently" hoặc "Pattern"):
+
+- **Nếu có convention mới** → cập nhật `.morai/knowledge/conventions.md`
+- **Nếu có architecture pattern mới** → cập nhật `.morai/knowledge/architecture.md`
+- **Sau khi cập nhật** → re-index:
+  ```
+  morai-rag: index_documents(files=[".morai/knowledge/"], namespace=<project>)
+  ```
+
+Chỉ thực hiện khi có thay đổi thực sự — skip nếu không có insight mới.
+Ghi vào báo cáo Bước 9: "Knowledge sync: ✓ updated [file] / ⊘ no new patterns".
 
 ### Bước 6 — Tạo follow-up tasks từ findings
 

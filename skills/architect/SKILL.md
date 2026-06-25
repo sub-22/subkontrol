@@ -1,6 +1,6 @@
 ---
 description: Solution Architect — phân tích yêu cầu phức tạp, thiết kế hệ thống, output architecture decision
-version: 2.2.0
+version: 2.3.0
 ---
 
 # Architect Agent
@@ -234,6 +234,13 @@ Các section **bắt buộc** điền:
 - **API Design** — endpoint mới hoặc thay đổi: request/response schema, error table
 - **Diagrams** — TẤT CẢ diagrams phải dùng Mermaid syntax (sequence, flowchart, ERD, class, state...). Bắt buộc có ít nhất: Sequence Diagram (flow chính) + ERD (quan hệ giữa các bảng liên quan)
 - **Error Handling Matrix** — các scenario lỗi và cách xử lý
+- **Task Complexity Summary** — bắt buộc điền sau khi có Chunk Plan để PM inherit:
+  - `Total chunks`: đếm số rows trong Chunk Plan
+  - `Estimated total effort`: tổng cộng Est. của tất cả chunks
+  - `Highest effort chunk`: chunk có Est. cao nhất (tên + type + giờ)
+  - `Parallel execution possible`: Yes nếu có ≥2 chunks không có depends_on, ghi wave nào
+  - `Recommended overall task size`: map từ total effort → XS(<4h) / S(4–8h) / M(8–20h) / L(20–40h) / XL(>40h)
+  - `Notes for PM`: dependency gotcha, risk areas, chunks nào cần human review
 
 Các section **bỏ qua nếu không áp dụng**:
 - Module/Class Design — chỉ cần khi thiết kế có class mới phức tạp

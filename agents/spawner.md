@@ -67,11 +67,18 @@ Trước khi spawn, Orchestrator collect đủ context cho mỗi task:
 ```
 Với mỗi task_id trong wave hiện tại:
   1. morai-file: read_file("tasks/<ticket_id>/<task_id>.json")
+     → Đọc field `chunks` — list chunk IDs task này chịu trách nhiệm
   2. morai-file: read_file("specs/<ticket_id>.md")
   3. morai-file: read_file("designs/<ticket_id>-detail.md")  ← nếu có
+     → Extract chỉ những rows trong Chunk Plan có ID nằm trong task.chunks
   4. morai-rag:  search(task.description, namespace=project)  ← relevant code patterns
   5. morai-file: read_file(".morai/knowledge/conventions.md") ← coding conventions
 ```
+
+**Chunk scoping — quan trọng:**
+- Nếu `task.chunks` có giá trị → sub-agent CHỈ implement các chunks đó, bỏ qua chunks khác
+- Nếu `task.chunks = []` → sub-agent dùng judgment tự xác định scope từ task description
+- Chunks không được assign cho bất kỳ task nào trong wave → flag cho Orchestrator, không implement
 
 Sub-agent sẽ KHÔNG có access đến conversation history của Orchestrator.
 Mọi context cần thiết phải nằm trong prompt.
@@ -102,6 +109,14 @@ You are running in git worktree: {worktree_path} on branch {worktree_branch}
 
 === TASK ===
 {task_json}
+
+=== YOUR CHUNK SCOPE ===
+This task is responsible for implementing ONLY these chunks from the design doc:
+Chunk IDs: {task.chunks}  (empty = use judgment from task description)
+
+{chunk_details}  ← extracted rows from design Chunk Plan matching task.chunks
+
+Do NOT implement chunks assigned to other tasks in this wave.
 
 === SPEC (relevant sections) ===
 {spec_excerpt}

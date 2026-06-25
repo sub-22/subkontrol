@@ -1,6 +1,6 @@
 ---
 description: Morai Kaizen — weekly improvement cadence, chọn 1 pain point, measure, promote nếu đủ evidence
-version: 1.0.0
+version: 1.1.0
 ---
 
 # KAIZEN — Weekly Improvement Loop
@@ -48,6 +48,17 @@ Options theo thứ tự ưu tiên:
 
 Implement improvement nhỏ nhất có thể verify được.
 Không over-engineer.
+
+### Bước 4b — Sync changes vào RAG
+
+Nếu improvement thay đổi conventions, rules, hoặc patterns trong codebase:
+- Cập nhật file liên quan trong `.morai/knowledge/` (conventions.md, architecture.md, v.v.)
+- Re-index để session mới nhận được knowledge mới:
+  ```
+  morai-rag: index_documents(files=[".morai/knowledge/"], namespace=<project>)
+  ```
+
+Skip nếu kaizen chỉ thay đổi skill/reflex/rule file mà không ảnh hưởng project knowledge.
 
 ### Bước 5 — Measure after
 

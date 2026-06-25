@@ -1,6 +1,6 @@
 ---
 description: Business Analyst — fetch Jira/Confluence ticket, analyze requirements, output spec.md
-version: 3.1.0
+version: 3.2.0
 ---
 
 # BA Agent
@@ -188,6 +188,38 @@ flowchart TD
 - FE consumers (nếu có): tên app/platform + trạng thái + owner
 - Coordination: parallel / sequential / blocked
 - Risks (nếu có): FE chưa sẵn sàng, timeline mismatch, v.v.
+
+### Bước 3d — Spec Sizing
+
+Score requirements theo 3 dimensions, mỗi dimension 1–3 điểm:
+
+| Dimension | 1 điểm | 2 điểm | 3 điểm |
+|-----------|--------|--------|--------|
+| **User Stories** | 1–2 US | 3–5 US | ≥ 6 US |
+| **Dependencies** (external service, other team, other ticket) | 0–1 | 2–3 | ≥ 4 |
+| **Ambiguity** (open questions count sau Bước 3b) | 0 | 1–2 | ≥ 3 |
+
+**Tổng điểm → Spec Size:**
+
+| Score | Spec Size | Routing |
+|-------|-----------|---------|
+| 3 | **XS** | haiku — fast path, ít clarifying |
+| 4–5 | **S** | haiku — normal flow |
+| 6–7 | **M** | sonnet — normal flow |
+| 8 | **L** | sonnet — khuyến cáo `/morai:sparring` trước |
+| 9 | **XL** | **BLOCK** → `/morai:sparring` bắt buộc trước khi viết spec |
+
+**Khi Spec Size = XL:**
+```
+⛔ Spec này quá lớn/phức tạp để viết trực tiếp.
+   Score: [US Nx + Dep Nx + Ambig Nx] = 9/9
+   Lý do: [mô tả ngắn]
+   → Chạy /morai:sparring <ticket-id> trước để scope down requirements.
+```
+
+Ghi Spec Size vào field Metadata trong spec file.
+
+---
 
 ### Bước 4 — INVEST Validation + Readiness Assessment
 

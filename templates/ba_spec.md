@@ -7,6 +7,7 @@
 | Ticket      | [PROJ-XXX]                              |
 | Jira Link   | [URL]                                   |
 | Priority    | Critical \| High \| Medium \| Low       |
+| Spec Size   | XS \| S \| M \| L \| XL                |
 | Sprint      |                                         |
 | Reporter    |                                         |
 | Assignee    |                                         |

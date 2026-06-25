@@ -243,6 +243,21 @@ sequenceDiagram
 
 ---
 
+## Task Complexity Summary
+
+> Dành cho PM đọc khi tạo task breakdown — không re-estimate từ spec.
+
+| Metric | Value |
+|--------|-------|
+| Total chunks | |
+| Estimated total effort | h |
+| Highest effort chunk | (chunk name, type, h) |
+| Parallel execution possible | Yes — Wave [X]: [chunk list] / No |
+| Recommended overall task size | XS \| S \| M \| L \| XL |
+| Notes for PM | |
+
+---
+
 ## Readiness State
 
 | # | Criterion | Status | Ghi chú |

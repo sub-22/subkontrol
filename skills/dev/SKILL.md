@@ -1,6 +1,6 @@
 ---
 description: Developer (Guided) — pair programming mode. Morai là navigator, Dev review từng bước, commit khi Dev quyết định.
-version: 2.1.0
+version: 2.2.0
 ---
 
 # Dev Agent — Guided Mode (Pair Programming)
@@ -94,6 +94,71 @@ Nếu tồn tại → đọc design doc để lấy danh sách chunks:
 
 > Progress file là source of truth cho chunk implementation. MCP pipeline FSM vẫn là
 > source of truth cho pipeline-level transitions (BA→PM→DEV→REVIEW). Hai tầng không conflict.
+
+---
+
+## Bước 0c — Wave Plan Check (sau progress file, trước Phase 1)
+
+**Chỉ chạy khi $ARGUMENTS là ticket ID** (dạng PROJ-XXX, không có TASK-N suffix).
+Nếu $ARGUMENTS đã có task ID cụ thể → skip, đi thẳng Phase 1.
+
+```
+wave_plan = morai-pipeline: get_wave_plan($TICKET_ID)
+```
+
+**Nếu wave plan KHÔNG tồn tại** → sequential mode, tiếp tục Phase 1 bình thường.
+
+**Nếu wave plan tồn tại:**
+
+```
+current_wave = wave_plan.current_wave
+wave_status  = morai-pipeline: get_wave_status(current_wave)
+pending_tasks = tasks trong wave có status != "committed" và != "blocked"
+```
+
+```mermaid
+flowchart TD
+    A[wave_plan exists] --> B{pending_tasks\ntrong current wave}
+    B -->|0 tasks| C{next_wave?}
+    C -->|có| D[Advance to next wave\nrepeat check]
+    C -->|không| E[Tất cả waves done\n→ Merge protocol]
+    B -->|1 task| F[Sequential mode\nTask đã chỉ định từ wave plan\n→ Phase 1 với task đó]
+    B -->|≥2 tasks| G["⚠️ Parallel opportunity detected\nPresent options → chờ Dev chọn"]
+    G --> H{Dev chọn?}
+    H -->|Parallel| I["Load agents/spawner.md\n→ Spawner Protocol"]
+    H -->|Sequential| J[Pick task đầu tiên\n→ Phase 1 sequential]
+    style G fill:#f59e0b,color:#fff
+    style I fill:#22c55e,color:#fff
+```
+
+**Khi ≥2 tasks pending — present cho Dev:**
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Wave [N] — [X] tasks có thể chạy song song
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  TASK-1 · [type] · [size] · [Xh] — [tên task]
+    Chunks: [chunk 1], [chunk 2], [chunk 3]
+  TASK-3 · [type] · [size] · [Xh] — [tên task]
+    Chunks: [chunk 4], [chunk 5]
+
+[A] Parallel — spawn [X] sub-agents song song (recommended)
+[B] Sequential — làm tuần tự: TASK-1 → TASK-3
+```
+
+**Nếu Dev chọn Parallel:**
+- Load `agents/spawner.md`
+- Spawner nhận context: `{ticket_id, wave_num, tasks: [{task_id, chunks, task_json}]}`
+- Mỗi sub-agent implement đúng chunks được assign trong `task.chunks`
+- Sau khi tất cả sub-agents committed → load `agents/merge.md`
+
+**Override về sau:**
+```
+User nói: "làm tuần tự thôi" / "sequential" / "không cần parallel"
+→ Ghi vào pipeline state: {"parallel_override": "sequential_by_user"}
+→ Không hỏi lại ở wave tiếp theo trong cùng ticket
+```
 
 ---
 
