@@ -1,6 +1,6 @@
 ---
 description: Morai Reflect — ghi lesson learned sau task/sprint, feed vào memory và sync design repo
-version: 1.0.0
+version: 1.1.0
 ---
 
 # REFLECT — Post-Task Learning
@@ -41,12 +41,17 @@ morai-memory: record_episode(
 ```
 
 ### Bước 4 — Update pipeline state
+
+Dùng FSM transition (không phải save_pipeline_state):
 ```
-morai-memory: save_pipeline_state($ARGUMENTS, {
-  "status": "complete",
-  "current_step": "done",
-  ...
-})
+morai-pipeline: get_state($ARGUMENTS)
+```
+Nếu state là `DEV_RUNNING` và tất cả chunks done → transition qua `DEV_COMMITTED` (cần `commit_sha` trong context).
+Nếu đã là `DEV_COMMITTED` hoặc sau đó → skip.
+
+Lấy commit SHA từ branch tương ứng:
+```bash
+git log --oneline -1 <branch-name>
 ```
 
 ### Bước 5 — Sync knowledge lên design repo (team sharing)
@@ -98,16 +103,41 @@ morai-memory: sync_ticket_knowledge(
 
 Nếu `MORAI_DESIGN_REPO` chưa set → vẫn tiếp tục, chỉ skip sync (không báo lỗi).
 
-### Bước 6 — Check reflex candidates
+### Bước 6 — Tạo follow-up tasks từ findings
+
+Scan Bước 2 để tìm action items chưa được track:
+- Deferred chunks (security hoặc non-security)
+- Open questions chưa trả lời
+- Bugs phát hiện nhưng chưa fix
+- Technical debt cần address
+
+Với mỗi item:
+```
+morai-memory: record_task(
+  title=<tên ngắn gọn>,
+  description=<mô tả + acceptance criteria>,
+  ticket_id=<ticket gốc nếu có>,
+  priority="high|medium|low"
+)
+```
+Security-related deferred items → luôn `priority="high"`.
+
+### Bước 7 — Archive episodes cũ
+```
+morai-memory: archive_old_episodes(days=90)
+```
+Dọn episodes > 90 ngày vào archive/. Chạy mỗi lần reflect để giữ memory sạch.
+
+### Bước 8 — Check reflex candidates
 ```
 morai-memory: get_reflex_candidates(min_count=3)
 ```
 Nếu có candidates → thông báo cho user:
 ```
-💡 Pattern "[X]" đã lặp 3 lần. Chạy /morai:evolve để promote thành reflex.
+Pattern "[X]" đã lặp N lần. Chạy /morai:evolve để promote thành reflex.
 ```
 
-### Bước 7 — Báo cáo ngắn
+### Bước 9 — Báo cáo ngắn
 
 ```markdown
 ## Reflect — [TICKET-ID]
@@ -118,6 +148,8 @@ Nếu có candidates → thông báo cho user:
 **Went well**: ...
 **To improve**: ...
 **Episodes ghi**: N
+**Follow-up tasks created**: N (list titles)
+**Episodes archived**: N
 **Patterns detected**: [list]
 **Design repo sync**: ✓ synced / ⚠ MORAI_DESIGN_REPO not set
 ```
