@@ -7,6 +7,14 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [0.13.5] — 2026-07-08
+
+### Changed
+
+- **`skills/dev/SKILL.md`** v2.4.0 — Bước 2a TDD gate chuyển từ hard-block thành **human-confirmed gate**: Morai assess chunk (business logic, type, size, verify command) → suggest dùng hoặc skip TDD kèm lý do → hỏi human Y/N. Nếu Y → thực hiện RED phase + run_pytest confirm FAIL. Nếu N → skip sang 2b. PM unittest task (Bước 2c) vẫn là gate riêng, không ảnh hưởng.
+
+---
+
 ## [0.13.4] — 2026-07-08
 
 ### Changed
