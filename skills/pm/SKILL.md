@@ -78,6 +78,34 @@ buffer_percent  = 10% nếu high_risk_count > 3, ngược lại 5%
 
 Liệt kê task High risk + lý do rủi ro cụ thể.
 
+### Bước 2c — Unit Test Gate
+
+Sau khi draft xong task list, **STOP và hỏi user trước khi ghi file:**
+
+```
+Danh sách tasks hiện tại có N tasks. Sếp có muốn em tạo unittest task riêng cho mỗi implementation task không?
+
+[Y] Có — em sẽ thêm 1 unittest task cho mỗi task size ≥ S, depends_on task impl tương ứng
+[N] Không — hours estimate đã include test trong impl task
+```
+
+**Nếu user chọn Y:**
+- Với mỗi task size ≥ S trong danh sách → thêm 1 task unittest:
+  ```
+  name:        "Unit tests — <tên task impl>"
+  description: "Viết unit tests cho <tên task impl>"
+  size:        XS (nếu impl size S/M) hoặc S (nếu impl size L/XL)
+  hours:       1–2h (S/M) hoặc 2–4h (L/XL)
+  risk:        Low
+  confidence:  High
+  depends_on:  [TASK-N]  ← task impl tương ứng
+  ```
+- Tái tính tổng hours + buffer sau khi thêm
+
+**Nếu user chọn N:** tiếp tục Bước 3 với danh sách tasks hiện tại.
+
+---
+
 ### Bước 3 — Tạo task breakdown (Markdown)
 
 Dùng `morai-file` MCP: ghi `plans/<ticket-id>-tasks.md` với cấu trúc:

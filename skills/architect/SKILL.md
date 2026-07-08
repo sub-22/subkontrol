@@ -88,6 +88,64 @@ List tất cả table names + cột từ migration gần nhất (latest state).
 
 ---
 
+### Bước 1c — Detect Modification Locations
+
+Dựa trên spec và data model từ Bước 1b, scan codebase để map ra **chính xác file/function nào cần thay đổi**. Chạy trước khi generate solutions để có full picture trước khi quyết định approach.
+
+**Scan theo layer (top-down):**
+
+**1. Entry points — routes / controllers / resolvers:**
+- Grep endpoint paths từ spec:
+  ```
+  morai-rag: search("<endpoint_path> OR <resource_name>", scope="routes/ controllers/ resolvers/ api/")
+  ```
+- Grep bổ sung: `@router.`, `@app.route`, `@Controller`, `path(`, `router.get|post|put|delete`
+- List file + function/handler cụ thể
+
+**2. Service / Use case layer:**
+- Từ controllers đã tìm → trace sang service calls (grep function names được gọi)
+- Grep class/function liên quan đến domain:
+  ```
+  morai-rag: search("<domain_keyword> service OR use_case OR handler", scope="services/ use_cases/ application/")
+  ```
+
+**3. Repository / Data access layer:**
+- Grep repo files liên quan đến models từ Bước 1b:
+  ```
+  morai-rag: search("<ModelName> repository OR repo OR dao", scope="repositories/ daos/ infrastructure/")
+  ```
+
+**4. Models / Entities** — reference từ Bước 1b, không cần grep lại.
+
+**5. Migrations:**
+- Nếu schema thay đổi → xác định folder migration, ghi "new file cần tạo"
+- Check latest migration để biết base state: `find migrations/ -name "*.py" | sort | tail -5`
+
+**6. Tests:**
+- Grep test files liên quan đến các layer trên:
+  ```
+  morai-rag: search("test_<function_name> OR <ClassName>Test", scope="tests/ __tests__/ spec/")
+  ```
+
+**7. Config / ENV / Infra:**
+- Nếu L4 từ Bước 2b detect ENV mới → list `.env.example`, config files liên quan
+
+**Output — Change Map (bắt buộc trước Bước 2):**
+
+| # | File path | Layer | Action | Scope cụ thể | Notes |
+|---|-----------|-------|--------|--------------|-------|
+| 1 | `services/order_service.py` | Service | Modify | `def process_order()` | Thêm param X |
+| 2 | `models/order.py` | Model | Modify | `class Order` | Thêm field Y |
+| 3 | `migrations/0042_add_y_to_order.py` | Migration | New | — | ALTER TABLE orders ADD COLUMN y |
+| 4 | `routes/order_routes.py` | Route | Modify | `POST /orders` | Thêm request field |
+| 5 | `tests/test_order_service.py` | Test | Modify | `test_process_order` | Update mock + assertion |
+
+**Action values:** `New` / `Modify` / `Delete` / `TBD` (nếu chưa rõ — phải resolve trước Bước 3)
+
+> Change Map này là input cho Bước 3 — mỗi solution có thể affect tập file khác nhau (ghi chú lại per solution). Detail Design và handoff cho Dev sẽ reference trực tiếp bảng này.
+
+---
+
 ### Bước 2 — Phân tích yêu cầu kỹ thuật
 
 Dựa trên existing data model từ Bước 1b, đánh giá:

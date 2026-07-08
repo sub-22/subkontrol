@@ -7,6 +7,22 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [0.13.3] — 2026-07-08
+
+### Changed
+
+- **`skills/pm/SKILL.md`** v1.1.0 — thêm **Bước 2c — Unit Test Gate**: sau khi draft xong task list, STOP hỏi user có muốn tạo unittest task riêng không (optional). Nếu Y → tự động thêm 1 unittest task cho mỗi impl task size ≥ S với `depends_on` task impl, sizing XS/S tuỳ impl size, tái tính hours + buffer. Nếu N → giữ nguyên flow.
+
+---
+
+## [0.13.2] — 2026-07-08
+
+### Changed
+
+- **`skills/architect/SKILL.md`** v2.3.0 — thêm **Bước 1c — Detect Modification Locations**: scan codebase theo layer (routes → controllers → services → repositories → models → migrations → tests → config) trước khi generate solutions, output ra "Change Map" table (file path · layer · action · scope cụ thể). Change Map là input cho Bước 3 (mỗi solution có thể affect tập file khác nhau) và handoff Dev. Giải quyết gap: architect xong nhưng Dev không biết đào vào đâu.
+
+---
+
 ## [0.13.1] — 2026-06-26
 
 ### Skill Improvements — Sizing, Parallel Routing, Knowledge Sync
