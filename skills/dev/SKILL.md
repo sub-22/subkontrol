@@ -1,6 +1,6 @@
 ---
 description: Developer (Guided) — pair programming mode. Morai là navigator, Dev review từng bước, commit khi Dev quyết định.
-version: 2.2.0
+version: 2.3.0
 ---
 
 # Dev Agent — Guided Mode (Pair Programming)
@@ -270,8 +270,18 @@ Resolve hết gaps trước khi viết bất kỳ dòng code nào.
 **2a — Viết tests trước (RED phase)**
 - Viết unit/integration test cho behavior của chunk này
 - Test focus: dựa trên AC-IDs của chunk (từ progress file) + edge cases từ spec
-- Chạy verify command → confirm FAIL (assertion stage, không phải compile error)
 - Hiển thị test code cho Dev
+
+**⛔ RED Gate — bắt buộc trước khi sang 2b:**
+```
+morai-test: run_pytest(scope=<test file vừa viết>)
+```
+Kiểm tra output:
+- ✅ Có ít nhất 1 test FAIL với **assertion error** (không phải import/compile error) → RED confirmed, tiếp tục 2b
+- ❌ Tất cả PASS → tests không đúng (test quá loose hoặc đang test code cũ) → **STOP**, fix tests trước
+- ❌ Lỗi import / syntax / compile → **STOP**, fix lỗi kỹ thuật trước (không phải RED phase thật)
+
+Không được phép chuyển sang 2b nếu RED Gate chưa pass.
 
 **2b — Implement (GREEN phase)**
 - Viết code cho chunk

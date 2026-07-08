@@ -7,6 +7,14 @@ Versioning: [Semantic Versioning](https://semver.org/)
 
 ---
 
+## [0.13.4] — 2026-07-08
+
+### Changed
+
+- **`skills/dev/SKILL.md`** v2.3.0 — thêm **RED Gate** trong Bước 2a: sau khi viết tests, bắt buộc chạy `morai-test: run_pytest` và verify output có assertion FAIL trước khi được phép sang 2b (GREEN). Block nếu tất cả PASS (test quá loose) hoặc lỗi import/compile (không phải RED thật). Giải quyết gap: RED phase tồn tại từ v0.10.0 nhưng không có enforcement nên thực tế bị skip.
+
+---
+
 ## [0.13.3] — 2026-07-08
 
 ### Changed
