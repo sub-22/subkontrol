@@ -48,7 +48,23 @@ morai-git: get_current_branch()
    Branch đề xuất: `{proposed_branch}`
    Tách từ nhánh nào? (ví dụ: develop, main, release/stg)
    ```
-4. Chờ confirm đủ branch name + base branch → `morai-git: create_branch()`
+4. Chờ confirm đủ branch name + base branch → thực hiện branch switch protocol:
+
+```
+a. Bash: git status --porcelain
+   - Nếu có output (dirty) → Bash: git stash push -m "morai-dev: before switch to <new_branch>"
+     Lưu lại stash ref từ output
+
+b. Bash: git checkout <base_branch> && git pull
+
+c. morai-git: create_branch(<new_branch>)
+
+d. Nếu đã stash ở bước a:
+   → Bash: git stash pop
+   - Nếu conflict → STOP:
+     ⚠️ Stash pop có conflict. Sếp giải quyết conflict trước rồi em tiếp tục.
+   - Nếu clean → tiếp tục Bước 0b
+```
 
 **Nếu đang ở đúng feature/fix branch** → tiếp tục Bước 0b.
 
@@ -169,7 +185,7 @@ User nói: "làm tuần tự thôi" / "sequential" / "không cần parallel"
 - Dùng `morai-file` MCP: đọc spec `specs/<ticket-id>.md`
 - Dùng `morai-file` MCP: đọc `designs/<ticket-id>-detail.md` nếu có
 - Dùng `morai-memory`: load pipeline state
-- Cập nhật task `status → "in-progress"`
+- `morai-file: write_file("tasks/<ticket-id>/<task-id>.json", {...task, status: "in-progress", started_at: <today>})`
 
 ### Bước 2 — Research codebase
 - Dùng `morai-rag` MCP: search patterns liên quan
@@ -231,7 +247,8 @@ flowchart TD
     MG --> More{Còn chunk\nnữa?}
     More -->|Có| Start
     More -->|Không| UpDoc["Update Upstream Docs\nplan tasks → done\nspec/design status"]
-    UpDoc --> CI["CI Check\nlint · format · typecheck · test"]
+    UpDoc --> CD["Update status → code-done"]
+    CD --> CI["CI Check\nlint · format · typecheck · test"]
     CI --> R3{CI pass?}
     R3 -->|fail| FixCI[Fix CI issues]
     FixCI --> CI
@@ -393,6 +410,16 @@ Agent(
 
 ---
 
+## Status Update — code-done (sau khi tất cả chunks xong)
+
+Khi tất cả chunks đều `done` hoặc `deferred` trong progress file, sau Update Upstream Docs và trước CI:
+
+```
+morai-file: write_file("tasks/<ticket-id>/<task-id>.json", {...task, status: "code-done", updated_at: <today>})
+```
+
+---
+
 ## CI Check — Bắt buộc trước GATE 2
 
 Đọc CI commands của project:
@@ -466,7 +493,7 @@ gate = morai-pipeline: create_gate(
 )
 ```
 
-Dev respond: "commit" → `resolve_gate` → `morai-git: commit(message, files)`
+Dev respond: "commit" → `resolve_gate` → `morai-git: commit(message, files)` → `morai-file: write_file("tasks/<ticket-id>/<task-id>.json", {...task, status: "committed", updated_at: <today>})`
 
 **Không tự commit dù code đã xong và tests pass — CI phải pass trước.**
 
@@ -485,8 +512,16 @@ gate = morai-pipeline: create_gate(
 )
 ```
 
-Dev respond: "push and create PR" → `resolve_gate` → `morai-git: push()` → `create_pr()`
-- Cập nhật task: `status → "done"`, `pr_url → <url>`
+Dev respond: "push and create PR" → `resolve_gate` → `morai-git: push()` → `create_pr()` →
+```
+morai-file: write_file("tasks/<ticket-id>/<task-id>.json", {
+  ...task,
+  status: "done",
+  pr_url: <pr_url>,
+  completed_at: <today>,
+  updated_at: <today>
+})
+```
 - Update pipeline state
 
 ### Notify reviewer

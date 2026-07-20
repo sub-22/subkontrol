@@ -5,7 +5,7 @@
   "type": "backend | frontend | infra | test",
   "size": "S | M | L",
   "priority": "P0 | P1 | P2",
-  "status": "todo | in-progress | done | blocked | skip",
+  "status": "todo | in-progress | code-done | committed | done | blocked | skip",
   "depends_on": [],
   "chunks": [],
   "assignee": "",
