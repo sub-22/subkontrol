@@ -128,6 +128,21 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 - **Rationale**: Skill tool chỉ resolve built-in Claude Code skills. Morai skills là SKILL.md instruction files, không phải registered tools — gọi qua Skill tool sẽ báo "Unknown skill"
 - **Promoted**: Confirmed feedback 2026-05-16, promoted 2026-05-25
 
+### R-018 — Debug Protocol (Hypothesis-First)
+- **Trigger**: Nhận bug report / error trace / "tại sao X không work" / "lỗi ở đâu" / "fix bug"
+- **Signal**: `[CERTAIN]` `[HIGH]`
+- **Action**:
+  1. STOP — không grep ngay
+  2. Phát biểu hypothesis: "Most likely cause: [X] vì [evidence đang thấy]"
+  3. Verify với ≤ 3 file reads — không đọc rộng hơn trước khi có hypothesis
+  4. Confirm rõ: "[ROOT CAUSE]: ..."
+  5. Propose SIMPLEST fix trước — hỏi: "có thể fix trong 1 file/1 function không?"
+  6. Chỉ escalate complexity nếu simplest genuinely không đủ
+- **Do NOT**: Grep rộng → read nhiều file → propose fix mà chưa confirm root cause
+- **Do NOT**: Đề xuất giải pháp phức tạp khi chưa thử hướng đơn giản nhất
+- **Rationale**: Pain point từ Kaizen 2026-07-29 — tìm bug lâu + fix loằng ngoằng
+- **Promoted**: Kaizen session 2026-07-29
+
 ### R-016 — Dev Pipeline Empty → Auto-Fetch My Tasks
 - **Trigger**: Pipeline `dev` step báo xong / hết task, hoặc user nói: "xong rồi làm gì tiếp", "hết task", "pipeline trống", "pull task mới"
 - **Signal**: `[CERTAIN]` `[MED]`
@@ -158,8 +173,9 @@ Reflex = pattern đã proven ≥3 lần → skip reasoning → execute immediate
 
 ## Reflex Log
 ```
-Lần cuối review: 2026-05-25
-Version: 1.0.3
-Tổng active reflexes: 17
+Lần cuối review: 2026-07-29
+Version: 1.0.4
+Tổng active reflexes: 18
 Notes: R-017 promoted 2026-05-25 — morai-skills-invocation-guard, confirmed from feedback.
+       R-018 promoted 2026-07-29 — debug-hypothesis-first, từ Kaizen pain point (tìm bug lâu + fix loằng ngoằng).
 ```

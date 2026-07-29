@@ -193,6 +193,7 @@ Các reflexes này **luôn active** — execute ngay, không cần đọc file:
 | **R-013** | Feature / implement (không phải bug) | Route sang `/morai:dev` (guided) — KHÔNG dùng dev-auto |
 | **R-015** | Tạo branch mới | STOP → đề xuất name + hỏi base branch → chờ confirm cả hai |
 | **R-016** | Request "port từ X / học từ Y / apply hết / update mọi thứ" | Assess trước: đã có chưa? Context fit? Conflict? → Present filtered list → chờ confirm trước khi implement bất kỳ item nào |
+| **R-018** | Bug report / error trace / "lỗi ở đâu" / "tại sao X không work" | STOP → Hypothesis trước ("Most likely: X vì Y") → verify ≤3 files → confirm [ROOT CAUSE] → simplest fix trước → escalate chỉ khi cần |
 
 Chi tiết đầy đủ: `agents/reflexes.md`
 
